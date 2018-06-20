@@ -1,0 +1,109 @@
+
+more react research:
+
+	research react data management -?redux?
+
+	research react table library (to refactor)
+
+	research css styles
+
+	research more react libraries (for each component)
+
+	research more react design patterns
+
+
+react/backend research/decisions:
+
+	decide on html
+
+	decide on css
+
+	decide on back/front end stack
+
+		decide on database:
+			user account - can be via library
+			user collection
+			ctext
+
+		language(s) and frameworks:
+			how to integrate with python/c++ functions best
+
+			controllers/mvc or flux or redux?
+
+		how to parse/store ctext (serialize as xml => can parse easily for display (send as json or xml))
+
+		how to connect different services
+
+		any user security logic?
+
+		any ssl/system config?
+
+
+build api endpoints (start with interfaces):
+	/user
+	/user/new
+	/user/login
+	/user/logout
+	/user/delete
+
+	/user/account
+	/user/account/update
+
+	/user/collections
+	/user/collections/cryptocontext
+	/user/collections/new
+	/user/collections/delete
+	/user/collections/rename
+	/user/collections/plaintext
+	/user/collections/ctext
+
+	/fhe
+	/fhe/cryptocontext
+	/fhe/encrypt
+	/fhe/decrypt
+
+	/external
+	/external/status
+	/external/query
+	/external/query/status
+	/external/query/cancel
+	/external/query/cmult
+	/external/query/cadd
+	/external/query/function
+
+complete the view(react components):
+
+	build react login
+
+	build react user management
+
+	build react collections management
+
+	build react data viewer
+
+	build react fhe
+
+	build react external
+
+
+setup external service:
+
+	container - kernel config
+
+	spark config
+
+	listening server setup
+	
+
+build external service endpoints:
+	/status 		// see if the service is running
+
+	/query
+	/query/status
+	/query/cancel
+	/query/cmult
+	/query/cadd
+	/query/function // for complete functional upload (like xnor search over all values)
+		Need to finish the spark config
+	
+setup on ec2
