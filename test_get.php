@@ -1,7 +1,7 @@
 <?php
 
 if(!isset($_GET['data_type'])){
-	return;
+	header("Location: test_react.html");
 }
 $collectionId = $_GET['collectionId'];
 $keyId = $_GET['keyId'];
@@ -30,7 +30,7 @@ switch($_GET['data_type']){
 		$ctextArray = array(
 			
 			array(
-				array($keyId, $bitId, $collectionId),
+				array(intval($collectionId), intval($keyId), intval($bitId)),
 				array(4, 5, 6),
 				array(7, 8, 9),
 				),
@@ -52,7 +52,7 @@ switch($_GET['data_type']){
 		$ctextArray = array(
 			
 			array(
-				array($keyId, -1, $collectionId),
+				array(intval($collectionId), intval($keyId), 999),
 				array(4, 5, 6),
 				array(7, 8, 9),
 				),
@@ -62,7 +62,7 @@ switch($_GET['data_type']){
 				array(27, 28, 29),
 				),
 			array(
-				array(31, $bitId, 33),
+				array(31, 999, 33),
 				array(34, 35, 36),
 				array(37, 38, 39),
 				),

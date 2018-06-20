@@ -1,3 +1,7 @@
+fix string instead of clickedDataCtextOject bug
+fix TypeError: right-hand side of 'in' should be an object, got string at 151
+
+
 
 more react research:
 
@@ -93,7 +97,7 @@ setup external service:
 	spark config
 
 	listening server setup
-	
+
 
 build external service endpoints:
 	/status 		// see if the service is running
