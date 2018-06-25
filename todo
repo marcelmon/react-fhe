@@ -44,6 +44,56 @@ react/backend research/decisions:
 
 
 build api endpoints (start with interfaces):
+	
+	/fhe
+		/fhe/cryptocontext
+			Generate a crypto context.
+
+			Params:
+				CryptoParams (will have default)
+			Return: 
+				serialized cryptocontext and/or
+				insert into database and/or
+				save in memory
+
+		/fhe/keygen
+			Generate public and private key pairs. Also need to generate EvalMult key and return new cryptocontext.
+			Param:
+				cryptocontext (as serialized or use a uid,ccid)
+			Return:
+				Json Object with new CC and KeyPair (serialized)
+
+		/fhe/encrypt
+			Encrypt values using particular cc
+			Param:
+				Plaintext
+				Json Object of Plaintext
+				cryptocontext (as serialized or use a uid,ccid)
+			Return as: 
+				http file
+				insert into database ad return an id
+				save in memory
+
+		/fhe/decrypt
+			Decrypt given ciphertext using given cc.
+			Params:
+				ciphertext (as text or db id or shared memory id)
+				cryptocontext (as text or db id or shared memory id)
+			Return as:
+				http file
+
+
+
+	/user/collections
+	/user/collections/cryptocontext
+	/user/collections/new
+	/user/collections/delete
+	/user/collections/rename
+	/user/collections/plaintext
+	/user/collections/ctext
+
+
+
 	/user
 	/user/new
 	/user/login

@@ -89,7 +89,13 @@ function fetch(dataType, ...params){
 
 
 
-
+function range(start, total, increment = 1){
+  var rangeArray = new Array(total);
+  for (var i = 0; i < total; i+=increment) {
+    rangeArray[i] = i+start;
+  };
+  return rangeArray;
+}
 
 
 
@@ -210,29 +216,25 @@ class UpdatedApp extends React.Component {
   // checks wethere the key bit (bitId != null) or value is selected already
   isCollectionDataClicked(collectionId, keyId, bitId = null){
 
-    if( this.state.clickedCollectionId != collectionId  || this.state.selectedDataKeyId != keyId){
-      return false;
-    }
-    // is key data
-    if(bitId != null){
-      if(!this.state.selectedDataIsKey || this.state.selectedDataBitId != bitId){
-        return false;
+    if( this.state.clickedCollectionId == collectionId && this.state.selectedDataKeyId == keyId){
+      if(bitId == null){
+        if(!this.state.selectedDataIsKey){
+          return true;
+        }
+      }
+      else if(this.state.selectedDataIsKey && this.state.selectedDataBitId == bitId){
+        return true;
       }
     }
-    else if(this.state.selectedDataIsKey){
-      return false;
-    }
-    return true;
+    return false;
   }
 
 
   // called when the ctextData is loaded for the selected data in KevValueViewer
   setSelectedDataState(collectionId, keyId, bitId = null){
 
-   
     var numKeys, numKeyBits;
     [numKeys, numKeyBits] = this.getNumKeysAndKeyBits(collectionId);
-    
 
     var newState = {
       clickedCollectionId: collectionId,
@@ -302,121 +304,54 @@ class UpdatedApp extends React.Component {
 
   }
 
-
-  render(){
-
-    return (
-      <table><tbody><tr>
-        <td>
-          <CollectionViewer 
-          collectionClicked={this.collectionClicked} 
-          collectionsInfo={this.state.allCollectionInfo} 
-          clickedCollectionId={this.state.clickedCollectionId} />
-        </td>
-        <td>
-          <table><tbody>
-            <tr><td>
-              <KeyValueSelector 
-              collectionDataClicked={this.collectionDataClicked}
-              clickedCollectionId={this.state.clickedCollectionId} 
-              clickedCollectionNumKeys={this.state.clickedCollectionNumKeys}
-              clickedCollectionNumKeyBits={this.state.clickedCollectionNumKeyBits}/>
-            </td></tr>
-            <tr><td>
-              <DataViewer 
-              selectedDataKeyId = {this.state.selectedDataKeyId} 
-              selectedCtextData={this.state.selectedCtextData} />
-            </td></tr>
-          </tbody></table>
-        </td>
-      </tr></tbody></table>
-    );
-  }
-}
-
-
-
-
-class CollectionViewer extends React.Component {
-
-
-  componentWillReceiveProps(nextProps){
-    this.setState(nextProps);
-  }
-
-
-  constructor(props){
-    super(props);
-    
-    this.state = {
-      collectionsInfo: props.collectionsInfo,
-      clickedCollectionId: props.clickedCollectionId
-    };
-    this.collectionClicked = props.collectionClicked;
-  }
-
-  render(){
-    if(!this.state.collectionsInfo){
-      return(<div>Loading collections.</div>);
+  /*
+    Element to view ta cingle lattice of polynomials
+  */
+  DataViewer(){
+    if(!this.state.selectedDataKeyId){
+      return(<div>Select either key or value to load and view data</div>);
     }
-    
+    else if(this.state.selectedCtextData == null){
+      return(<div>Loading data...</div>);
+    }
+    var data = this.state.selectedCtextData;
+    if(typeof this.state.selectedCtextData != typeof {}){
+      data = (JSON.parse(data));
+    }
     return(
       <table><tbody>
       {
-        this.state.collectionsInfo.map((info) => { return( 
-          <tr><td>
-            <div collectionid={info.id} onClick={() => this.collectionClicked(info.id)}>
-              Collection: {info.colloquialName}
-            </div>
-          </td></tr>
+        data.map((arrayOfPolynomials) => { return(
+          <tr> 
+          {
+            arrayOfPolynomials.map((polyArray) => { return(
+              <td> {polyArray.join(" | ")} </td>
+            )})
+          }
+          </tr>
         )})
       }
       </tbody></table>
     );
   }
-}
-
-
-class KeyValueSelector extends React.Component {
-
-  componentWillReceiveProps(nextProps){
-    this.setState(nextProps);
-  }
-
-  constructor(props){
-    super(props);
-
-    this.state = {
-      clickedCollectionId: props.clickedCollectionId,
-      clickedCollectionNumKeys : props.clickedCollectionNumKeys,
-      clickedCollectionNumKeyBits: props.clickedCollectionNumKeyBits
-    };
-    // these are the callback functions for when a selector is clicked
-    this.collectionDataClicked = props.collectionDataClicked;
-
-  }
-
-  render(){
+  
+  /*
+    Returns table of buttons for the key/value ctext data viewers of the keys/values
+  */
+  KeyValueSelector(){
 
     if(!this.state.clickedCollectionId){
       return(<div>Select a collection.</div>);
     }
-    // have a selected: collectionId, numKeys, numBits
 
-    var keyIds = new Array(this.state.clickedCollectionNumKeys);
-    for (var i = 0; i < keyIds.length; i++) {
-      keyIds[i] = i+1;
-    };
-    var keyBitIds = new Array(this.state.clickedCollectionNumKeyBits);
-    for (var i = 0; i < keyBitIds.length; i++) {
-      keyBitIds[i] = i+1;
-    };
-   
+    var keyIds = range(1, this.state.clickedCollectionNumKeys);
+    var keyBitIds = range(1, this.state.clickedCollectionNumKeyBits);
+
     return(
-      <div>
+      <table><tbody>
       { 
         keyIds.map((keyId) => { return(
-          <table><tbody><tr>
+          <tr>
             <td>
               <div onClick={() => this.collectionDataClicked(this.state.clickedCollectionId, keyId, null)}>
                 Key: {keyId}
@@ -433,96 +368,64 @@ class KeyValueSelector extends React.Component {
               }
               </tr></tbody></table>
             </td>
-          </tr></tbody></table>
+          </tr>
         )})
       }
-      </div>
+      </tbody></table>
+    );
+  }
+
+  /*
+    Returns vertical list of the users's collections.
+    when clicked the KeyValueSelector will be populated with viewers of the key/values for this collection.
+  */
+  CollectionViewer(){
+    if(!this.state.allCollectionInfo){
+      return(<div>Loading collections.</div>);
+    }
+    return(
+      <table><tbody>
+      {
+        this.state.allCollectionInfo.map((info) => { return( 
+          <tr><td>
+            <div collectionid={info.id} onClick={() => this.collectionClicked(info.id)}>
+              Collection: {info.colloquialName}
+            </div>
+          </td></tr>
+        )})
+      }
+      </tbody></table>
+    );
+  }
+
+  render(){
+
+    return (
+      <table><tbody><tr>
+        <td>
+          {this.CollectionViewer()} 
+        </td>
+        <td>
+          <table><tbody>
+            <tr> <td>
+              {this.KeyValueSelector()}
+            </td></tr>
+            <tr><td>
+              {this.DataViewer()}
+            </td></tr>
+          </tbody></table>
+        </td>
+      </tr></tbody></table>
     );
   }
 }
 
 
 
-
- /* 
-        the selectedData is a lattice as multi dimensional array.
-        [
-          [[---],[---]],
-          [[---],[---]],
-          [[---],[---]]
-        ]
-
-        Display as: 
-          -|-|-   -|-|-
-          -|-|- -|-|-
-          -|-|- -|-|- 
-
-        <table>
-          <tr>
-            <td>Element 1,1,1 | Element 1,1,2 | Element 1,1,3</td><td>Element 1,2,1 | Element 1,2,2 | Element 1,2,3</td>
-          </tr>
-          <tr>
-            <td>Element 2,1,1 | Element 2,1,2 | Element 2,1,3</td><td>Element 2,2,1 | Element 2,2,2 | Element 2,2,3</td>
-          </tr>
-          <tr>
-            <td>Element 3,1,1 | Element 3,1,2 | Element 3,1,3</td><td>Element 3,2,1 | Element 3,2,2 | Element 3,2,3</td>
-          </tr>
-        </table>
-      */
-class DataViewer extends React.Component {
-
-
-  componentWillReceiveProps(nextProps){
-    this.setState(nextProps);
-  }
-
-  constructor(props){
-    super(props);
-    this.state = {
-      selectedDataKeyId: props.selectedDataKeyId,
-      selectedCtextData: props.selectedCtextData
-    }
-      
-  }
-
-  render(){
-    if(!this.state.selectedDataKeyId){
-      return(<div>Select either key or value to load and view data</div>);
-    }
-    else if(this.state.selectedCtextData == null){
-      return(<div>Loading data...</div>);
-    }
-    else{
-      var data = this.state.selectedCtextData;
-      if(typeof this.state.selectedCtextData != typeof {}){
-        data = (JSON.parse(data));
-      }
-    
-      return(
-        <table><tbody>
-        {
-          data.map((arrayOfPolynomials) => { return(
-            <tr> 
-            {
-              arrayOfPolynomials.map((polyArray) => { return(
-                <td> {polyArray.join(" | ")} </td>
-              )})
-            }
-            </tr>
-          )})
-        }
-        </tbody></table>
-      );
-    }
-  }
-
-}
-
-
 ReactDOM.render(
-        <UpdatedApp/>,
-        document.getElementById('root')
-      );
+  <UpdatedApp/>,
+  document.getElementById('root')
+);
 
 
     </script>
