@@ -5,14 +5,14 @@ import example
 
 import json as json
 
-import base64
+# import base64
 
-cryptoContextOneFileName 	= "cryptocontext1.txt"
-cryptoContextFinalFileName 	= "cryptocontext.txt"
+# cryptoContextOneFileName 	= "cryptocontext1.txt"
+# cryptoContextFinalFileName 	= "cryptocontext.txt"
 
-ctextFileName 	= "ctext.txt"
-privKeyFileName = "privKey.txt"
-pubKeyFileName 	= "pubKey.txt"
+# ctextFileName 	= "ctext.txt"
+# privKeyFileName = "privKey.txt"
+# pubKeyFileName 	= "pubKey.txt"
 
 
 
