@@ -131,7 +131,7 @@ def doOperationToStringSerialization(operation, argOne = None, argTwo = None, ar
 		returnDict['publickey'] 	= serializedPublicKeyString
 		returnDict['privatekey'] 	= serializedPrivateKeyString
 
-		return returnDict
+		return json.dumps(returnDict)
 
 
 	elif operation == 'encrypt':

@@ -1,3 +1,29 @@
+updated todo (june 25, 2018)
+
+
+complete FHE py (cmult, cadd)
+
+link FHE py with node (via django calls or other(db))
+
+implement fhe spark api in py
+
+FHE+FHE spark API using django
+
+test/debug spark logic for xnor search
+
+build user/collections database
+
+complete front end html/css
+
+open server on aws, setup containers
+
+add user/collections management features
+
+build demo/runthrough
+
+_________________________________
+
+
 fix string instead of clickedDataCtextOject bug
 fix TypeError: right-hand side of 'in' should be an object, got string at 151
 

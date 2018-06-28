@@ -2,7 +2,7 @@
 var express = require('express');
 var app = express();
 
-var fhePyScript = "./fhe/shield-spark/fhe.py";
+var fhePyAddr = "http://localhost:8082";
 
 var fs = require('fs');
 

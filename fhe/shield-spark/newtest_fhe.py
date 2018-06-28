@@ -21,7 +21,9 @@ print("crypto context gen complete")
 
 # print("reutnred key files : " + key_files)
 
-keyDict = fhe.doOperationToStringSerialization('keygen', cc)
+keyDictJson = fhe.doOperationToStringSerialization('keygen', cc)
+
+keyDict = json.loads(keyDictJson)
 if 'cryptocontext' not in keyDict:
 	print("ERRRRR cc")
 	exit()
