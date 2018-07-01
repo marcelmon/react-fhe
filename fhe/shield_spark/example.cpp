@@ -48,6 +48,10 @@ void printCryptoContext(shared_ptr<CryptoContext<Poly>> cryptoContext) {
 	std::cout << "p = " << cryptoContext->GetCryptoParameters()->GetPlaintextModulus() << std::endl;
 }
 
+// used to return a diplayable portion (or all) of a ciphertext
+std::vector<int> getPolys(const Ciphertext<Poly> ciphertext, int x = -1, int y = -1, int numCoefficients = -1){
+	
+}
 
 PYBIND11_MODULE(example, m) {
 	m.doc() = "pybind11 example plugin"; // optional module docstring

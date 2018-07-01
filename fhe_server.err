@@ -1,0 +1,23 @@
+127.0.0.1 - - [28/Jun/2018 00:11:31] "POST / HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jun/2018 00:11:33] "POST / HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jun/2018 00:11:34] "POST / HTTP/1.1" 200 -
+Traceback (most recent call last):
+  File "/usr/lib/python3.5/socketserver.py", line 313, in _handle_request_noblock
+    self.process_request(request, client_address)
+  File "/usr/lib/python3.5/socketserver.py", line 341, in process_request
+    self.finish_request(request, client_address)
+  File "/usr/lib/python3.5/socketserver.py", line 354, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python3.5/socketserver.py", line 681, in __init__
+    self.handle()
+  File "/usr/lib/python3.5/http/server.py", line 422, in handle
+    self.handle_one_request()
+  File "/usr/lib/python3.5/http/server.py", line 410, in handle_one_request
+    method()
+  File "fhe_server.py", line 87, in do_POST
+    ret = fhe.doOperationToStringSerialization(operation, argOne, argTwo, argThree)
+  File "/var/www/html/FHSearch/fhe/shield_spark/fhe.py", line 193, in doOperationToStringSerialization
+    plaintext = decryptBytePlaintext(cryptoContext, privateKey, ciphertext)
+  File "/var/www/html/FHSearch/fhe/shield_spark/fhe.py", line 78, in decryptBytePlaintext
+    plaintextDec = example.decodeBytes(plaintextDec)
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xaa in position 0: invalid start byte

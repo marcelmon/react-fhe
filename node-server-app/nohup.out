@@ -1,0 +1,105 @@
+FHE app listening at http://:::8081
+events.js:183
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE :::8081
+    at Object._errnoException (util.js:992:11)
+    at _exceptionWithHostPort (util.js:1014:20)
+    at Server.setupListenHandle [as _listen2] (net.js:1355:14)
+    at listenInCluster (net.js:1396:12)
+    at Server.listen (net.js:1480:7)
+    at Function.listen (/var/www/html/FHSearch/node-server-app/node_modules/express/lib/application.js:618:24)
+    at Object.<anonymous> (/var/www/html/FHSearch/node-server-app/index.js:112:18)
+    at Module._compile (module.js:652:30)
+    at Object.Module._extensions..js (module.js:663:10)
+    at Module.load (module.js:565:32)
+events.js:183
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE :::8081
+    at Object._errnoException (util.js:992:11)
+    at _exceptionWithHostPort (util.js:1014:20)
+    at Server.setupListenHandle [as _listen2] (net.js:1355:14)
+    at listenInCluster (net.js:1396:12)
+    at Server.listen (net.js:1480:7)
+    at Function.listen (/var/www/html/FHSearch/node-server-app/node_modules/express/lib/application.js:618:24)
+    at Object.<anonymous> (/var/www/html/FHSearch/node-server-app/index.js:112:18)
+    at Module._compile (module.js:652:30)
+    at Object.Module._extensions..js (module.js:663:10)
+    at Module.load (module.js:565:32)
+module.js:549
+    throw err;
+    ^
+
+Error: Cannot find module '/var/www/html/FHSearch/node-server-app/index.js'
+    at Function.Module._resolveFilename (module.js:547:15)
+    at Function.Module._load (module.js:474:25)
+    at Function.Module.runMain (module.js:693:10)
+    at startup (bootstrap_node.js:191:16)
+    at bootstrap_node.js:612:3
+FHE app listening at http://:::8081
+events.js:183
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE :::8081
+    at Object._errnoException (util.js:992:11)
+    at _exceptionWithHostPort (util.js:1014:20)
+    at Server.setupListenHandle [as _listen2] (net.js:1355:14)
+    at listenInCluster (net.js:1396:12)
+    at Server.listen (net.js:1480:7)
+    at Function.listen (/var/www/html/FHSearch/node-server-app/node_modules/express/lib/application.js:618:24)
+    at Object.<anonymous> (/var/www/html/FHSearch/node-server-app/node_index.js:112:18)
+    at Module._compile (module.js:652:30)
+    at Object.Module._extensions..js (module.js:663:10)
+    at Module.load (module.js:565:32)
+FHE app listening at http://:::8081
+FHE app listening at http://:::8081
+FHE app listening at http://:::8081
+FHE app listening at http://:::8081
+FHE app listening at http://:::8081
+FHE app listening at http://:::8081
+FHE app listening at http://:::8081
+FHE app listening at http://:::8081
+FHE app listening at http://:::8081
+FHE app listening at http://:::8081
+FHE app listening at http://:::8081
+FHE app listening at http://:::8081
+FHE app listening at http://:::8081
+in encrypt
+in decrypt
+_http_outgoing.js:642
+    throw new TypeError('First argument must be a string or Buffer');
+    ^
+
+TypeError: First argument must be a string or Buffer
+    at write_ (_http_outgoing.js:642:11)
+    at ServerResponse.write (_http_outgoing.js:617:10)
+    at Request._callback (/var/www/html/FHSearch/node-server-app/node_index.js:93:9)
+    at self.callback (/var/www/html/FHSearch/node-server-app/node_modules/request/request.js:185:22)
+    at emitOne (events.js:116:13)
+    at Request.emit (events.js:211:7)
+    at Request.onRequestError (/var/www/html/FHSearch/node-server-app/node_modules/request/request.js:877:8)
+    at emitOne (events.js:116:13)
+    at ClientRequest.emit (events.js:211:7)
+    at Socket.socketOnEnd (_http_client.js:423:9)
+FHE app listening at http://:::8081
+in encrypt
+in decrypt
+_http_outgoing.js:642
+    throw new TypeError('First argument must be a string or Buffer');
+    ^
+
+TypeError: First argument must be a string or Buffer
+    at write_ (_http_outgoing.js:642:11)
+    at ServerResponse.write (_http_outgoing.js:617:10)
+    at Request._callback (/var/www/html/FHSearch/node-server-app/node_index.js:93:9)
+    at self.callback (/var/www/html/FHSearch/node-server-app/node_modules/request/request.js:185:22)
+    at emitOne (events.js:116:13)
+    at Request.emit (events.js:211:7)
+    at Request.onRequestError (/var/www/html/FHSearch/node-server-app/node_modules/request/request.js:877:8)
+    at emitOne (events.js:116:13)
+    at ClientRequest.emit (events.js:211:7)
+    at Socket.socketOnEnd (_http_client.js:423:9)
