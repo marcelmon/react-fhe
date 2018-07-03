@@ -1,8 +1,10 @@
 
 
+var shell 	= require('shelljs');
+var fs 		= require('fs');
+var filepath = require('path');
 
-
-var dataDirectory = "./data_dir/"
+var dataDirectory = "./data_dir/";
 
 /*
 
@@ -78,6 +80,17 @@ put (data):
 	var putCiphertext 		= function(dataString, userId, collectionId, 	cryptoContextId, ciphertextId = null);
 
 
+
+get directory paths:
+		// get the directory path names for each data ype using components of the primary key
+	var cryptoContextDir	= function(userId);
+	var publicKeyDir 		= function(userId, cryptoContextId);
+	var privateKeyDir 		= function(userId, cryptoContextId);
+	var collectionDir 		= function(userId);
+	var plaintextDir 		= function(userId, collectionId);
+	var ciphertextDir 		= function(userId, collectionId, cryptoContextId, keyPairId);
+
+
 hellpers:
 	
 		@return is array of strings values of file/dir names with the suffix removed
@@ -87,8 +100,6 @@ hellpers:
 	var getNextIncrementId				= function(arrayOfStrings);
 
 
-
-
 */
 
 
@@ -99,31 +110,28 @@ hellpers:
 // can use glob('/pth/pattern-capture(dir|file)')
 var getFileDirNamesWithoutSuffix = function(path, isFile = true, suffix = null){
 	if (!fs.existsSync(path)){
+		console.log('int getFileDirNamesWithoutSuffix and path: ' + path + ' does not exist');
 		return false;
 	}
 	var retFileDirs = [];
-	fs.readdirSync(path, (err, filedirs) => {
-		filedirs.forEach(filedir => {
-			if(isFile){
-				if(fs.lstatSync(filedir).isFile()){
-					if(suffix == null){
-						retFileDirs.push(path.basename(filedir));
-					}
-					else{
-						retFileDirs.push(path.basename(filedir, suffix));
-					}
-				}
+	var filedirs = fs.readdirSync(path);
+	filedirs.forEach(filename => {
+		if(isFile){
+
+			if(fs.lstatSync(path + filename).isFile()){
+				var fullFilePath = (suffix == null) ? filepath.basename(filename) : filepath.basename(filename, suffix);
+				retFileDirs.push(fullFilePath);
 			}
-			else{
-				if(fs.lstatSync(filedir).isDirectory()){
-					retFileDirs.push(path.basename(filedir));
-				}
-			}
-		});
+		}
+		else if(fs.lstatSync(path + filename).isDirectory()){
+			retFileDirs.push(filepath.basename(filename));
+		}		
 	});
 	if(retFileDirs.length == 0){
-		return false;
+		console.log('int getFileDirNamesWithoutSuffix and leng is 0');
+		return null;
 	}
+	return retFileDirs;
 }
 
 
@@ -136,19 +144,26 @@ var getNextIncrementId = function(arrayOfStrings){
 		}
 	});
 	if(maxVal == -1){
+		console.log('int getNextIncrementId and maxval is -1');
 		return "1";
 	}
-	return toString(maxVal);
+	return (maxVal+1).toString();
 }
 
 
 
 
 var get = function(path, dataId){
-	if (!fs.existsSync(path + dataId + ".txt")){
+	if (!fs.existsSync(path)){
+		console.log('in get() - path : ' + path + " does not exist");
 		return false;
 	}
-	if(fs.lstatSync(path).isDirectory()){
+	if(!fs.lstatSync(path).isDirectory()){
+		console.log('in get() - path : ' + path + " is not directory")
+		return false;
+	}
+	if (!fs.existsSync(path + dataId + ".txt")){
+		console.log('in get() - path : ' + path + " data id: "+ dataId +".txt is not directory")
 		return false;
 	}
 	return fs.readFileSync(path + dataId + ".txt", 'utf8');
@@ -157,51 +172,81 @@ var get = function(path, dataId){
 
 
 var put = function(dataString, path, dataId = null){
-	if (!fs.existsSync(path + dataId + ".txt")){
-		shell.mkdir('-p', fileDirectory);
+	if (!fs.existsSync(path)){
+		shell.mkdir('-p', path);
+		console.log('in put() - created dir: ' + path);
 	}
 	if(!fs.lstatSync(path).isDirectory()){
+		console.log('in put() - dir: ' + path + " is not a directory");
 		return false;
 	}
 	if(dataId == null){
 		var isFile = true;
 		allDataIds = getFileDirNamesWithoutSuffix(path, isFile, ".txt");
-		dataId = getNextIncrementId(allDataIds); 
+		dataId = getNextIncrementId(allDataIds);
 	}
 	fs.writeFileSync(path + dataId + ".txt", dataString);
 	return dataId;
 }
 
+/*
+	get directory path for data type
+*/
+var cryptoContextDir = function(userId){
+	return dataDirectory+userId+'/cryptocontext/';
+}
+var publicKeyDir = function(userId, cryptoContextId){
+	return dataDirectory+userId+'/publickeys/'+cryptoContextId+'/';
+}
+var privateKeyDir = function(userId, cryptoContextId){
+	return dataDirectory+userId+'/privatekeys/'+cryptoContextId+'/';
+}
+var collectionDir = function(userId){
+	return dataDirectory+userId+'/collections/';
+}
+var plaintextDir = function(userId, collectionId){
+	return dataDirectory+userId+	'/collections/'+collectionId+'/plaintext/';
+}
+var ciphertextDir = function(userId, collectionId, cryptoContextId, keyPairId){
+	return dataDirectory+userId+'/collections/'+collectionId+'/ciphertext/'+cryptoContextId+'/'+keyPairId + '/';
+}
+
+
 
 
 var getAllCryptoContextIds = function(userId){
-	var isFile = false;
-	return getFileDirNamesWithoutSuffix(dataDirectory+userId+	'/cryptocontext/'	+cryptoContextId+'/', isFile);
+	var isFile = true;
+	var suffix = ".txt";
+	return getFileDirNamesWithoutSuffix( cryptoContextDir(userId), isFile, suffix);
 };
 
 var getAllPublicKeyIds = function(userId, cryptoContextId){
-	var isFile = false;
-	return getFileDirNamesWithoutSuffix(dataDirectory+userId+	'/publickeys/'		+cryptoContextId+'/', isFile);
+	var isFile = true;
+	var suffix = ".txt";
+	return getFileDirNamesWithoutSuffix( publicKeyDir(userId, cryptoContextId), isFile, suffix);
 };
 
 var getAllPrivateKeyIds = function(userId, cryptoContextId){
-	var isFile = false;
-	return getFileDirNamesWithoutSuffix(dataDirectory+userId+	'/privatekeys/'		+cryptoContextId+'/', isFile);
+	var isFile = true;
+	var suffix = ".txt";
+	return getFileDirNamesWithoutSuffix( privateKeyDir(userId, cryptoContextId), isFile, suffix);
 };
 
 var getAllCollectionIds = function(userId){
 	var isFile = false;
-	return getFileDirNamesWithoutSuffix(dataDirectory+userId+	'/collections/', isFile);
+	return getFileDirNamesWithoutSuffix( collectionDir(userId), isFile);
 };
 
 var getAllPlaintextIds = function(userId, collectionId){
-	var isFile = false;
-	return getFileDirNamesWithoutSuffix(dataDirectory+userId+	'/collections/'		+collectionId+	'/plaintext/', isFile);
+	var isFile = true;
+	var suffix = ".txt";
+	return getFileDirNamesWithoutSuffix( plaintextDir(userId, collectionId), isFile, suffix);
 };
 
 var getAllCiphertextIds = function(userId, collectionId, cryptoContextId, keyPairId){
 	var isFile = true;
-	return getFileDirNamesWithoutSuffix(dataDirectory+userId+'/collections/'+collectionId+'/ciphertext/'+cryptoContextId+'/'+keyPairId + '/', isFile);
+	var suffix = ".txt";
+	return getFileDirNamesWithoutSuffix( ciphertextDir(userId, collectionId, cryptoContextId, keyPairId), isFile, suffix);
 };
 
 
@@ -211,26 +256,26 @@ var getAllCiphertextIds = function(userId, collectionId, cryptoContextId, keyPai
 
 
 var getCryptoContext = function(userId, cryptoContextId){
-	return get(dataDirectory+userId+'/cryptocontext/', cryptoContextId);
+	return get( cryptoContextDir(userId), cryptoContextId);
 };
 
 // always a private public keypair, but here we must relate, '/keyPairs/publickey/'+{id}.txt
 // 		{id} is the same for the public private keypair
 // this is required
 var getPublicKey = function(userId, cryptoContextId, publicKeyId){
-	return get(dataDirectory+userId+'/publickeys/'	+cryptoContextId+'/', publicKeyId);
+	return get( publicKeyDir(userId, cryptoContextId), publicKeyId);
 };
 
 var getPrivateKey = function(userId, cryptoContextId, privateKeyId){
-	return get(dataDirectory+userId+'/privatekeys/'	+cryptoContextId+'/', privateKeyId);
+	return get( privateKeyDir(userId, cryptoContextId), privateKeyId);
 };
 
 var getPlaintext = function(userId, collectionId, plaintextId){
-	return get(dataDirectory+userId+'/collections/'	+collectionId 	+'/plaintext/', plaintextId);
+	return get( plaintextDir(userId, collectionId), plaintextId);
 };
 
 var getCiphertext = function(userId, collectionId, cryptoContextId, keyPairId, ciphertextId){
-	return get(dataDirectory+userId+'/collections/'	+collectionId 	+'/ciphertext/'+cryptoContextId+'/'+keyPairId + '/', ciphertextId);
+	return get( ciphertextDir(userId, collectionId, cryptoContextId, keyPairId), ciphertextId);
 };
 
 
@@ -239,50 +284,48 @@ var getCiphertext = function(userId, collectionId, cryptoContextId, keyPairId, c
 
 
 var addNewCollection = function(userId, collectionId = null){
-	
-	var pathname = './'+userId+'/collections/';
 	if(collectionId == null){
-		var isFile = false;
-		allCollectionIds = getAllCollectionIds(userId);
+		var allCollectionIds = getAllCollectionIds(userId);
 		collectionId = getNextIncrementId(allCollectionIds); 
 	}
 
-	var collectionDirname = pathname + collectionId + ".txt";
+	var collectionDirname = collectionDir(userId) + collectionId + "/";
 	if (fs.existsSync(collectionDirname)){
+		console.log('in addNewCollection() - dir : '+ collectionDirname + " already exists");
 		return false;
 	}
 
 	shell.mkdir('-p', collectionDirname);
-	return true;
+	return collectionId;
 }
 
 
 
-var putCryptoContext = function(dataString, userId, cryptoContextId){
-	return put(dataDirectory+userId+'/cryptocontext/', cryptoContextId);
+var putCryptoContext 	= function(dataString, userId, cryptoContextId){
+	return put(	dataString, cryptoContextDir(userId), cryptoContextId);
 }
 
-var putPublicKey = function(dataString, userId, cryptoContextId, publicKeyId){
-	return put(dataDirectory+userId+'/publickeys/'	+cryptoContextId+'/', publicKeyId);
+var putPublicKey 		= function(dataString, userId, cryptoContextId, publicKeyId){
+	return put( dataString, publicKeyDir(userId, cryptoContextId), publicKeyId);
 }
 
-var putPrivateKey = function(dataString, userId, cryptoContextId, privateKeyId){
-	return put(dataDirectory+userId+	'/privatekeys/'		+cryptoContextId+'/');
+var putPrivateKey 		= function(dataString, userId, cryptoContextId,	privateKeyId){
+	return put( dataString, privateKeyDir(userId, cryptoContextId), privateKeyId);
 }
 
-var putPlaintext = function(dataString, userId, collectionId, plaintextId){
-	return put(dataString './'+userId+'/collections/'+collectionId+'/plaintext/', plaintextId);
+var putPlaintext 		= function(dataString, userId, collectionId,	plaintextId){
+	return put( dataString, plaintextDir(userId, collectionId),	plaintextId);
 }
 
-var putCiphertext = function(dataString, userId, collectionId, cryptoContextId, ciphertextId){
-	return put(dataString, './'+userId+'/collections/'+collectionId+'/ciphertext/'+cryptoContextId+ '/', ciphertextId);
+var putCiphertext 		= function(dataString, userId, collectionId, 	cryptoContextId, keyPairId, ciphertextId){
+	return put( dataString, ciphertextDir(userId, collectionId, cryptoContextId, keyPairId), ciphertextId);
 }
 
 
 
 
 
-var assertTrue(val){
+var assertTrue = function(val){
 	if(!val){
 		throw new Error('assert true error thrown')
 	}
@@ -291,622 +334,249 @@ var assertTrue(val){
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-var get = function(..args){
-	switch(type){
-		case 'cryptocontext':
-			userId
-			ccId
-			data = readFile('./{userId}/cryptocontext/{ccId}/serialized.txt');
-			if(!data){
-				return false;
-			}
-			return data;
-			break;
-		case 'publickeys':
-			userId
-			ccId
-			pubkeyId
-			data = readFile('./{userId}/cryptocontext/{ccId}/serialized.txt');
-			if(!data){
-				return false;
-			}
-			return data;
-			break;
-		case 'privatekey':
-			break;
-		case 'collections':
-			break;
-		case 'plaintext':
-			break;
-		case 'ciphertext':
-			break;
-
+var rmDir = function(testDataDirectory){
+	if(fs.existsSync(testDataDirectory)){
+		shell.rm('-r', testDataDirectory);	
 	}
-}
-
-
-var puet = function(..args){
-	switch(type){
-		case 'cryptocontext':
-			break;
-		case 'publickeys':
-			break;
-		case 'privatekey':
-			break;
-		case 'collections':
-			break;
-		case 'plaintext':
-			break;
-		case 'ciphertext':
-			break;
-
-	}
+	assertTrue(!fs.existsSync(testDataDirectory));
 }
 
 
 
 
 
-/*
 
 
-User fhe data structure
 
-./user_data/{user_id}/cryptocontext/{cryptocontext_id}.txt
-./user_data/{user_id}/collections/{collection_id}/plaintext/{plaintext_id}.txt
-./user_data/{user_id}/collections/{collection_id}/ciphertext/{cryptocontext_id}/{ctext_id}.txt
 
 
-*/
+// to test:
 
 
-var fs = require('fs');
+// getAllCryptoContextIds 	= function(userId);
+// getAllCollectionIds 	= function(userId);
+// getAllPublicKeyIds 		= function(userId, cryptoContextId);
+// getAllPrivateKeyIds 	= function(userId, cryptoContextId);
+// getAllPlaintextIds 		= function(userId, collectionId);
+// getAllCiphertextIds 	= function(userId, collectionId, cryptoContextId);
 
-var shell = require('shelljs');
+// getCryptoContext 		= function(userId, cryptoContextId);
+// getPublicKey 			= function(userId, cryptoContextId, publicKeyId);
+// getPrivateKey 			= function(userId, cryptoContextId, privateKeyId);
+// getPlaintext 			= function(userId, collectionId, 	plaintextId);
+// getCiphertext 			= function(userId, collectionId, 	cryptoContextId, ciphertextId);
 
-var path = require('path');
+// addNewCollection 		= function(userId, collectionId = null);
 
+// putCryptoContext 		= function(dataString, userId, cryptoContextId = null);
+// putPublicKey 			= function(dataString, userId, cryptoContextId, publicKeyId = null);
+// putPrivateKey 			= function(dataString, userId, cryptoContextId, privateKeyId = null);
+// putPlaintext 			= function(dataString, userId, collectionId, 	plaintextId = null);
+// putCiphertext 			= function(dataString, userId, collectionId, 	cryptoContextId, ciphertextId = null);
 
-var dataTypes = ['cryptocontext', 'plaintext', 'ciphertext'];
-var putData = function(dataType, dataString, userId, dataId, collectionId = null, cryptocontextId = null){
-	if(!dataTypes.includes(dataType)){
-		console.log('error in putData(). bad data type : ' + dataType);
-		return false;
-	}
-	var fileDirectory = './user_data/'+userId + '/';
 
-	var filename = '';
+var testUserId = "666";
 
 
-	if(dataType == 'collections'){
-		if(dataId == null){
+var testCryptoContext = function(){
 
-			// get next max id to use
-			var collectionIds = getAllCollectionIds(userId);
-			dataId = getNextIncrementId(collectionIds);
-		}
-		if (!fs.existsSync(fileDirectory + './collections/'+dataId+'/')){
-			shell.mkdir('-p', fileDirectory);
-		}
-	}
+	rmDir(dataDirectory);
 
+	assertTrue((!getAllCryptoContextIds(testUserId)));
 
-	var dataFileInfo = getDataDirPathAndInfoForType(dataType, userId, secondId, thirdId);
-	var fileDirectory = path.dirname(dataFileInfo.directory);
 
+	assertTrue(!getCryptoContext(testUserId, "2"));
+	assertTrue(putCryptoContext("cc data 2", testUserId, "2") == "2");
+	assertTrue(getCryptoContext(testUserId, "2") == "cc data 2");
 
+	assertTrue(!getCryptoContext(testUserId, "3"));
+	assertTrue(putCryptoContext("cc data 3", testUserId, null) == "3");
+	assertTrue(getCryptoContext(testUserId, "3") == "cc data 3");
 
 
-	switch(dataType){
-
-
-		// used to create a new collection, and the collection directory
-		case 'collections':
-
-			// pass null data string and null data id to create a new collection with incremented id
-			if(dataId == null){
-
-				// get next max id to use
-				var collectionIds = getAllCollectionIds(userId);
-				dataId = getNextIncrementId(collectionIds);
-			}
-			if (!fs.existsSync(fileDirectory + './collections/'+dataId+'/')){
-				shell.mkdir('-p', fileDirectory);
-			}
-			return true;
-			break;
-		case 'cryptocontext':
-			fileDirectory += 'cryptocontext/';
-			filename = dataId + '.txt';
-			break;
-		case 'plaintext':
-			if(collectionId == null){
-				console.log('put plaintext needs a collectionId. got null.');
-				return false;
-			}
-			fileDirectory += 'collections/' + collectionId + '/plaintext/';
-			filename = dataId + '.txt';
-			break;
-		case 'ciphertext':
-			if(collectionId == null){
-				console.log('put ciphertext needs a collectionId. got null.');
-				return false;
-			}
-			if(cryptocontextId == null){
-				console.log('put ciphertext needs a cryptocontext_id. got null.');
-				return false;
-			}
-			fileDirectory += 'collections/' + collectionId + '/ciphertext/'+cryptocontextId+'/';
-			filename = dataId + '.txt';
-			break;
-		default:
-			return false;
-	}
-
-	if (!fs.existsSync(fileDirectory)){
-		shell.mkdir('-p', fileDirectory);
-	}
-
-	fs.writeFileSync(fileDirectory + filename, dataString);
-	return true;
-}
-
-
-
-
-var getData = function(dataType, userId, dataId, collectionId = null, cryptocontextId = null){
-	if(!dataTypes.includes(dataType)){
-		console.log('error in getData(). bad data type : ' + dataType);
-		return false;
-	}
-	var fileDirectory = null;
-	var filename = '';
-
-	var dataFileInfo = getDataDirPathAndInfoForType(dataType, userId, secondId, thirdId);
-	var fileDirectory = path.dirname(dataFileInfo.directory);
-
-	if(!dataFileInfo){
-		console.log('bad reutrn data file info');
-		return false;
-	}
-	if(dataFileInfo.isFile){
-		filename = dataId + '.txt';
-	}
-	else{
-		filename = dataId;
-	}
-
-	if (!fs.existsSync(fileDirectory + filename)){
-		return false;
-	}
-	return fs.readFileSync(fileDirectory + filename, 'utf8');
-}
-
-
-
-// also do add (don't pass the data id, will return via auto increment or false if failed)
-
-var putCryptoContext = function(serializedCC, userId, ccId = null){
-	if(ccId == null){
-		// need to generate a new auto incremented id
-		var theId = -1;
-		varCCIds = getAllCryptoContextIds(userId);
-		if(!varCCIds){
-			theId = "1";
-		}
-		else{
-			theId = getNextIncrementId(varCCIds);
-		}
-	}
-	return putData('cryptocontext', serializedCC, userId, ccId);
-};
-
-
-var getCryptoContext = function(userId, ccId){
-	return getData('cryptocontext', userId, ccId);
-};
-
-
-var putPlaintext = function(plaintext, userId, collectionId = null, plaintextId = null){
-
-	var = newIncrementId '';
-	if(collectionId == null){
-		// need to generate a new auto incremented id
-		var collectionIds = getAllCollectionIds(userId);
-		collectionId = getNextIncrementId(collectionIds);
-	}
-
-	if(plaintextId == null){
-		// need to generate a new auto incremented id
-		var plaintextIds = getAllPlaintextIds(userId, collectionId);
-		plaintextId = getNextIncrementId(plaintextIds);
-	}
-
-	return putData('plaintext', plaintext, userId, collectionId, plaintextId);
-};
-
-
-var getPlaintext = function(userId, plaintextId, collectionId){
-	return getData('plaintext', userId, plaintextId, collectionId);
-};
-
-var putCiphertext = function(plaintext, userId, ciphertextId = null, collectionId, cryptocontextId){
-
-	if(ciphertextId == null){
-		// need to generate a new auto incremented id
-		var ciphertextIds = getAllCiphertextIds(userId, collectionId, cryptocontextId);
-		if(!ciphertextIds){
-			ciphertextId = "1";
-		}
-		else{
-			ciphertextId = getNextIncrementId(ciphertextIds);
-		}
-	}
-	return putData('ciphertext', plaintext, userId, ciphertextId, collectionId, cryptocontextId);
-};
-
-
-var getCiphertext = function(userId, plaintextId, collectionId, cryptocontextId){
-	return getData('ciphertext', userId, plaintextId, collectionId, cryptocontextId);
-};
-
-
-
-
-
-
-
-// used to go to path, reutrn if (isFile|isDirectory) and remove suffix or no suffix
-// returns array of strings 
-// can use glob('/pth/pattern-capture(dir|file)')
-var getFileDirNamesWithoutSuffix = function(path, isFile = true, suffix = null){
-	if (!fs.existsSync(path)){
-		return false;
-	}
-
-	var retFileDirs = [];
-
-	fs.readdirSync(path, (err, filedirs) => {
-		filedirs.forEach(filedir => {
-			if(isFile){
-				if(fs.lstatSync(filedir).isFile()){
-					if(suffix == null){
-						retFileDirs.push(path.basename(filedir));
-					}
-					else{
-						retFileDirs.push(path.basename(filedir, suffix));
-					}
-				}
-			}
-			else{
-				if(fs.lstatSync(filedir).isDirectory()){
-					retFileDirs.push(path.basename(filedir));
-				}
-			}
-		});
-	});
-
-	if(retFileDirs.length == 0){
-		return false;
-	}
-}
-
-// // return all file names within a directory
-// var getAllFileNames = function(dirname){
-// 	return getFileDirWithoutPrefix(dirname, true);
-// }
-
-// // return all file names within a directory and remove the prefix (ex: all file excpet .txt)
-// var getAllFileNamesWithoutPrefix = function(dirname, prefix){
-// 	return getFileDirNamesWithoutPrefix(dirname, true, prefix);
-// }
-
-// // return all directory names within a directory
-// var getAllDirNames = function(dirname, prefix = null){
-// 	return getFileDirNamesWithoutPrefix(dirname, true, prefix);
-// }
-
-
-var getDataDirPathAndInfoForType = function(dataType, userId, secondId = null, thirdId = null){
-	var directory = null;
-	var isFile = null;
-	var suffix = null;
-	switch(dataType){
-		case 'collections':
-			directory = './user_data/'+userId + '/collections/';
-			isFile = false;
-			break;
-		case 'cryptocontext':
-			directory = './user_data/'+userId + '/cryptocontext/';
-			isFile = true;
-			suffix = ".txt";
-			break;
-		case 'plaintext':
-			if(secondId == null){
-				console.log('missing collection id get dir path plaintext');
-				return false;
-			}
-			collectionId = secondId
-			directory = './user_data/'+userId + '/collections/' + collectionId + '/plaintext/';
-			isFile = true;
-			suffix = ".txt";
-			break;
-		case 'ciphertext':
-			if(secondId == null){
-				console.log('missing second collection id get dir path ciphertext');
-			}
-			collectionId = secondId;
-
-			if(thirdId == null){
-				console.log('missing third cryptocontextId id get dir path ciphertext');
-				return false;
-			}
-			cryptocontextId = thirdId;
-			directory = './user_data/'+userId + '/collections/' + collectionId + '/ciphertext/' + cryptocontextId +'/' ;
-			isFile = true;
-			suffix = ".txt";
-			break;
-		default:
-			return false;
-	}
-	return {directory : directory, isFile : isFile, suffix: suffix};
-}
-
-// return array of ids for entries, return as array of strings representing int values only. ex: \"14\"
-var getAllIdsForDataTypeAsString = function(dataType, userId, collectionId = null, cryptocontextId = null){
-	var directoryAndInfo = getDataDirPathAndInfoForType(dataType, userId, collectionId, cryptocontextId);
-
-	if(!directoryInfo){
-		console.log('error with directory in getAllIdsForDataTypeAsString');
-		return false;
-	}
-
-	// want to do a glob here
-	return getFileDirNamesWithoutSuffix(directoryAndInfo.directory, directoryAndInfo.isFile, directoryAndInfo.suffix); 
-}
-
-
-// returns false if none or directory not yet made
-var getAllCollectionIds = function(userId){
-	return getAllIdsForDataTypeAsString('collections', userId);
-};
-
-// returns false if none or directory not yet made
-var getAllPlaintextIds = function(userId, collectionId){
-	return getAllIdsForDataTypeAsString('plaintext', userId, collectionId);
-};
-
-// returns false if none or directory not yet made
-
-var getAllCryptoContextIds = function(userId){
-	return getAllIdsForDataTypeAsString('cryptocontext', userId);
-};
-
-// returns false if none or directory not yet made
-var getAllCiphertextIds = function(userId, collectionId, cryptocontextId){
-	return getAllIdsForDataTypeAsString('ciphertext', userId, collectionId, cryptocontextId);
-};
-
-
-var getNextIncrementId = function(arrayOfStrings){
-	var maxVal = -1;
-	arrayOfStrings.forEach(single => {
-		var theInt = parseInt(single);
-		if(theInt > maxVal){
-			maxVal = theInt;
-		}
-	});
-	if(maxVal == -1){
-		return "1";
-	}
-	return toString(maxVal);
-}
-
-
-var assertTrue = function (booleanArg) {
-	if(!booleanArg){
-		throw new Error('err here. here erg');
-	}
-}
-
-
-var newCollection = function(userId){
-	var allCollectionIds = getAllCollectionIds(userId);
-	var newMaxId = null;
-	if(!allCollectionIds || allCollectionIds.length == 0){
-		newMaxId = "1";
-	}
-	else{
-		newMaxId = getNextIncrementId(allCollectionIds);
-	}
-	var dataDir = './user_data/collections/'+userId;
-	
-}
-
-var userId = "12";
-var user_data_dir = './user_data/';
-
-
-var ccText1 = "serilaized crpyto context text 1";
-
-
-var ccText2 = "serilaized crypto context text 2";
-var ccIdTwo = putCryptoContext(userId, "3");
-assertTrue(ccIdTwo == "3");
-assertTrue(getCryptoContext(userId, ccIdTwo) == ccText2);
-
-// use null for auto increment
-var ccIdOne = putCryptoContext(userId, null);
-assertTrue(ccIdOne == "4");
-assertTrue(getCryptoContext(userId, ccIdOne) == ccText1);
-
-var ptText1 = "serilaized plaintext text 1";
-var collectionId = "5";
-
-
-
-
-
-
-var plaintextId = null);
-var newPlaintextId = null;
-var ptText = null;
-
-plaintextId = "3";
-var ptText = "serilaized plaintext text 1";
-newPlaintextId = putPlaintext(ptText1, userId, collectionId, plaintextId);
-
-assertTrue(plaintextId == newPlaintextId);
-assertTrue(getPlaintext(userId, newPlaintextId) == ptText);
-
-
-
-plaintextId = null;
-var ptText = "serilaized plaintext text 3. sto increment to 4.";
-newPlaintextId = putPlaintext(ptText1, userId, collectionId, plaintextId);
-
-assertTrue("4" == newPlaintextId);
-assertTrue(getPlaintext(userId, newPlaintextId) == ptText);
-
-
-
-
-
-
-var collectionId = "4";
-
-var ccText1 = "ciphertext text 1";
-putCiphertext()
-getCiphertext()
-
-var ctText1 = "serilaized ciphertext text 1";
-var ctIdOne = putCiphertext(userId, "3");
-assertTrue(ccIdTwo == "3");
-assertTrue(getPlaintext(userId, ctIdOne) == ptText1);
-
-// use null for auto-increment
-var ctText2 = "serilaized ciphertext text 2";
-var ctIdTwo = putPlaintext(userId, null, collectionId);
-assertTrue(ptIdTwo == "4");
-assertTrue(getPlaintext(userId, ctIdTwo) == ptText2);
-
-
-
-
-
-var ccText1 = "public key text 1";
-putPublicKey()
-getPublicKey()
-
-
-var ccText1 = "privatekey text 1";
-putPrivateKey()
-getPrivateKey()
-
-
-
-
-
-
-try{	
-	putCryptoContext("A CCccca", "11", "22");
-}catch(err) {
-	console.error(err);
-	return false;
-}
-
-ccData = getCryptoContext("11", "22");
-
-console.log(ccData);
-
-
-
-
-
-
-
-// create the directories for a new collection
-var newId;
-
-
-// upload and retreive serialized crypto context data
-newId = put(ccData, userId, 'cryptocontext', null);
-newId = put(ccData, userId, 'cryptocontext', cryptoContextId);
-
-// upload and retreive serialized crypto context data
-newId = put(ccData, userId, 'privateKey', cryptoContextId, keyId);
-newId = put(ccData, userId, 'publicKey'	, cryptoContextId, keyId);
-
-newId = put(null, userId, 'collections', null);
-newId = put(null, userId, 'collections', collectionId);
-
-// newId = put(plaintextData, userId, 'plaintext', null, null);
-newId = put(plaintextData, userId, 'plaintext', collectionId, null);
-newId = put(plaintextData, userId, 'plaintext', collectionId, plaintextId);
-
-newId = put(ciphertextData, userId, 'ciphertext', collectionId, cryptoContextId, null);
-newId = put(null, 			userId, 'ciphertext', collectionId, cryptoContextId, ciphertextId);
-
-
-
-var data;
-
-/*
-argOne : 	cryptoContextId/collectionId
-argTwo: 	keyId/plaintextId/cryptoContextId(for ciphertext relation)
-argThree 	ciphertextId
-
-supply null data id for all
-*/
-shell.mkdir('-p', fileDirectory);
-var get = function(data, userId, opperationType, argOne, argTwo, argThree){
-
-	var dataFileInfo = getDataDirPathAndInfoForType(opperationType, userId, argOne, argTwo, argThree);
-	if (!fs.existsSync(dataFileInfo.directory)){
-		return false;
-	}
-
-	var fullpath = null;
-	if(dataFileInfo.isFile == true){
-		fullpath = dataFileInfo.directory + argOne + ".txt";
-	}
-	else{
-
-	}
+	assertTrue(putCryptoContext("cc data 3.1", testUserId, "3") == "3");
+	assertTrue(getCryptoContext(testUserId, "3") == "cc data 3.1");
 	
 
+	var newAllCryptoContextIds = getAllCryptoContextIds(testUserId);
+	assertTrue(newAllCryptoContextIds.length == 2);
+	assertTrue(newAllCryptoContextIds.indexOf("2") > -1);
+	assertTrue(newAllCryptoContextIds.indexOf("3") > -1);
+	
+
+	// rmDir(dataDirectory);
+}
+
+
+var testCollectionIds = function(){
+
+	var allCollections;
+
+	rmDir(dataDirectory);
+
+	assertTrue((!getAllCollectionIds(testUserId)));
+
+
+	assertTrue(addNewCollection(testUserId, "2") == "2");
+
+	allCollections = getAllCollectionIds(testUserId);
+	assertTrue(allCollections.length == 1);
+	assertTrue(allCollections[0] == "2");
+
+
+	assertTrue(addNewCollection(testUserId, null) == "3");
+	
+	allCollections = getAllCollectionIds(testUserId);
+	assertTrue(allCollections.length == 2);
+	assertTrue(allCollections.indexOf("2") > -1);
+	assertTrue(allCollections.indexOf("3") > -1);
+
+	// rmDir(dataDirectory);
 
 }
-data = get(userId, 'cryptocontext', argOne, argTwo, argThree, argFour);
-data = get(userId, 'privateKey', cryptoContextId);
-data = get(userId, 'publicKey', cryptoContextId);
-data = get(userId, 'collections', cryptoContextId);
-data = get(userId, 'plaintext', cryptoContextId);
-data = get(userId, 'ciphertext', cryptoContextId);
+
+
+var testPublicKeys = function(){
+	rmDir(dataDirectory);
+
+	assertTrue((!getAllPublicKeyIds(testUserId)));
+
+
+	assertTrue(!getPublicKey(testUserId, "2", "2"));
+	assertTrue(putPublicKey("pubkey data 2", testUserId, "2", "2") == "2");
+	assertTrue(getPublicKey(testUserId, "2", "2") == "pubkey data 2");
+
+	assertTrue(!getPublicKey(testUserId, "2", "3"));
+	assertTrue(putPublicKey("pubkey data 3", testUserId, "2", null) == "3");
+	assertTrue(getPublicKey(testUserId, "2", "3") == "pubkey data 3");
+
+
+	assertTrue(putPublicKey("pubkey data 3.1", testUserId, "2", "3") == "3");
+	assertTrue(getPublicKey(testUserId, "2", "3") == "pubkey data 3.1");
+	
+
+	var newAllPublicKeyIds = getAllPublicKeyIds(testUserId, "2");
+	assertTrue(newAllPublicKeyIds.length == 2);
+	assertTrue(newAllPublicKeyIds.indexOf("2") > -1);
+	assertTrue(newAllPublicKeyIds.indexOf("3") > -1);
+	
+
+	// rmDir(dataDirectory);
+}
+
+
+var testPrivateKeys = function(){
+	rmDir(dataDirectory);
+
+	assertTrue((!getAllPrivateKeyIds(testUserId)));
+
+
+	assertTrue(!getPrivateKey(testUserId, "2", "2"));
+	assertTrue(putPrivateKey("privkey data 2", testUserId, "2", "2") == "2");
+	assertTrue(getPrivateKey(testUserId, "2", "2") == "privkey data 2");
+
+	assertTrue(!getPrivateKey(testUserId, "2", "3"));
+	assertTrue(putPrivateKey("privkey data 3", testUserId, "2", null) == "3");
+	assertTrue(getPrivateKey(testUserId, "2", "3") == "privkey data 3");
+
+
+	assertTrue(putPrivateKey("privkey data 3.1", testUserId, "2", "3") == "3");
+	assertTrue(getPrivateKey(testUserId, "2", "3") == "privkey data 3.1");
+	
+
+	var newAllPrivateKeyIds = getAllPrivateKeyIds(testUserId, "2");
+	assertTrue(newAllPrivateKeyIds.length == 2);
+	assertTrue(newAllPrivateKeyIds.indexOf("2") > -1);
+	assertTrue(newAllPrivateKeyIds.indexOf("3") > -1);
+	
+
+	// rmDir(dataDirectory);
+}
+
+
+
+var testPlaintext = function(){
+	rmDir(dataDirectory);
+
+	assertTrue((!getAllPlaintextIds(testUserId)));
+
+
+	assertTrue(!getPlaintext(testUserId, "2", "2"));
+	assertTrue(putPlaintext("plaintext data 2", testUserId, "2", "2") == "2");
+	assertTrue(getPlaintext(testUserId, "2", "2") == "plaintext data 2");
+
+	assertTrue(!getPlaintext(testUserId, "2", "3"));
+	assertTrue(putPlaintext("plaintext data 3", testUserId, "2", null) == "3");
+	assertTrue(getPlaintext(testUserId, "2", "3") == "plaintext data 3");
+
+
+	assertTrue(putPlaintext("plaintext data 3.1", testUserId, "2", "3") == "3");
+	assertTrue(getPlaintext(testUserId, "2", "3") == "plaintext data 3.1");
+	
+
+	var newAllPlaintextIds = getAllPlaintextIds(testUserId, "2");
+	assertTrue(newAllPlaintextIds.length == 2);
+	assertTrue(newAllPlaintextIds.indexOf("2") > -1);
+	assertTrue(newAllPlaintextIds.indexOf("3") > -1);
+	
+
+	// rmDir(dataDirectory);
+}
+
+
+var testCiphertext = function(){
+	rmDir(dataDirectory);
+
+	assertTrue((!getAllCiphertextIds(testUserId)));
+
+
+	assertTrue(!getCiphertext(testUserId, "2", "2", "2", "2"));
+	assertTrue(putCiphertext("ciphertext data 2", testUserId, "2", "2", "2", "2") == "2");
+	assertTrue(getCiphertext(testUserId,"2", "2", "2", "2") == "ciphertext data 2");
+
+	assertTrue(!getCiphertext(testUserId, "2", "2", "2", "3"));
+	assertTrue(putCiphertext("ciphertext data 3", testUserId, "2", "2", "2", null) == "3");
+	assertTrue(getCiphertext(testUserId, "2", "2", "2", "3") == "ciphertext data 3");
+
+
+	assertTrue(putCiphertext("ciphertext data 3.1", testUserId, "2", "2", "2", "3") == "3");
+	assertTrue(getCiphertext(testUserId, "2", "2", "2", "3") == "ciphertext data 3.1");
+	
+
+	var newAllCiphertextIds = getAllCiphertextIds(testUserId, "2", "2", "2");
+
+	assertTrue(newAllCiphertextIds.length == 2);
+	assertTrue(newAllCiphertextIds.indexOf("2") > -1);
+	assertTrue(newAllCiphertextIds.indexOf("3") > -1);
+	
+
+	// rmDir(dataDirectory);
+}
 
 
 
 
+var testAll = function(){
+
+	testCryptoContext();
+
+	testCollectionIds();
+
+	testPublicKeys();
+
+	testPrivateKeys();
+
+	testPlaintext();
+
+	testCiphertext();
+
+
+	console.log("TESTS COMPLETED, HUZZAH!!");
+}
+
+if(process.argv.indexOf("--test") > -1){
+	dataDirectory = './test_user_data/';
+	testAll();
+}
+
+// testAll();
