@@ -1,4 +1,43 @@
+/*
+	
+	getCryptoContextIds(userId)
+	getCryptoContext(userId, ccId)
+	putCryptoContext(ccData, userId, ccId=null)
+	deleteCryptoContext(userId, ccId)
+	
+	getKeypairIds(userId, ccId)
+	putKeypair(pubkeydata, privkeydata, userId, ccId, keypairId = null)
 
+	getPublicKey(userId, ccId, keypairId)
+	putPublicKey(pubkeyData, userId, ccId, keypairId = null) // should already have a keypair id
+
+	getPrivateKey(userId, ccId, keypairId)
+	putPrivateKey(privkeyData, userId, ccId, keypairId = null) // should already have a keypair id
+
+	deleteKeypair(userId, ccId, keypairId)
+
+	getCollectionIds(userId)
+	putCollection(collectionName = null, userId, newCollectionId = null) // create new collection
+	deleteCollection(userId, collectionId)
+
+	getPlaintextIds(userId, collectionId)
+	getPlaintext(userId, collectionId, plaintextId)
+	putPlaintext(plaintextData, userId, collectionId, plaintextId = null)
+	deletePlaintext(userId, collectionId, plaintextId)
+
+	getCiphertextIds(userId, collectionId, isBitwise)
+	getCiphertextBitIds(userId, collectionId, isBitwise)
+	getCiphertext()
+	putCiphertext()
+	deleteCiphertext()
+
+	
+
+
+
+
+
+*/
 
 var shell 	= require('shelljs');
 var fs 		= require('fs');
@@ -77,7 +116,7 @@ put (data):
 	var putPublicKey 		= function(dataString, userId, cryptoContextId, publicKeyId = null);
 	var putPrivateKey 		= function(dataString, userId, cryptoContextId, privateKeyId = null);
 	var putPlaintext 		= function(dataString, userId, collectionId, 	plaintextId = null);
-	var putCiphertext 		= function(dataString, userId, collectionId, 	cryptoContextId, ciphertextId = null);
+	var putCiphertext 		= function(dataString, userId, collectionId, 	plaintextId, cryptoContextId, ciphertextId = null);
 
 
 
@@ -88,7 +127,7 @@ get directory paths:
 	var privateKeyDir 		= function(userId, cryptoContextId);
 	var collectionDir 		= function(userId);
 	var plaintextDir 		= function(userId, collectionId);
-	var ciphertextDir 		= function(userId, collectionId, cryptoContextId, keyPairId);
+	var ciphertextDir 		= function(userId, collectionId, plaintextId, cryptoContextId, keyPairId);
 
 
 hellpers:
@@ -195,20 +234,20 @@ var put = function(dataString, path, dataId = null){
 var cryptoContextDir = function(userId){
 	return dataDirectory+userId+'/cryptocontext/';
 }
-var publicKeyDir = function(userId, cryptoContextId){
+var publicKeyDir 	 = function(userId, cryptoContextId){
 	return dataDirectory+userId+'/publickeys/'+cryptoContextId+'/';
 }
-var privateKeyDir = function(userId, cryptoContextId){
+var privateKeyDir	 = 	function(userId, cryptoContextId){
 	return dataDirectory+userId+'/privatekeys/'+cryptoContextId+'/';
 }
-var collectionDir = function(userId){
+var collectionDir 	 = function(userId){
 	return dataDirectory+userId+'/collections/';
 }
-var plaintextDir = function(userId, collectionId){
-	return dataDirectory+userId+	'/collections/'+collectionId+'/plaintext/';
+var plaintextDir 	 = function(userId, collectionId){
+	return dataDirectory+userId+'/collections/'+collectionId+'/plaintext/';
 }
-var ciphertextDir = function(userId, collectionId, cryptoContextId, keyPairId){
-	return dataDirectory+userId+'/collections/'+collectionId+'/ciphertext/'+cryptoContextId+'/'+keyPairId + '/';
+var ciphertextDir 	= function(userId, collectionId, cryptoContextId, keyPairId){
+	return dataDirectory+userId+'/collections/'+collectionId+'/ciphertext/'+cryptoContextId+'/'+keyPairId +'/';
 }
 
 
@@ -274,8 +313,8 @@ var getPlaintext = function(userId, collectionId, plaintextId){
 	return get( plaintextDir(userId, collectionId), plaintextId);
 };
 
-var getCiphertext = function(userId, collectionId, cryptoContextId, keyPairId, ciphertextId){
-	return get( ciphertextDir(userId, collectionId, cryptoContextId, keyPairId), ciphertextId);
+var getCiphertext = function(userId,  collectionId, cryptoContextId, keyPairId, plaintextId){
+	return get( ciphertextDir(userId, collectionId, cryptoContextId, keyPairId), plaintextId);
 };
 
 
@@ -317,8 +356,8 @@ var putPlaintext 		= function(dataString, userId, collectionId,	plaintextId){
 	return put( dataString, plaintextDir(userId, collectionId),	plaintextId);
 }
 
-var putCiphertext 		= function(dataString, userId, collectionId, 	cryptoContextId, keyPairId, ciphertextId){
-	return put( dataString, ciphertextDir(userId, collectionId, cryptoContextId, keyPairId), ciphertextId);
+var putCiphertext 		= function(dataString, 	userId, collectionId, cryptoContextId, keyPairId, plaintextId){
+	return put( dataString, 	ciphertextDir( 	userId, collectionId, cryptoContextId, keyPairId), plaintextId);
 }
 
 
@@ -372,7 +411,7 @@ var rmDir = function(testDataDirectory){
 // putPublicKey 			= function(dataString, userId, cryptoContextId, publicKeyId = null);
 // putPrivateKey 			= function(dataString, userId, cryptoContextId, privateKeyId = null);
 // putPlaintext 			= function(dataString, userId, collectionId, 	plaintextId = null);
-// putCiphertext 			= function(dataString, userId, collectionId, 	cryptoContextId, ciphertextId = null);
+// putCiphertext 			= function(dataString, userId, collectionId, 	cryptoContextId, 	keypairId, plaintextId, ciphertextId = null);
 
 
 var testUserId = "666";
@@ -384,24 +423,26 @@ var testCryptoContext = function(){
 
 	assertTrue((!getAllCryptoContextIds(testUserId)));
 
+	var ccId_2 = "2";
+	var ccId_3 = "3";
 
-	assertTrue(!getCryptoContext(testUserId, "2"));
-	assertTrue(putCryptoContext("cc data 2", testUserId, "2") == "2");
-	assertTrue(getCryptoContext(testUserId, "2") == "cc data 2");
+	assertTrue(!getCryptoContext(testUserId, ccId_2));
+	assertTrue(putCryptoContext("cc data 2", testUserId, ccId_2) == ccId_2);
+	assertTrue(getCryptoContext(testUserId, ccId_2) == "cc data 2");
 
-	assertTrue(!getCryptoContext(testUserId, "3"));
-	assertTrue(putCryptoContext("cc data 3", testUserId, null) == "3");
-	assertTrue(getCryptoContext(testUserId, "3") == "cc data 3");
+	assertTrue(!getCryptoContext(testUserId, ccId_3));
+	assertTrue(putCryptoContext("cc data 3", testUserId, null) == ccId_3); // test the auto increment feature
+	assertTrue(getCryptoContext(testUserId, ccId_3) == "cc data 3");
 
 
-	assertTrue(putCryptoContext("cc data 3.1", testUserId, "3") == "3");
-	assertTrue(getCryptoContext(testUserId, "3") == "cc data 3.1");
+	assertTrue(putCryptoContext("cc data 3.1", testUserId, ccId_3) == ccId_3);
+	assertTrue(getCryptoContext(testUserId, ccId_3) == "cc data 3.1");
 	
 
 	var newAllCryptoContextIds = getAllCryptoContextIds(testUserId);
 	assertTrue(newAllCryptoContextIds.length == 2);
-	assertTrue(newAllCryptoContextIds.indexOf("2") > -1);
-	assertTrue(newAllCryptoContextIds.indexOf("3") > -1);
+	assertTrue(newAllCryptoContextIds.indexOf(ccId_2) > -1);
+	assertTrue(newAllCryptoContextIds.indexOf(ccId_3) > -1);
 	
 
 	// rmDir(dataDirectory);
@@ -416,20 +457,22 @@ var testCollectionIds = function(){
 
 	assertTrue((!getAllCollectionIds(testUserId)));
 
+	var colId_2 = "2";
+	var colId_3 = "3";
 
-	assertTrue(addNewCollection(testUserId, "2") == "2");
+	assertTrue(addNewCollection(testUserId, colId_2) == colId_2);
 
 	allCollections = getAllCollectionIds(testUserId);
 	assertTrue(allCollections.length == 1);
-	assertTrue(allCollections[0] == "2");
+	assertTrue(allCollections[0] == colId_2);
 
 
-	assertTrue(addNewCollection(testUserId, null) == "3");
+	assertTrue(addNewCollection(testUserId, null) == colId_3);
 	
 	allCollections = getAllCollectionIds(testUserId);
 	assertTrue(allCollections.length == 2);
-	assertTrue(allCollections.indexOf("2") > -1);
-	assertTrue(allCollections.indexOf("3") > -1);
+	assertTrue(allCollections.indexOf(colId_2) > -1);
+	assertTrue(allCollections.indexOf(colId_3) > -1);
 
 	// rmDir(dataDirectory);
 
@@ -439,26 +482,30 @@ var testCollectionIds = function(){
 var testPublicKeys = function(){
 	rmDir(dataDirectory);
 
-	assertTrue((!getAllPublicKeyIds(testUserId)));
+	var ccId_2 	= "2";
+	var keyId_2 = "2";
+	var keyId_3 = "3";
+
+	assertTrue((!getAllPublicKeyIds(testUserId, ccId_2)));
 
 
-	assertTrue(!getPublicKey(testUserId, "2", "2"));
-	assertTrue(putPublicKey("pubkey data 2", testUserId, "2", "2") == "2");
-	assertTrue(getPublicKey(testUserId, "2", "2") == "pubkey data 2");
+	assertTrue(!getPublicKey(testUserId, ccId_2, keyId_2));
+	assertTrue(putPublicKey("pubkey data 2", testUserId, ccId_2, keyId_2) == keyId_2);
+	assertTrue(getPublicKey(testUserId, ccId_2, keyId_2) == "pubkey data 2");
 
-	assertTrue(!getPublicKey(testUserId, "2", "3"));
-	assertTrue(putPublicKey("pubkey data 3", testUserId, "2", null) == "3");
-	assertTrue(getPublicKey(testUserId, "2", "3") == "pubkey data 3");
+	assertTrue(!getPublicKey(testUserId, ccId_2, keyId_3));
+	assertTrue(putPublicKey("pubkey data 3", testUserId, ccId_2, null) == keyId_3);
+	assertTrue(getPublicKey(testUserId, ccId_2, keyId_3) == "pubkey data 3");
 
 
-	assertTrue(putPublicKey("pubkey data 3.1", testUserId, "2", "3") == "3");
-	assertTrue(getPublicKey(testUserId, "2", "3") == "pubkey data 3.1");
+	assertTrue(putPublicKey("pubkey data 3.1", testUserId, ccId_2, keyId_3) == keyId_3);
+	assertTrue(getPublicKey(testUserId, ccId_2, keyId_3) == "pubkey data 3.1");
 	
 
-	var newAllPublicKeyIds = getAllPublicKeyIds(testUserId, "2");
+	var newAllPublicKeyIds = getAllPublicKeyIds(testUserId, ccId_2);
 	assertTrue(newAllPublicKeyIds.length == 2);
-	assertTrue(newAllPublicKeyIds.indexOf("2") > -1);
-	assertTrue(newAllPublicKeyIds.indexOf("3") > -1);
+	assertTrue(newAllPublicKeyIds.indexOf(keyId_2) > -1);
+	assertTrue(newAllPublicKeyIds.indexOf(keyId_3) > -1);
 	
 
 	// rmDir(dataDirectory);
@@ -468,26 +515,30 @@ var testPublicKeys = function(){
 var testPrivateKeys = function(){
 	rmDir(dataDirectory);
 
-	assertTrue((!getAllPrivateKeyIds(testUserId)));
+	var ccId_2 	= "2";
+	var keyId_2 = "2";
+	var keyId_3 = "3";
+
+	assertTrue((!getAllPrivateKeyIds(testUserId, ccId_2)));
 
 
-	assertTrue(!getPrivateKey(testUserId, "2", "2"));
-	assertTrue(putPrivateKey("privkey data 2", testUserId, "2", "2") == "2");
-	assertTrue(getPrivateKey(testUserId, "2", "2") == "privkey data 2");
+	assertTrue(!getPrivateKey(testUserId, ccId_2, keyId_2));
+	assertTrue(putPrivateKey("privkey data 2", testUserId, ccId_2, keyId_2) == keyId_2);
+	assertTrue(getPrivateKey(testUserId, ccId_2, keyId_2) == "privkey data 2");
 
-	assertTrue(!getPrivateKey(testUserId, "2", "3"));
-	assertTrue(putPrivateKey("privkey data 3", testUserId, "2", null) == "3");
-	assertTrue(getPrivateKey(testUserId, "2", "3") == "privkey data 3");
+	assertTrue(!getPrivateKey(testUserId, ccId_2, keyId_3));
+	assertTrue(putPrivateKey("privkey data 3", testUserId, ccId_2, null) == keyId_3);
+	assertTrue(getPrivateKey(testUserId, ccId_2, keyId_3) == "privkey data 3");
 
 
-	assertTrue(putPrivateKey("privkey data 3.1", testUserId, "2", "3") == "3");
-	assertTrue(getPrivateKey(testUserId, "2", "3") == "privkey data 3.1");
+	assertTrue(putPrivateKey("privkey data 3.1", testUserId, ccId_2, keyId_3) == keyId_3);
+	assertTrue(getPrivateKey(testUserId, ccId_2, keyId_3) == "privkey data 3.1");
 	
 
-	var newAllPrivateKeyIds = getAllPrivateKeyIds(testUserId, "2");
+	var newAllPrivateKeyIds = getAllPrivateKeyIds(testUserId, ccId_2);
 	assertTrue(newAllPrivateKeyIds.length == 2);
-	assertTrue(newAllPrivateKeyIds.indexOf("2") > -1);
-	assertTrue(newAllPrivateKeyIds.indexOf("3") > -1);
+	assertTrue(newAllPrivateKeyIds.indexOf(keyId_2) > -1);
+	assertTrue(newAllPrivateKeyIds.indexOf(keyId_3) > -1);
 	
 
 	// rmDir(dataDirectory);
@@ -498,26 +549,30 @@ var testPrivateKeys = function(){
 var testPlaintext = function(){
 	rmDir(dataDirectory);
 
-	assertTrue((!getAllPlaintextIds(testUserId)));
+	var colId_2 	= "2";
+	var ptextId_2 	= "2";
+	var ptextId_3 	= "3";
+
+	assertTrue((!getAllPlaintextIds(testUserId, colId_2)));
 
 
-	assertTrue(!getPlaintext(testUserId, "2", "2"));
-	assertTrue(putPlaintext("plaintext data 2", testUserId, "2", "2") == "2");
-	assertTrue(getPlaintext(testUserId, "2", "2") == "plaintext data 2");
+	assertTrue(!getPlaintext(testUserId, colId_2, ptextId_2));
+	assertTrue(putPlaintext("plaintext data 2", testUserId, colId_2, ptextId_2) == ptextId_2);
+	assertTrue(getPlaintext(testUserId, colId_2, ptextId_2) == "plaintext data 2");
 
-	assertTrue(!getPlaintext(testUserId, "2", "3"));
-	assertTrue(putPlaintext("plaintext data 3", testUserId, "2", null) == "3");
-	assertTrue(getPlaintext(testUserId, "2", "3") == "plaintext data 3");
+	assertTrue(!getPlaintext(testUserId, colId_2, ptextId_3));
+	assertTrue(putPlaintext("plaintext data 3", testUserId, colId_2, null) == ptextId_3);
+	assertTrue(getPlaintext(testUserId, colId_2, ptextId_3) == "plaintext data 3");
 
 
-	assertTrue(putPlaintext("plaintext data 3.1", testUserId, "2", "3") == "3");
-	assertTrue(getPlaintext(testUserId, "2", "3") == "plaintext data 3.1");
+	assertTrue(putPlaintext("plaintext data 3.1", testUserId, colId_2, ptextId_3) == ptextId_3);
+	assertTrue(getPlaintext(testUserId, colId_2, ptextId_3) == "plaintext data 3.1");
 	
 
-	var newAllPlaintextIds = getAllPlaintextIds(testUserId, "2");
+	var newAllPlaintextIds = getAllPlaintextIds(testUserId, colId_2);
 	assertTrue(newAllPlaintextIds.length == 2);
-	assertTrue(newAllPlaintextIds.indexOf("2") > -1);
-	assertTrue(newAllPlaintextIds.indexOf("3") > -1);
+	assertTrue(newAllPlaintextIds.indexOf(ptextId_2) > -1);
+	assertTrue(newAllPlaintextIds.indexOf(ptextId_3) > -1);
 	
 
 	// rmDir(dataDirectory);
@@ -527,27 +582,34 @@ var testPlaintext = function(){
 var testCiphertext = function(){
 	rmDir(dataDirectory);
 
-	assertTrue((!getAllCiphertextIds(testUserId)));
+	var colId_2 	= "2";
+	var ccId_2 		= "2";
+	var keyId_2 	= "2";
+	var ptextId_2 	= "2";
+	var ptextId_3 	= "3";
 
 
-	assertTrue(!getCiphertext(testUserId, "2", "2", "2", "2"));
-	assertTrue(putCiphertext("ciphertext data 2", testUserId, "2", "2", "2", "2") == "2");
-	assertTrue(getCiphertext(testUserId,"2", "2", "2", "2") == "ciphertext data 2");
-
-	assertTrue(!getCiphertext(testUserId, "2", "2", "2", "3"));
-	assertTrue(putCiphertext("ciphertext data 3", testUserId, "2", "2", "2", null) == "3");
-	assertTrue(getCiphertext(testUserId, "2", "2", "2", "3") == "ciphertext data 3");
+	assertTrue((!getAllCiphertextIds(testUserId, colId_2, ccId_2, keyId_2)));
 
 
-	assertTrue(putCiphertext("ciphertext data 3.1", testUserId, "2", "2", "2", "3") == "3");
-	assertTrue(getCiphertext(testUserId, "2", "2", "2", "3") == "ciphertext data 3.1");
+	assertTrue(!getCiphertext(testUserId, colId_2, ccId_2, keyId_2, ptextId_2));
+	assertTrue(putCiphertext("ciphertext data 2", testUserId, colId_2, ccId_2, keyId_2, ptextId_2) == ptextId_2);
+	assertTrue(getCiphertext(testUserId, colId_2, ccId_2, keyId_2, ptextId_2) == "ciphertext data 2");
+
+	assertTrue(!getCiphertext(testUserId, colId_2, ccId_2, keyId_2, ptextId_3));
+	assertTrue(putCiphertext("ciphertext data 3", testUserId, colId_2, ccId_2, keyId_2, null) == ptextId_3);
+	assertTrue(getCiphertext(testUserId, colId_2, ccId_2, keyId_2, ptextId_3) == "ciphertext data 3");
+
+
+	assertTrue(putCiphertext("ciphertext data 3.1", testUserId, colId_2, ccId_2, keyId_2, ptextId_3) == ptextId_3);
+	assertTrue(getCiphertext(testUserId, colId_2, ccId_2, keyId_2, ptextId_3) == "ciphertext data 3.1");
 	
 
-	var newAllCiphertextIds = getAllCiphertextIds(testUserId, "2", "2", "2");
+	var newAllCiphertextIds = getAllCiphertextIds(testUserId, colId_2, ccId_2, keyId_2);
 
 	assertTrue(newAllCiphertextIds.length == 2);
-	assertTrue(newAllCiphertextIds.indexOf("2") > -1);
-	assertTrue(newAllCiphertextIds.indexOf("3") > -1);
+	assertTrue(newAllCiphertextIds.indexOf(ptextId_2) > -1);
+	assertTrue(newAllCiphertextIds.indexOf(ptextId_3) > -1);
 	
 
 	// rmDir(dataDirectory);
