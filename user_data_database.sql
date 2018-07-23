@@ -598,8 +598,8 @@ create table user_ciphertext_values (
 
 
 
-
-create table newtable(
+drop table IF exists `newtable`;
+create table newtable (
 `id` 		INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 `value`	VARCHAR(256) not null,
 PRIMARY KEY (`id`)
@@ -624,6 +624,16 @@ values
 )
 on duplicate key update
 value = data;
-select ifnull(newId, LAST_INSERT_ID());
+select ifnull(newId, LAST_INSERT_ID()) as newId;
+END$$
+DELIMITER ;
+
+
+
+delimiter $$
+drop PROCEDURE if exists `testNewTableRetGetIds` ;
+CREATE PROCEDURE `testNewTableRetGetIds` ()
+BEGIN
+select id from newtable;
 END$$
 DELIMITER ;
