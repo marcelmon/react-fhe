@@ -7,7 +7,7 @@
 DELIMITER $$
 CREATE PROCEDURE `getCryptoContextIds` (IN userId INT)
 BEGIN
-SELECT 	cryptocontext_id 
+SELECT 	cryptocontext_id as id
 from 	user_cryptocontexts
 where 	user_id	= userId;
 END$$
@@ -18,7 +18,7 @@ DELIMITER ;
 DELIMITER $$
 CREATE PROCEDURE `getCryptoContext` (IN userId INT, IN ccId INT)
 BEGIN	
-SELECT 	cryptocontext_data 
+SELECT 	cryptocontext_data as cryptocontext
 from 	user_cryptocontexts
 where 	user_id 			= userId
 and 	cryptocontext_id 	= ccId;
@@ -44,7 +44,7 @@ VALUES
 )
 on duplicate key 	update
 cryptocontext_data 	= ccData;
-select IFNULL(ccId, LAST_INSERT_ID()); -- return auto incremented id if null was passed
+select IFNULL(ccId, LAST_INSERT_ID()) as id; -- return auto incremented id if null was passed
 END$$
 DELIMITER ;
 
@@ -68,7 +68,7 @@ DELIMITER ;
 DELIMITER $$
 CREATE PROCEDURE `getKeypairIds` (IN userId INT, IN ccId INT)	
 BEGIN
-SELECT keypair_id
+SELECT keypair_id as id
 from user_cryptocontext_public_private_keypairs
 where user_id 			= userId
 and cryptocontext_id 	= ccId;
@@ -107,7 +107,7 @@ VALUES
 on duplicate key update
 public_key_data 	= IFNULL(pubkeydata, public_key_data), 		-- only insert if the values inserting are non-null
 private_key_data 	= IFNULL(privkeydata, private_key_data); 	-- might want to insert 1 at a time
-select IFNULL(ccId, LAST_INSERT_ID());					-- return auto incremented id if null was passed
+select IFNULL(ccId, LAST_INSERT_ID()) as id;					-- return auto incremented id if null was passed
 END$$
 DELIMITER ;
 
@@ -116,7 +116,7 @@ DELIMITER ;
 DELIMITER $$
 CREATE PROCEDURE `getPublicKey` (IN userId INT, IN ccId INT, IN keypairId INT)
 BEGIN
-SELECT public_key_data
+SELECT public_key_data as pubkey
 from user_cryptocontext_public_private_keypairs
 where user_id 			= userId
 and cryptocontext_id 	= ccId
@@ -161,7 +161,7 @@ DELIMITER ;
 DELIMITER $$
 CREATE PROCEDURE `getCollectionIds` (IN userId INT)
 BEGIN
-SELECT collection_id
+SELECT collection_id as id
 from user_collections
 where user_id = userId;
 END$$
@@ -170,7 +170,7 @@ DELIMITER ;
 
 
 DELIMITER $$
-CREATE PROCEDURE `putCollection` (IN collectionName VARCHAR(256), IN userId INT, IN collectionId INT, OUT LID INT)
+CREATE PROCEDURE `putCollection` (IN collectionName VARCHAR(256), IN userId INT, IN collectionId INT)
 BEGIN
 INSERT INTO user_collections
 (
@@ -185,8 +185,8 @@ VALUES
 	collectionName
 )
 ON DUPLICATE KEY update
-collection_name = IF(user_id = userId, collectionName, collection_name);
-SELECT IFNULL(collectionId, LAST_INSERT_ID());						-- return auto incremented id if null was passed
+collection_name = IF(user_id = userId, collectionName, collection_name); 	-- just a safety to mke sure the wrong user can't override
+SELECT IFNULL(collectionId, LAST_INSERT_ID()) as id;						-- return auto incremented id if null was passed
 END$$
 DELIMITER ;
 
@@ -215,7 +215,7 @@ DELIMITER ;
 DELIMITER $$
 CREATE PROCEDURE `getPlaintextKVPairIds` (IN userId INT, IN collectionId INT)
 BEGIN
-select kv_pair_id
+select kv_pair_id as id
 from user_collections_plaintext_key_values
 where user_id 		= userId
 and collection_id 	= collectionId;
@@ -227,7 +227,8 @@ DELIMITER ;
 DELIMITER $$
 CREATE PROCEDURE `getPlaintextKeyValueData` (IN userId INT, IN collectionId INT, IN kvPairId INT)
 BEGIN
-select key_data, value_data
+select key_data as key, 
+value_data as value
 from user_collections_plaintext_key_values
 where user_id		= userId
 and collection_id 	= collectionId
@@ -240,7 +241,9 @@ DELIMITER ;
 DELIMITER $$
 CREATE PROCEDURE `getAllPlaintextKeysValuesData` (IN userId INT, IN collectionId INT)
 BEGIN
-select kv_pair_id, key_data, value_data
+select kv_pair_id as id, 
+key_data as key, 
+value_data as value
 from user_collections_plaintext_key_values
 where user_id 		= userId
 and collection_id 	= collectionId;
@@ -253,7 +256,7 @@ DELIMITER ;
 	DELIMITER $$
 	CREATE PROCEDURE `getPlaintextKeyData` (IN userId INT, IN collectionId INT, IN kvPairId INT)
 	BEGIN
-	select key_data
+	select key_data as key
 	from user_collections_plaintext_key_values
 	where user_id 		= userId
 	and collection_id 	= collectionId
@@ -265,7 +268,7 @@ DELIMITER ;
 	DELIMITER $$
 	CREATE PROCEDURE `getAllPlaintextKeysData` (IN userId INT, IN collectionId INT)
 	BEGIN
-	select kv_pair_id, key_data
+	select kv_pair_id as id, key_data as key
 	from user_collections_plaintext_key_values
 	where user_id 		= userId
 	and collection_id 	= collectionId;
@@ -277,7 +280,7 @@ DELIMITER ;
 	DELIMITER $$
 	CREATE PROCEDURE `getPlaintextValueData` (IN userId INT, IN collectionId INT, IN kvPairId INT)
 	BEGIN
-	select value_data
+	select value_data as value
 	from user_collections_plaintext_key_values
 	where user_id 		= userId
 	and collection_id 	= collectionId
@@ -289,7 +292,7 @@ DELIMITER ;
 	DELIMITER $$
 	CREATE PROCEDURE `getAllPlaintextValuesData` (IN userId INT, IN collectionId INT)
 	BEGIN
-	select kv_pair_id, value_data
+	select kv_pair_id as id, value_data as value
 	from user_collections_plaintext_key_values
 	where user_id 		= userId
 	and collection_id 	= collectionId;
@@ -305,8 +308,7 @@ CREATE PROCEDURE `putPlaintextKVPair`
 	IN valueData VARCHAR(256), 
 	IN userId INT, 
 	IN collectionId INT, 
-	IN kvPairId INT,
-	OUT LID INT
+	IN kvPairId INT
 )
 BEGIN
 insert into user_collections_plaintext_key_values
@@ -328,7 +330,7 @@ VALUES
 on duplicate key update
 key_data 	= keyData,
 value_data 	= valueData;
-SELECT IFNULL(kvPairId, LAST_INSERT_ID());						-- return auto incremented id if null was passed
+SELECT IFNULL(kvPairId, LAST_INSERT_ID()) as id;			-- return auto incremented id if null was passed
 END$$
 DELIMITER ;
 
@@ -354,7 +356,7 @@ DELIMITER ;
 DELIMITER $$
 CREATE PROCEDURE `getCiphertextKeyBitIds` (IN userId INT, IN collectionId INT, IN ccId INT, IN keypairId INT, IN kvPairId INT)
 BEGIN
-SELECT bit_id
+SELECT bit_id as id
 from user_ciphertext_keys_bitwise
 where user_id 			= userId
 and collection_id 		= collectionId
@@ -369,7 +371,7 @@ DELIMITER ;
 DELIMITER $$
 CREATE PROCEDURE `getCiphertextKeyBitData` (IN userId INT, IN collectionId INT, IN ccId INT, IN keypairId INT, IN kvPairId INT, IN bitId INT)
 BEGIN
-SELECT ctext_key_bit_data
+SELECT ctext_key_bit_data as bit_data
 from user_ciphertext_keys_bitwise
 where user_id 			= userId
 and collection_id 		= collectionId
@@ -432,7 +434,7 @@ DELIMITER ;
 DELIMITER $$
 CREATE PROCEDURE `getCiphertextValueData` (IN userId INT, IN collectionId INT, IN ccId INT, IN keypairId INT, IN kvPairId INT)
 BEGIN
-SELECT ctext_value_data
+SELECT ctext_value_data as value_data
 from user_ciphertext_values
 where user_id 			= userId
 and collection_id 		= collectionId
@@ -473,7 +475,7 @@ values
 	ctextValueData
 )
 on duplicate key update
-ctext_key_bit_data = keyBitData;
+ctext_key_bit_data = ctextValueData;
 END$$
 DELIMITER ;
 
