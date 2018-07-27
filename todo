@@ -110,6 +110,40 @@ build api endpoints (start with interfaces):
 
 
 
+/useraccounts/{userId}/new/
+/useraccounts/{userId}/update/
+/useraccounts/{userId}/delete/
+
+/userlogin/{userId}/login/
+/userlogin/{userId}/logout/
+
+
+/userdata/{userId}/collections/new/
+/userdata/{userId}/collections/get/{collectionId}/
+/userdata/{userId}/collections/delete/{collectionId}
+
+/userdata/{userId}/plaintext/new/
+/userdata/{userId}/plaintext/get/{collectionId}/{plaintextId}/
+/userdata/{userId}/plaintext/delete/{collectionId}/{plaintextId}/
+
+/userdata/{userId}/cryptocontext/new/
+/userdata/{userId}/cryptocontext/get	/{cryptocontextId}
+/userdata/{userId}/cryptocontext/get	/{cryptocontextId} 		/publickeys
+/userdata/{userId}/cryptocontext/get	/{cryptocontextId} 		/publickeys/delete{publickeyid}
+/userdata/{userId}/cryptocontext/delete /{cryptocontextId}
+
+/userdata/{userId}/keypairs/new/{cryptocontextId}/
+/userdata/{userId}/keypairs/get/{cryptocontextId}/both/{keypairId}/
+/userdata/{userId}/keypairs/get/{cryptocontextId}/publickey/{keypairId}/
+/userdata/{userId}/keypairs/get/{cryptocontextId}/privatekey/{keypairId}/
+/userdata/{userId}/keypairs/delete/{cryptocontextId}/{keypairId}/
+
+/userdata/{userId}/ciphertext/new/{cryptocontextId}/{keypairId}/{collectionId}/{plaintextId}/
+/userdata/{userId}/ciphertext/get/{cryptocontextId}/{keypairId}/{collectionId}/{ciphertextId}/
+/userdata/{userId}/ciphertext/delete/{cryptocontextId}/{keypairId}/{collectionId}/{ciphertextId}/
+
+
+
 	/user/collections
 	/user/collections/cryptocontext
 	/user/collections/new
