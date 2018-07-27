@@ -2,6 +2,10 @@ const request = require('sync-request');
 
 var fhePyAddr = "http://localhost:8082";
 
+/*
+	NEED TO PARSE JSON RETURN FOR PARTICULAR FIELDS
+
+*/
 var generateCryptoContext = function(){
 	var res request('POST', fhePyURL, {
 		body: "operation=cryptocontext"
@@ -30,3 +34,6 @@ var decrypt = function(cryptocontext, privatekey, ciphertext){
 	});
 	return res.getBody();
 };
+
+
+// most simple test is to 
