@@ -1,17 +1,14 @@
--- user_cryptocontext
--- __________________
-
-
-
-
-DELIMITER $$
-CREATE PROCEDURE `getCryptoContextIds` (IN userId INT)
+DELIMITER &&
+CREATE PROCEDURE `getAllCryptoContextIds` 
+(
+	IN userId INT
+)
 BEGIN
 SELECT 	cryptocontext_id as id
 from 	user_cryptocontexts
 where 	user_id	= userId;
-END$$
-DELIMITER ;
+END &&
+DELIMITER ;;
 
 
 
@@ -28,7 +25,7 @@ DELIMITER ;
 
 
 DELIMITER $$
-CREATE PROCEDURE `putCryptoContext` (IN ccData BLOB, IN userId INT, INOUT ccId INT)
+CREATE PROCEDURE `putCryptoContext` (IN ccData BLOB, IN userId INT, IN ccId INT)
 BEGIN
 INSERT INTO user_cryptocontexts
 (
@@ -66,7 +63,7 @@ DELIMITER ;
 -- __________________
 
 DELIMITER $$
-CREATE PROCEDURE `getKeypairIds` (IN userId INT, IN ccId INT)	
+CREATE PROCEDURE `getAllKeypairIds` (IN userId INT, IN ccId INT)	
 BEGIN
 SELECT keypair_id as id
 from user_cryptocontext_public_private_keypairs
@@ -107,7 +104,7 @@ VALUES
 on duplicate key update
 public_key_data 	= IFNULL(pubkeydata, public_key_data), 		-- only insert if the values inserting are non-null
 private_key_data 	= IFNULL(privkeydata, private_key_data); 	-- might want to insert 1 at a time
-select IFNULL(ccId, LAST_INSERT_ID()) as id;					-- return auto incremented id if null was passed
+select IFNULL(keypairId, LAST_INSERT_ID()) as id;					-- return auto incremented id if null was passed
 END$$
 DELIMITER ;
 
@@ -129,7 +126,7 @@ DELIMITER ;
 DELIMITER $$
 CREATE PROCEDURE `getPrivateKey` (IN userId INT, IN ccId INT, IN keypairId INT)
 BEGIN
-SELECT private_key_data
+SELECT private_key_data as privkey
 from user_cryptocontext_public_private_keypairs
 where user_id 			= userId
 and cryptocontext_id 	= ccId
@@ -159,9 +156,30 @@ DELIMITER ;
 
 
 DELIMITER $$
-CREATE PROCEDURE `getCollectionIds` (IN userId INT)
+CREATE PROCEDURE `getAllCollectionIds` (IN userId INT)
 BEGIN
 SELECT collection_id as id
+from user_collections
+where user_id = userId;
+END$$
+DELIMITER ;
+
+
+DELIMITER $$
+CREATE PROCEDURE `getCollectionName` (IN userId INT, IN collectionId INT)
+BEGIN
+SELECT collection_name as name
+from user_collections
+where user_id = userId
+and collection_id = collectionId;
+END$$
+DELIMITER ;
+
+
+DELIMITER $$
+CREATE PROCEDURE `getAllCollectionNames` (IN userId INT)
+BEGIN
+SELECT collection_id as id, collection_name as name
 from user_collections
 where user_id = userId;
 END$$
@@ -213,7 +231,7 @@ DELIMITER ;
 
 
 DELIMITER $$
-CREATE PROCEDURE `getPlaintextKVPairIds` (IN userId INT, IN collectionId INT)
+CREATE PROCEDURE `getAllPlaintextKVPairIds` (IN userId INT, IN collectionId INT)
 BEGIN
 select kv_pair_id as id
 from user_collections_plaintext_key_values
@@ -227,8 +245,8 @@ DELIMITER ;
 DELIMITER $$
 CREATE PROCEDURE `getPlaintextKeyValueData` (IN userId INT, IN collectionId INT, IN kvPairId INT)
 BEGIN
-select key_data as key, 
-value_data as value
+select key_data as `key`,
+value_data as `value`
 from user_collections_plaintext_key_values
 where user_id		= userId
 and collection_id 	= collectionId
@@ -242,8 +260,8 @@ DELIMITER $$
 CREATE PROCEDURE `getAllPlaintextKeysValuesData` (IN userId INT, IN collectionId INT)
 BEGIN
 select kv_pair_id as id, 
-key_data as key, 
-value_data as value
+key_data as `key`, 
+value_data as `value`
 from user_collections_plaintext_key_values
 where user_id 		= userId
 and collection_id 	= collectionId;
@@ -256,7 +274,7 @@ DELIMITER ;
 	DELIMITER $$
 	CREATE PROCEDURE `getPlaintextKeyData` (IN userId INT, IN collectionId INT, IN kvPairId INT)
 	BEGIN
-	select key_data as key
+	select key_data as `key`
 	from user_collections_plaintext_key_values
 	where user_id 		= userId
 	and collection_id 	= collectionId
@@ -268,7 +286,7 @@ DELIMITER ;
 	DELIMITER $$
 	CREATE PROCEDURE `getAllPlaintextKeysData` (IN userId INT, IN collectionId INT)
 	BEGIN
-	select kv_pair_id as id, key_data as key
+	select kv_pair_id as `id`, key_data as `key`
 	from user_collections_plaintext_key_values
 	where user_id 		= userId
 	and collection_id 	= collectionId;
@@ -280,7 +298,7 @@ DELIMITER ;
 	DELIMITER $$
 	CREATE PROCEDURE `getPlaintextValueData` (IN userId INT, IN collectionId INT, IN kvPairId INT)
 	BEGIN
-	select value_data as value
+	select value_data as `value`
 	from user_collections_plaintext_key_values
 	where user_id 		= userId
 	and collection_id 	= collectionId
@@ -292,7 +310,7 @@ DELIMITER ;
 	DELIMITER $$
 	CREATE PROCEDURE `getAllPlaintextValuesData` (IN userId INT, IN collectionId INT)
 	BEGIN
-	select kv_pair_id as id, value_data as value
+	select kv_pair_id as id, `value_data` as `value`
 	from user_collections_plaintext_key_values
 	where user_id 		= userId
 	and collection_id 	= collectionId;
@@ -354,7 +372,14 @@ DELIMITER ;
 
 
 DELIMITER $$
-CREATE PROCEDURE `getCiphertextKeyBitIds` (IN userId INT, IN collectionId INT, IN ccId INT, IN keypairId INT, IN kvPairId INT)
+CREATE PROCEDURE `getCiphertextKeyBitIds` 
+(
+	IN userId INT, 
+	IN collectionId INT, 
+	IN ccId INT, 
+	IN keypairId INT, 
+	IN kvPairId INT
+)
 BEGIN
 SELECT bit_id as id
 from user_ciphertext_keys_bitwise
@@ -369,7 +394,15 @@ DELIMITER ;
 
 
 DELIMITER $$
-CREATE PROCEDURE `getCiphertextKeyBitData` (IN userId INT, IN collectionId INT, IN ccId INT, IN keypairId INT, IN kvPairId INT, IN bitId INT)
+CREATE PROCEDURE `getCiphertextKeyBitData` 
+(
+	IN userId INT, 
+	IN collectionId INT, 
+	IN ccId INT, 
+	IN keypairId INT, 
+	IN kvPairId INT, 
+	IN bitId INT
+)
 BEGIN
 SELECT ctext_key_bit_data as bit_data
 from user_ciphertext_keys_bitwise
@@ -419,8 +452,35 @@ values
 )
 on duplicate key update
 ctext_key_bit_data = keyBitData;
+SELECT bitId as id;
 END$$
 DELIMITER ;
+
+
+
+
+DELIMITER $$
+CREATE PROCEDURE `deleteCiphertextKeyBitData`
+(
+	IN userId 		INT, 
+	IN collectionId INT, 
+	IN ccId 		INT, 
+	IN keypairId 	INT, 
+	IN kvPairId 	INT, 
+	IN bitId 		INT
+)
+BEGIN
+DELETE FROM user_ciphertext_keys_bitwise
+where user_id 			= userId
+and collection_id 		= collection_id
+and cryptocontext_id 	= ccId
+and keypair_id 			= keypairId
+and kv_pair_id 			= kvPairId
+and bit_id 				= bitId;
+END $$
+DELIMITER ;
+
+
 
 
 
@@ -429,10 +489,15 @@ DELIMITER ;
 -- __________________
 
 
-
-
 DELIMITER $$
-CREATE PROCEDURE `getCiphertextValueData` (IN userId INT, IN collectionId INT, IN ccId INT, IN keypairId INT, IN kvPairId INT)
+CREATE PROCEDURE `getCiphertextValueData`
+(
+	IN userId INT, 
+	IN collectionId INT, 
+	IN ccId INT, 
+	IN keypairId INT, 
+	IN kvPairId INT
+)
 BEGIN
 SELECT ctext_value_data as value_data
 from user_ciphertext_values
@@ -440,7 +505,7 @@ where user_id 			= userId
 and collection_id 		= collectionId
 and cryptocontext_id 	= ccId
 and keypair_id 			= keypairId
-and kvPairId 			= kvPairId;
+and kv_pair_id 			= kvPairId;
 END$$
 DELIMITER ;
 
@@ -475,7 +540,29 @@ values
 	ctextValueData
 )
 on duplicate key update
-ctext_key_bit_data = ctextValueData;
+ctext_value_data = ctextValueData;
+SELECT kvPairId as id;
+END$$
+DELIMITER ;
+
+
+
+DELIMITER $$
+CREATE PROCEDURE `deleteCiphertextValueData`
+( 
+	IN userId 			INT, 
+	IN collectionId 	INT, 
+	IN ccId 			INT, 
+	IN keypairId 		INT, 
+	IN kvPairId 		INT
+)
+BEGIN
+DELETE FROM user_ciphertext_values
+where user_id 			= userId
+and collection_id 		= collectionId
+and cryptocontext_id 	= ccId
+and keypair_id 			= keypairId
+and kv_pair_id 			= kvPairId;
 END$$
 DELIMITER ;
 
@@ -484,7 +571,7 @@ DELIMITER ;
 create table user_cryptocontexts (
 	`cryptocontext_id` INT(11) not null AUTO_INCREMENT,
 	`user_id` INT(11) UNSIGNED not null,
-	`cryptocontext`_data BLOB not null,
+	`cryptocontext_data` BLOB not null,
 	`created_time` timestamp,
 	`last_updated` timestamp,
 
@@ -533,7 +620,6 @@ create table user_cryptocontext_public_private_keypairs (
 
 create table user_collections (
 	`collection_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-
 	`user_id`			INT UNSIGNED NOT NULL,
 	`collection_name` 	VARCHAR(256) 	DEFAULT NULL,
 	`created_time`		timestamp,
@@ -554,7 +640,6 @@ create table user_collections (
 
 
 create table user_collections_plaintext_key_values (
-
 	`kv_pair_id` 	INT 			UNSIGNED NOT NULL AUTO_INCREMENT,
 	`user_id` 		INT 			UNSIGNED not null,
 	`collection_id` INT 			UNSIGNED not null,
@@ -569,7 +654,6 @@ create table user_collections_plaintext_key_values (
 
 
 create table user_ciphertext_keys_bitwise (
-
 	`user_id`				int UNSIGNED not null,
 	`collection_id` 		int UNSIGNED not null,
 	`cryptocontext_id` 		int UNSIGNED not null,
