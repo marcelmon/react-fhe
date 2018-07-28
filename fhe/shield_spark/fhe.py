@@ -95,7 +95,7 @@ def doOperationToStringSerialization(operation, argOne = None, argTwo = None, ar
 		cryptoContext.Serialize(serializedCryptoContext)
 		stringSerializedCC 		= example.SerializationToString(serializedCryptoContext, '')[1]
 
-		return stringSerializedCC
+		return json.dumps(stringSerializedCC)
 
 	elif operation == 'keygen':
 
@@ -161,7 +161,7 @@ def doOperationToStringSerialization(operation, argOne = None, argTwo = None, ar
 		ciphertext[0].Serialize(serializedCiphertext)
 		serializedCiphertextString 	= example.SerializationToString(serializedCiphertext, '')[1]
 
-		return serializedCiphertextString
+		return json.dumps(serializedCiphertextString)
 
 
 	elif operation == 'decrypt':
@@ -192,4 +192,4 @@ def doOperationToStringSerialization(operation, argOne = None, argTwo = None, ar
 
 		plaintext = decryptBytePlaintext(cryptoContext, privateKey, ciphertext)
 
-		return plaintext
+		return json.dumps(plaintext)
