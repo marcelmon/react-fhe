@@ -12,7 +12,7 @@ var generateCryptoContext = function(){
 			operation: 'cryptocontext'
 		},
 	});
-	return res.getBody();
+	return JSON.parse(res.getBody());
 };
 
 /*
@@ -42,7 +42,7 @@ var encrypt = function(cryptocontext, publickey, plaintext){
 			plaintext: 		plaintext
 		},
 	});
-	return res.getBody();
+	return JSON.parse(res.getBody());
 };
 
 var decrypt = function(cryptocontext, privatekey, ciphertext){
@@ -55,7 +55,7 @@ var decrypt = function(cryptocontext, privatekey, ciphertext){
 			ciphertext: 	ciphertext
 		},
 	});
-	return res.getBody();
+	return JSON.parse(res.getBody());
 };
 
 

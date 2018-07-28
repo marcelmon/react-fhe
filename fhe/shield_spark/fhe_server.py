@@ -67,13 +67,10 @@ class S(BaseHTTPRequestHandler):
 		if operation == 'cryptocontext':
 			print("HERERE 5555")
 		elif operation == 'keygen':
-			print("HERERE 66666")
-			print("cc 1");
-			argOne = bytes(post_data['cryptocontext']['data']).decode('utf-8')
+			argOne = post_data['cryptocontext']
 			# print(post_data['cryptocontext']['data']);
 
 		elif operation == 'encrypt':
-			print("HERERE 7777")
 			argOne 		= post_data['cryptocontext']
 			argTwo 		= post_data['publickey']
 			argThree 	= post_data['plaintext']
@@ -83,13 +80,9 @@ class S(BaseHTTPRequestHandler):
 			# argThree 	= post_data['plaintext'][0]
 
 		elif operation == 'decrypt':
-			print("HERERE 88888")
 			argOne 		= post_data['cryptocontext']
-			print("HERERE 99999")
 			argTwo 		= post_data['privatekey']
-			print("HERERE 10101010")
-			argThree 	= bytes(post_data['ciphertext']['data']).decode('utf-8')
-			print("HERERE 12121212")
+			argThree 	= post_data['ciphertext']
 		else:
 			self._bad_params()
 			self.wfile.write(('Bad operation supplied.').encode('utf-8'))
