@@ -1,0 +1,19 @@
+collections
+	add (id, name)
+	get all (id, name)
+	update name (id, name)
+	delete (id)
+
+	(client side: select a collection, highlights the select and will get all ptext_kv_pairs)
+
+add collection plaintext
+	put plaintext (col_id, key, value, id = null)
+	update plaintext (col_id, key, value, id = null)
+	get all plaintext kv pairs (col_id)
+	delete ptext1-kv1-pair (col_id, id)
+
+encrypt - all
+
+view encrypted data
+
+perform operations
