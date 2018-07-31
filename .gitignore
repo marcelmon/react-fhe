@@ -1,0 +1,4 @@
+*.out
+*.err
+node-server-app/data_dir/
+fhe/shield_spark/__pycache__/fhe.cpython-35.pyc

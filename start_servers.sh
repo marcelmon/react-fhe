@@ -4,8 +4,8 @@ sleep 1
 sudo fuser -k 8081/tcp
 sudo fuser -k 8082/tcp
 cd node-server-app
-nohup node node_index.js > /var/www/html/FHSearch/node_index.out 2> /var/www/html/FHSearch/node_index.err &
+nohup node app.js > ../app.out 2> ../app.err &
 cd ../fhe/shield_spark
 pwd
-nohup python3 -u fhe_server.py > /var/www/html/FHSearch/fhe_server.out 2> /var/www/html/FHSearch/fhe_server.err &
+nohup python3 -u fhe_server.py > ../fhe_server.out 2> ../fhe_server.err &
 sleep 1

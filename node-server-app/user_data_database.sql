@@ -25,7 +25,7 @@ DELIMITER ;
 
 
 DELIMITER $$
-CREATE PROCEDURE `putCryptoContext` (IN ccData BLOB, IN userId INT, IN ccId INT)
+CREATE PROCEDURE `putCryptoContext` (IN ccData LONGBLOB, IN userId INT, IN ccId INT)
 BEGIN
 INSERT INTO user_cryptocontexts
 (
@@ -78,8 +78,8 @@ DELIMITER ;
 DELIMITER $$
 CREATE PROCEDURE `putKeypair` 
 (
-	IN pubkeydata BLOB, 
-	IN privkeydata BLOB, 
+	IN pubkeydata LONGBLOB, 
+	IN privkeydata LONGBLOB, 
 	IN userId INT, 
 	IN ccId INT, 
 	IN keypairId INT
@@ -420,7 +420,7 @@ DELIMITER ;
 DELIMITER $$
 CREATE PROCEDURE `putCiphertextKeyBitData` 
 (
-	IN keyBitData 	BLOB, 
+	IN keyBitData 	LONGBLOB, 
 	IN userId 		INT, 
 	IN collectionId INT, 
 	IN ccId 		INT, 
@@ -513,7 +513,7 @@ DELIMITER ;
 DELIMITER $$
 CREATE PROCEDURE `putCiphertextValueData` 
 (
-	IN ctextValueData 	BLOB, 
+	IN ctextValueData 	LONGBLOB, 
 	IN userId 			INT, 
 	IN collectionId 	INT, 
 	IN ccId 			INT, 
@@ -571,7 +571,7 @@ DELIMITER ;
 create table user_cryptocontexts (
 	`cryptocontext_id` INT(11) not null AUTO_INCREMENT,
 	`user_id` INT(11) UNSIGNED not null,
-	`cryptocontext_data` BLOB not null,
+	`cryptocontext_data` LONGBLOB not null,
 	`created_time` timestamp,
 	`last_updated` timestamp,
 
@@ -585,8 +585,8 @@ create table user_cryptocontext_public_private_keypairs (
 	
 	`user_id` INT UNSIGNED not null,
 	`cryptocontext_id` INT UNSIGNED not null,
-	`private_key_data` BLOB,
-	`public_key_data` BLOB,
+	`private_key_data` LONGBLOB,
+	`public_key_data` LONGBLOB,
 	`created_time` timestamp,
 	`last_updated` timestamp,
 	PRIMARY KEY(`keypair_id`),
@@ -604,7 +604,7 @@ create table user_cryptocontext_public_private_keypairs (
 -- 	user_id				INT UNSIGNED not null,
 -- 	cryptocontext_id	INT UNSIGNED not null,
 -- 	keytype 			set('evalmult', 'proxy-reencrypt'),
--- 	key_data			BLOB,
+-- 	key_data			LONGBLOB,
 -- 	from_keypair_id		INT UNSIGNED not null,
 -- 	from_other_key_id 	INT UNSIGNED,
 -- 	created_time 		timestamp,
@@ -660,7 +660,7 @@ create table user_ciphertext_keys_bitwise (
 	`keypair_id` 			int UNSIGNED not null, -- refers to the key pair that was used to encrypt this
 	`kv_pair_id` 			int UNSIGNED not null, -- maps to the kvpair in user_collections_plaintext_key_values
 	`bit_id` 				int UNSIGNED not null,
-	`ctext_key_bit_data` 	BLOB not null,
+	`ctext_key_bit_data` 	LONGBLOB not null,
 	`created_time` 			timestamp,
 	`last_updated` 			timestamp,
 	PRIMARY KEY(`user_id`, `collection_id`, `cryptocontext_id`, `keypair_id`, `kv_pair_id`, `bit_id`)
@@ -673,7 +673,7 @@ create table user_ciphertext_values (
 	`cryptocontext_id` 	int UNSIGNED not null,
 	`keypair_id` 		int UNSIGNED not null,	-- refers to the key pair that was used to encrypt this
 	`kv_pair_id` 		int UNSIGNED not null, 	-- maps to the kvpair in user_collections_plaintext_key_values
-	`ctext_value_data` 	BLOB not null,
+	`ctext_value_data` 	LONGBLOB not null,
 	`created_time` 		timestamp,
 	`last_updated` 		timestamp,
 	PRIMARY KEY(`user_id`, `collection_id`, `cryptocontext_id`, `keypair_id`, `kv_pair_id`)
