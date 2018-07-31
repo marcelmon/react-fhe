@@ -68,8 +68,8 @@ var shell 		= require('shelljs');
 
 var host = 'localhost';
 var user = 'root';
-var password = '';
-var database = 'sp_test';
+var password = 'StupidPaSs*%';
+var database = 'fhe_test';
 
 
 var mysqlConnect = function(){
@@ -86,7 +86,9 @@ var mysqlConnect = function(){
 var mysqlConnectQuery = function(query){
 
 	var conn = mysqlConnect();
-	return conn.query(query);
+	var queryRes = conn.query(query);
+	conn.dispose();
+	return queryRes;
 	
 }
 
@@ -134,7 +136,7 @@ var getCryptoContext = function(userId, cryptoContextId){
 // want to consider doing this blod insert from file
 var putCryptoContext = function(ccData, userId, cryptoContextId){
 	cryptoContextId = (cryptoContextId == null || typeof cryptoContextId == 'undefined')? "NULL" : cryptoContextId;
-	var res = mysqlConnectQuery('call putCryptoContext("'+ccData+'",'+userId+','+cryptoContextId+');');
+	var res = mysqlConnectQuery("call putCryptoContext('"+ccData+"',"+userId+','+cryptoContextId+');');
 	if(res[0].length == 0){
 		return null;
 	}
@@ -150,6 +152,7 @@ var putCryptoContext = function(ccData, userId, cryptoContextId){
 // )
 var deleteCryptoContext = function(userId, ccId){
 	mysqlConnectQuery('call deleteCryptoContext('+userId+','+ccId+');');
+	return true;
 }
 
 
@@ -189,13 +192,13 @@ var putKeypair = function(pubkeydata, privkeydata, userId, ccId, keypairId){
 		return false;
 	}
 	if(pubkeydata == null){
-		res = mysqlConnectQuery('call putKeypair(NULL,"'+privkeydata+'",'+userId +','+ccId+','+keypairId+');');
+		res = mysqlConnectQuery("call putKeypair(NULL,'"+privkeydata+"',"+userId +','+ccId+','+keypairId+');');
 	}
 	else if(privkeydata == null){
-		res = mysqlConnectQuery('call putKeypair("'+pubkeydata+'",NULL,'+userId +','+ccId+','+keypairId+');');
+		res = mysqlConnectQuery("call putKeypair('"+pubkeydata+"',NULL,"+userId +','+ccId+','+keypairId+');');
 	}
 	else{
-		res = mysqlConnectQuery('call putKeypair("'+pubkeydata+'","'+privkeydata+'",'+userId +','+ccId+','+keypairId+');'); 
+		res = mysqlConnectQuery("call putKeypair('"+pubkeydata+"','"+privkeydata+"',"+userId +','+ccId+','+keypairId+');'); 
 	}
 	if(res[0].length == 0){
 		return null;
@@ -233,7 +236,7 @@ var getPrivateKey = function(userId, ccId, keypairId){
 	return res[0][0].privkey;
 }
 
-	
+
 
 
 // deleteKeypair
@@ -244,6 +247,7 @@ var getPrivateKey = function(userId, ccId, keypairId){
 // )
 var deleteKeypair = function(userId, ccId, keypairId){
 	mysqlConnectQuery('call deleteKeypair('+userId +','+ccId+','+keypairId+');');
+	return true;
 }
 
 
@@ -311,6 +315,7 @@ var getAllCollectionNames = function(userId){
 // )
 var deleteCollection = function(userId, collectionId){
 	mysqlConnectQuery('call deleteCollection('+userId+','+collectionId+');');
+	return true;
 }
 
 
@@ -415,7 +420,6 @@ var getAllPlaintextKeysValuesData = function(userId, collectionId){
 	}
 
 
-
 // putPlaintextKVPair
 // (
 // 	IN keyData VARCHAR(256), 
@@ -434,7 +438,6 @@ var putPlaintextKVPair = function(keyData, valueData, userId, collectionId, kvPa
 };
 
 
-
 // deletePlaintextKVPair
 // (
 // 	IN userId INT, 
@@ -443,6 +446,7 @@ var putPlaintextKVPair = function(keyData, valueData, userId, collectionId, kvPa
 // )
 var deletePlaintextKVPair = function(userId, collectionId, kvPairId){
 	mysqlConnectQuery('call deletePlaintextKVPair('+userId+','+collectionId+','+kvPairId+');');
+	return true;
 }
 
 
@@ -475,7 +479,7 @@ var getCiphertextKeyBitIds = function(userId, collectionId, ccId, keypairId, kvP
 // 	IN bitId INT
 // )
 var getCiphertextKeyBitData = function(userId, collectionId, ccId, keypairId, kvPairId, bitId){
-	console.log('call getCiphertextKeyBitData('+userId+','+collectionId+','+ccId+','+keypairId+','+kvPairId+','+bitId+');');
+	// console.log('call getCiphertextKeyBitData('+userId+','+collectionId+','+ccId+','+keypairId+','+kvPairId+','+bitId+');');
 	var res = mysqlConnectQuery('call getCiphertextKeyBitData('+userId+','+collectionId+','+ccId+','+keypairId+','+kvPairId+','+bitId+');');
 	if(res[0].length == 0){
 		return null;
@@ -496,7 +500,7 @@ var getCiphertextKeyBitData = function(userId, collectionId, ccId, keypairId, kv
 // 	IN bitId 		INT
 // )
 var putCiphertextKeyBitData = function(keyBitData, userId, collectionId, ccId, keypairId, kvPairId, bitId){
-	var res = mysqlConnectQuery('call putCiphertextKeyBitData("'+keyBitData+'",'+userId+','+collectionId+','+ccId+','+keypairId+','+kvPairId+','+bitId+');');
+	var res = mysqlConnectQuery("call putCiphertextKeyBitData('"+keyBitData+"',"+userId+','+collectionId+','+ccId+','+keypairId+','+kvPairId+','+bitId+');');
 	if(res[0].length == 0){
 		return null;
 	}
@@ -516,9 +520,10 @@ var putCiphertextKeyBitData = function(keyBitData, userId, collectionId, ccId, k
 // 	IN bitId 		INT
 // )
 var deleteCiphertextKeyBitData = function(userId, collectionId, ccId, keypairId, kvPairId, bitId){
-	console.log("the delete : ");
-	console.log('call deleteCiphertextKeyBitData('+userId+','+collectionId+','+ccId+','+keypairId+','+kvPairId+','+bitId+');');
+	// console.log("the delete : ");
+	// console.log('call deleteCiphertextKeyBitData('+userId+','+collectionId+','+ccId+','+keypairId+','+kvPairId+','+bitId+');');
 	mysqlConnectQuery('call deleteCiphertextKeyBitData('+userId+','+collectionId+','+ccId+','+keypairId+','+kvPairId+','+bitId+');');
+	return true;
 }
 
 
@@ -544,6 +549,7 @@ var getCiphertextValueData = function(userId, collectionId, ccId, keypairId, kvP
 	return res[0][0].value_data;
 }
 
+
 // putCiphertextValueData
 // (
 // 	IN ctextValueData 	BLOB, 
@@ -555,8 +561,8 @@ var getCiphertextValueData = function(userId, collectionId, ccId, keypairId, kvP
 // )
 var putCiphertextValueData = function(ctextValueData, userId, collectionId, ccId, keypairId, kvPairId){
 	console.log("the put ctext query : ");
-	console.log('call putCiphertextValueData("'+ctextValueData+'",'+userId+','+collectionId+','+ccId+','+keypairId+','+kvPairId+');');
-	var res = mysqlConnectQuery('call putCiphertextValueData("'+ctextValueData+'",'+userId+','+collectionId+','+ccId+','+keypairId+','+kvPairId+');');
+	// console.log('call putCiphertextValueData("'+ctextValueData+'",'+userId+','+collectionId+','+ccId+','+keypairId+','+kvPairId+');');
+	var res = mysqlConnectQuery("call putCiphertextValueData('"+ctextValueData+"',"+userId+','+collectionId+','+ccId+','+keypairId+','+kvPairId+');');
 	if(res[0].length == 0){
 		return null;
 	}
@@ -574,9 +580,45 @@ var putCiphertextValueData = function(ctextValueData, userId, collectionId, ccId
 // )
 var deleteCiphertextValueData = function(userId, collectionId, ccId, keypairId, kvPairId){
 	mysqlConnectQuery('call deleteCiphertextValueData('+userId+','+collectionId+','+ccId+','+keypairId+','+kvPairId+');');
+	return true;
 }
 
 
+module.exports = {
+	mysqlConnect: 					mysqlConnect,
+	mysqlConnectQuery: 				mysqlConnectQuery,
+	getAllCryptoContextIds: 		getAllCryptoContextIds,
+	getCryptoContext: 				getCryptoContext,
+	putCryptoContext: 				putCryptoContext,
+	deleteCryptoContext: 			deleteCryptoContext,
+	getAllKeypairIds: 				getAllKeypairIds,
+	putKeypair: 					putKeypair,
+	getPublicKey: 					getPublicKey,
+	getPrivateKey: 					getPrivateKey,
+	deleteKeypair: 					deleteKeypair,
+	getAllCollectionIds: 			getAllCollectionIds,
+	putCollection: 					putCollection,
+	getCollectionName: 				getCollectionName,
+	getAllCollectionNames: 			getAllCollectionNames,
+	deleteCollection: 				deleteCollection,
+	getAllPlaintextKVPairIds: 		getAllPlaintextKVPairIds,
+	getPlaintextKeyValueData: 		getPlaintextKeyValueData,
+	getAllPlaintextKeysValuesData: 	getAllPlaintextKeysValuesData,
+	getPlaintextKeyData: 			getPlaintextKeyData,
+	getAllPlaintextKeysData: 		getAllPlaintextKeysData,
+	getPlaintextValueData: 			getPlaintextValueData,
+	getAllPlaintextValuesData: 		getAllPlaintextValuesData,
+	putPlaintextKVPair: 			putPlaintextKVPair,
+	deletePlaintextKVPair: 			deletePlaintextKVPair,
+	getCiphertextKeyBitIds: 		getCiphertextKeyBitIds,
+	getCiphertextKeyBitData: 		getCiphertextKeyBitData,
+	putCiphertextKeyBitData: 		putCiphertextKeyBitData,
+	deleteCiphertextKeyBitData: 	deleteCiphertextKeyBitData,
+	getCiphertextValueData: 		getCiphertextValueData,
+	putCiphertextValueData: 		putCiphertextValueData,
+	deleteCiphertextValueData: 		deleteCiphertextValueData
+	
+};
 
 
 // testing:

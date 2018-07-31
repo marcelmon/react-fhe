@@ -60,6 +60,12 @@ var decrypt = function(cryptocontext, privatekey, ciphertext){
 
 
 
+module.exports = {
+	generateCryptoContext: 	generateCryptoContext,
+	keygen: 				keygen,
+	encrypt: 				encrypt,
+	decrypt: 				decrypt
+};
 
 
 var assertTrue = function(val){
@@ -78,9 +84,9 @@ var testAll = function(){
 
 	var cc = generateCryptoContext();
 
-	fs.writeFileSync(outfile, "cc is : \n\n");
-	fs.appendFileSync(outfile, cc);
-	fs.appendFileSync(outfile, "\n\n\n");
+	// fs.writeFileSync(outfile, "cc is : \n\n");
+	// fs.appendFileSync(outfile, cc);
+	// fs.appendFileSync(outfile, "\n\n\n");
 
 	var keygenRet = keygen(cc);
 
@@ -88,24 +94,24 @@ var testAll = function(){
 	var privatekey = keygenRet.privatekey;
 	var publickey = keygenRet.publickey;
 
-	fs.appendFileSync(outfile, "newCC is : \n\n");
-	fs.appendFileSync(outfile, newCC);
-	fs.appendFileSync(outfile, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+	// fs.appendFileSync(outfile, "newCC is : \n\n");
+	// fs.appendFileSync(outfile, newCC);
+	// fs.appendFileSync(outfile, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 
-	fs.appendFileSync(outfile, "privatekey is : \n\n");
-	fs.appendFileSync(outfile, privatekey);
-	fs.appendFileSync(outfile, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+	// fs.appendFileSync(outfile, "privatekey is : \n\n");
+	// fs.appendFileSync(outfile, privatekey);
+	// fs.appendFileSync(outfile, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 
-	fs.appendFileSync(outfile, "publickey is : \n\n");
-	fs.appendFileSync(outfile, publickey);
-	fs.appendFileSync(outfile, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+	// fs.appendFileSync(outfile, "publickey is : \n\n");
+	// fs.appendFileSync(outfile, publickey);
+	// fs.appendFileSync(outfile, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 
 
 	var encResult = encrypt(newCC, publickey, plaintext);
 
-	fs.appendFileSync(outfile, "encResult is : \n\n");
-	fs.appendFileSync(outfile, encResult);
-	fs.appendFileSync(outfile, "\n\n\n");
+	// fs.appendFileSync(outfile, "encResult is : \n\n");
+	// fs.appendFileSync(outfile, encResult);
+	// fs.appendFileSync(outfile, "\n\n\n");
 
 	var decResult = decrypt(newCC, privatekey, encResult);
 

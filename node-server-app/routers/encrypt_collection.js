@@ -7,7 +7,7 @@ var fheInterface 	= require('../fhe_interface_pyServer.js');
 
 var getMostRecentCC = function(userId){
 	var ccIds = dbInterface.getAllCryptoContextIds(userId);
-	if(!ccIds){
+	if(!ccIds || ccIds.length == 0){
 		return false;
 	}
 	var ccData = dbInterface.getCryptoContext(userId, ccIds[0]);
@@ -35,7 +35,7 @@ var generateAndPutNewCryptoContext = function(userId){
 
 var getMostRecentKeypair = function(userId, ccId){
 	var keypairIds = dbInterface.getAllKeypairIds(userId, ccId);
-	if(!keypairIds){
+	if(!keypairIds || keypairIds.length == 0){
 		return false;
 	}
 	var publicKey = dbInterface.getPublicKey(userId, ccId, keypairIds[0]);
@@ -46,7 +46,7 @@ var getMostRecentKeypair = function(userId, ccId){
 	if(!privateKey){
 		return false;
 	}
-	return {keyId: keypairIds[0], publicKey: publicKey, privateKey:privateKey};
+	return {keyId: keypairIds[0], publicKey: publicKey, privateKey: privateKey};
 };
 
 
@@ -60,7 +60,8 @@ var generateAndPutNewKeypair = function(userId, ccId, ccData){
 	var privatekey 	= keyPairAndCCData.privatekey;
 	var newCCData 	= keyPairAndCCData.cryptocontext;
 	
-	var keyId 	= dbInterface.putKeypair(pubkey, privkey, userId, ccId, null);
+
+	var keyId 	= dbInterface.putKeypair(publickey, privatekey, userId, ccId, null);
 	if(!keyId){
 		return false;
 	}
@@ -86,36 +87,40 @@ var getFlattenedBits = function(inputString){
 
 
 // add with auto increment
-router.put('/:userId/:colId/encryptAll/', function(req, res){
+router.post('/:userId/:colId/encrypt_all/', function(req, res){
 
-	var ccRet = getMostRecentCC(userId);
+	var ccRet = getMostRecentCC(req.params.userId);
 	if(!ccRet){
-		ccRet = generateAndPutNewCryptoContext(userId);
+		ccRet = generateAndPutNewCryptoContext(req.params.userId);
 		if(!ccRet){
-
+			res.status(500).send('Something broke in encrypt all. Could not generate and put new cc!');
+			return;
 		}
 	}
 	var ccId = ccRet.ccId;
 	var ccData = ccRet.ccData;
 
-	var keyRet = getMostRecentKeypair(req.userId, ccId);
+	var keyRet = getMostRecentKeypair(req.params.userId, ccId);
 	if(!keyRet){
-		keyRet = generateAndPutNewKeypair(req.userId, ccId, ccData);
+		keyRet = generateAndPutNewKeypair(req.params.userId, ccId, ccData);
 		if(!keyRet){
-
+			res.status(500).send('Something broke in encrypt all. Could not generate and put new keypair!');
+			return;
 		}
-		ccData = newkeyRet.ccData;
+		ccData = keyRet.ccData;
 	}
 	var keyId 		= keyRet.keyId;
 	var publickey 	= keyRet.publickey;
 	var privatekey 	= keyRet.privateKey;
 
-	var allPtextIdsKeysAndValues = dbInterface.getAllPlaintextKeysValuesData(req.userId, req.colId);
+	var allPtextIdsKeysAndValues = dbInterface.getAllPlaintextKeysValuesData(req.params.userId, req.params.colId);
 	if(!allPtextIdsKeysAndValues){
-
+		res.status(500).send('Something broke in encrypt all could not get ptext ids!');
+		return;
 	}
 	else if(allPtextIdsKeysAndValues.length == 0){
-
+		res.status(500).send('Something broke in encrypt all. No plaintext in collection!');
+		return;
 	}
 	else{
 		for (var i = 0; i < allPtextIdsKeysAndValues.length; i++) {
@@ -125,13 +130,19 @@ router.put('/:userId/:colId/encryptAll/', function(req, res){
 			var keyBits = getFlattenedBits(allPtextIdsKeysAndValues[i].key);
 			for (var bitId = 0; bitId < keyBits.length; bitId++) {
 				
-				var encryptedBit = fheInterface.encrypt(ccData, publickey, keyBits[bitId]);
-				dbInterface.putCiphertextKeyBitData(encryptedBit, req.userId, req.colId, ccId, keyId, kvPairId, bitId);
+				var encryptedBit = fheInterface.encrypt(ccData, publickey, keyBits[bitId].toString());
+				dbInterface.putCiphertextKeyBitData(encryptedBit, req.params.userId, req.params.colId, ccId, keyId, kvPairId, bitId);
 
 			};
 			// encrypt the value
-			var encryptedValue = fheInterface.encrypt(ccData, publickey, allPtextIdsKeysAndValues.value);
-			dbInterface.putCiphertextValueData(encryptedValue, req.userId, req.colId, ccId, keyId, kvPairId);
+			var encryptedValue = fheInterface.encrypt(ccData, publickey, allPtextIdsKeysAndValues[i].value);
+			dbInterface.putCiphertextValueData(encryptedValue, req.params.userId, req.params.colId, ccId, keyId, kvPairId);
 		};
+		res.setHeader('Content-Type', 'application/json');
+	    res.send(JSON.stringify(true));
 	}
 });
+
+
+
+module.exports = router;

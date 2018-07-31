@@ -28,46 +28,53 @@ var dbInterface = require('../db_interface_mysql.js');
 */
 
 // add with auto increment
-router.put('/:userId/:colId/add/:key/:value/', function(req, res){
-	var ret = dbInterface.putPlaintextKVPair(req.key, req.value, req.userId, req.colId, null);
+router.post('/:userId/:colId/add/:key/:value/', function(req, res){
+	var ret = dbInterface.putPlaintextKVPair(req.params.key, req.params.value, req.params.userId, req.params.colId, null);
 	if(!ret){
-
+		res.status(500).send('Something broke in put kv pair!');
 	}
 	else{
-
+		res.setHeader('Content-Type', 'application/json');
+	    res.send(JSON.stringify({ id: ret }));
 	}
 });
 
 
 // get all ids and keys and values
-router.put('/:userId/:colId/getAll/', function(req, res){
-	var ret = dbInterface.getAllPlaintextKeysValuesData(req.userId, req.colId);
+router.post('/:userId/:colId/getAll/', function(req, res){
+	var ret = dbInterface.getAllPlaintextKeysValuesData(req.params.userId, req.params.colId);
 	if(!ret){
-
+		res.status(500).send('Something broke in get all kv pairs!');
 	}
 	else{
-
+		res.setHeader('Content-Type', 'application/json');
+	    res.send(JSON.stringify(ret));
 	}
 });
 
 // update
-router.put('/:userId/:colId/update/:ptextId/:key/:value/', function(req, res){
-	var ret = dbInterface.putPlaintextKVPair(req.key, req.value, req.userId, req.colId, ptextId);
+router.post('/:userId/:colId/update/:ptextId/:key/:value/', function(req, res){
+	var ret = dbInterface.putPlaintextKVPair(req.params.key, req.params.value, req.params.userId, req.params.colId, req.params.ptextId);
 	if(!ret){
-
+		res.status(500).send('Something broke in update kv pair!');
 	}
 	else{
-
+		res.setHeader('Content-Type', 'application/json');
+	    res.send(JSON.stringify({id:ret}));
 	}
 });
 
 // delete
-router.put('/:userId/:colId/delete/:ptextId/', function(req, res){
-	var ret = dbInterface.deletePlaintextKVPair(req.userId, req.colId, req.ptextId);
+router.post('/:userId/:colId/delete/:ptextId/', function(req, res){
+	var ret = dbInterface.deletePlaintextKVPair(req.params.userId, req.params.colId, req.params.ptextId);
 	if(!ret){
-
+		res.status(500).send('Something broke in delete kv pair!');
 	}
 	else{
-
+		res.setHeader('Content-Type', 'application/json');
+	    res.send(JSON.stringify(true));
 	}
 });
+
+
+module.exports = router;
