@@ -560,7 +560,7 @@ var getCiphertextValueData = function(userId, collectionId, ccId, keypairId, kvP
 // 	IN kvPairId 		INT
 // )
 var putCiphertextValueData = function(ctextValueData, userId, collectionId, ccId, keypairId, kvPairId){
-	console.log("the put ctext query : ");
+	// console.log("the put ctext query : ");
 	// console.log('call putCiphertextValueData("'+ctextValueData+'",'+userId+','+collectionId+','+ccId+','+keypairId+','+kvPairId+');');
 	var res = mysqlConnectQuery("call putCiphertextValueData('"+ctextValueData+"',"+userId+','+collectionId+','+ccId+','+keypairId+','+kvPairId+');');
 	if(res[0].length == 0){
