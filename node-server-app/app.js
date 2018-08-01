@@ -199,7 +199,7 @@ app.use(bodyParser.urlencoded({ extended: false , limit: '100mb'}))
 app.use(bodyParser.json({limit: '100mb'}))
 
 app.get('/', function(req, res){
-	fs.readFile('../test_react.html', function (err, html) {
+	fs.readFile('../react_html.html', function (err, html) {
 		if (err) {
 			throw err; 
 		}

@@ -20,5 +20,8 @@
     "shelljs": "^0.8.2",
     "sync-mysql": "^3.0.1",
     "sync-request": "^6.0.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0"
   }
 }
