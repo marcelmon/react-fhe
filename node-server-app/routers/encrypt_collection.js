@@ -130,13 +130,20 @@ router.post('/:userId/:colId/encrypt_all/', function(req, res){
 			var keyBits = getFlattenedBits(allPtextIdsKeysAndValues[i].key);
 			for (var bitId = 0; bitId < keyBits.length; bitId++) {
 				
-				var encryptedBit = fheInterface.encrypt(ccData, publickey, keyBits[bitId].toString());
+				// var encryptedBit = fheInterface.encrypt(ccData, publickey, keyBits[bitId].toString());
+				var encryptedBitAndSample = fheInterface.encryptWithSample(ccData, publickey, keyBits[bitId].toString());
+				var encryptedBit = encryptedBitAndSample['ctext'];
+				var sampleArray  = encryptedBitAndSample['sample'];
 				dbInterface.putCiphertextKeyBitData(encryptedBit, req.params.userId, req.params.colId, ccId, keyId, kvPairId, bitId);
-
+				dbInterface.putCiphertextKeyBitSample(JSON.stringify(sampleArray), req.params.userId, req.params.colId, ccId, keyId, kvPairId, bitId)
 			};
 			// encrypt the value
-			var encryptedValue = fheInterface.encrypt(ccData, publickey, allPtextIdsKeysAndValues[i].value);
+			// var encryptedValue = fheInterface.encrypt(ccData, publickey, allPtextIdsKeysAndValues[i].value);
+			var encryptedValueAndSample = fheInterface.encryptWithSample(ccData, publickey, allPtextIdsKeysAndValues[i].value);
+			var encryptedValue 			= encryptedValueAndSample['ctext'];
+			var encryptedValueSample 	= encryptedValueAndSample['sample'];
 			dbInterface.putCiphertextValueData(encryptedValue, req.params.userId, req.params.colId, ccId, keyId, kvPairId);
+			dbInterface.putCiphertextValueSample(JSON.stringify(encryptedValueSample), req.params.userId, req.params.colId, ccId, keyId, kvPairId);
 		};
 		res.setHeader('Content-Type', 'application/json');
 	    res.send(JSON.stringify(true));

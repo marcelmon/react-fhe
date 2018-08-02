@@ -148,7 +148,7 @@ def encryptToStringSerialization(serializedCCString, serializedPublicKeyString, 
 	ciphertext[0].Serialize(serializedCiphertext)
 	serializedCiphertextString 	= example.SerializationToString(serializedCiphertext, '')[1]
 	if includeSampleData:
-		numElements = 4
+		numElements = 2
 		numCoefficients = 3
 		return { 'ctext': serializedCiphertextString, 'sample': getCtextMatrixSample(ciphertext[0], numElements, numCoefficients) }
 	else:

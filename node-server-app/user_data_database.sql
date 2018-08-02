@@ -784,7 +784,7 @@ create table user_ciphertext_keys_bitwise (
 	`keypair_id` 			int UNSIGNED not null, -- refers to the key pair that was used to encrypt this
 	`kv_pair_id` 			int UNSIGNED not null, -- maps to the kvpair in user_collections_plaintext_key_values
 	`bit_id` 				int UNSIGNED not null,
-	`ctext_key_bit_data` 	LONGBLOB not null,
+	`ctext_key_bit_data` 	LONGBLOB default null,
 	`created_time` 			timestamp,
 	`last_updated` 			timestamp,
 	`json_array_sample` 	TEXT DEFAULT NULL,
@@ -798,7 +798,7 @@ create table user_ciphertext_values (
 	`cryptocontext_id` 	int UNSIGNED not null,
 	`keypair_id` 		int UNSIGNED not null,	-- refers to the key pair that was used to encrypt this
 	`kv_pair_id` 		int UNSIGNED not null, 	-- maps to the kvpair in user_collections_plaintext_key_values
-	`ctext_value_data` 	LONGBLOB not null,
+	`ctext_value_data` 	LONGBLOB DEFAULT null,
 	`created_time` 		timestamp,
 	`last_updated` 		timestamp,
 	`json_array_sample` TEXT DEFAULT NULL,

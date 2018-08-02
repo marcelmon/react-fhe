@@ -34,9 +34,22 @@ var keygen = function(cryptocontext){
 };
 
 var encrypt = function(cryptocontext, publickey, plaintext){
+	console.log("in encrypt");
 	var res = request('POST', fhePyURL, {
 		json: {
 			operation: 		'encrypt',
+			cryptocontext: 	cryptocontext,
+			publickey: 		publickey,
+			plaintext: 		plaintext
+		},
+	});
+	return JSON.parse(res.getBody());
+};
+
+var encryptWithSample = function(cryptocontext, publickey, plaintext){
+	var res = request('POST', fhePyURL, {
+		json: {
+			operation: 		'encrypt_with_sample',
 			cryptocontext: 	cryptocontext,
 			publickey: 		publickey,
 			plaintext: 		plaintext
@@ -64,7 +77,8 @@ module.exports = {
 	generateCryptoContext: 	generateCryptoContext,
 	keygen: 				keygen,
 	encrypt: 				encrypt,
-	decrypt: 				decrypt
+	decrypt: 				decrypt,
+	encryptWithSample: 		encryptWithSample
 };
 
 

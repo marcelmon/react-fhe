@@ -70,7 +70,12 @@ class S(BaseHTTPRequestHandler):
 			ret = fhe.keygenToStringSerialization(post_data['cryptocontext'])
 			ret = json.dumps(ret)
 		elif operation == 'encrypt':
-			ret = fhe.encryptToStringSerialization(post_data['cryptocontext'], post_data['publickey'], post_data['plaintext'])
+			ret = fhe.encryptToStringSerialization(post_data['cryptocontext'], post_data['publickey'], post_data['plaintext'], False)
+			# json is {'ctext': '...', 'sample':[...]}
+			ret = json.dumps(ret)
+		elif operation == 'encrypt_with_sample':
+			ret = fhe.encryptToStringSerialization(post_data['cryptocontext'], post_data['publickey'], post_data['plaintext'], True)
+			# json is {'ctext': '...', 'sample':[...]}
 			ret = json.dumps(ret)
 		elif operation == 'decrypt':
 			ret = fhe.decryptToStringSerialization(post_data['cryptocontext'], post_data['privatekey'], post_data['ciphertext'])
