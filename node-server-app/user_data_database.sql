@@ -418,6 +418,31 @@ DELIMITER ;
 
 
 DELIMITER $$
+CREATE PROCEDURE `getCiphertextKeyBitDataWithSample` 
+(
+	IN userId INT, 
+	IN collectionId INT, 
+	IN ccId INT, 
+	IN keypairId INT, 
+	IN kvPairId INT, 
+	IN bitId INT
+)
+BEGIN
+SELECT ctext_key_bit_data 	as bit_data,
+json_array_sample 			as jsonArraySample
+from user_ciphertext_keys_bitwise
+where user_id 			= userId
+and collection_id 		= collectionId
+and cryptocontext_id 	= ccId
+and keypair_id 			= keypairId
+and kv_pair_id 			= kvPairId
+and bit_id 				= bitId;
+END$$
+DELIMITER ;
+
+
+
+DELIMITER $$
 CREATE PROCEDURE `putCiphertextKeyBitData` 
 (
 	IN keyBitData 	LONGBLOB, 
@@ -452,6 +477,51 @@ values
 )
 on duplicate key update
 ctext_key_bit_data = keyBitData;
+SELECT bitId as id;
+END$$
+DELIMITER ;
+
+
+
+DELIMITER $$
+CREATE PROCEDURE `putCiphertextKeyBitDataWithSample` 
+(
+	IN keyBitData 	LONGBLOB, 
+	IN userId 		INT, 
+	IN collectionId INT, 
+	IN ccId 		INT, 
+	IN keypairId 	INT, 
+	IN kvPairId 	INT, 
+	IN bitId 		INT,
+	IN jsonArraySample TEXT
+
+)
+BEGIN
+INSERT INTO user_ciphertext_keys_bitwise
+(
+	user_id,
+	collection_id,
+	cryptocontext_id,
+	keypair_id,
+	kv_pair_id,
+	bit_id,
+	ctext_key_bit_data,
+	json_array_sample
+)
+values
+(
+	userId,
+	collectionId,
+	ccId,
+	keypairId,
+	kvPairId,
+	bitId,
+	keyBitData,
+	jsonArraySample
+)
+on duplicate key update
+ctext_key_bit_data = keyBitData,
+json_array_sample = jsonArraySample;
 SELECT bitId as id;
 END$$
 DELIMITER ;
@@ -510,6 +580,29 @@ END$$
 DELIMITER ;
 
 
+
+DELIMITER $$
+CREATE PROCEDURE `getCiphertextValueDataWithSample`
+(
+	IN userId INT, 
+	IN collectionId INT, 
+	IN ccId INT, 
+	IN keypairId INT, 
+	IN kvPairId INT
+)
+BEGIN
+SELECT ctext_value_data as value_data,
+json_array_sample 		as jsonArraySample
+from user_ciphertext_values
+where user_id 			= userId
+and collection_id 		= collectionId
+and cryptocontext_id 	= ccId
+and keypair_id 			= keypairId
+and kv_pair_id 			= kvPairId;
+END$$
+DELIMITER ;
+
+
 DELIMITER $$
 CREATE PROCEDURE `putCiphertextValueData` 
 (
@@ -541,6 +634,47 @@ values
 )
 on duplicate key update
 ctext_value_data = ctextValueData;
+SELECT kvPairId as id;
+END$$
+DELIMITER ;
+
+
+
+DELIMITER $$
+CREATE PROCEDURE `putCiphertextValueDataWithSample` 
+(
+	IN ctextValueData 	LONGBLOB, 
+	IN userId 			INT, 
+	IN collectionId 	INT, 
+	IN ccId 			INT, 
+	IN keypairId 		INT, 
+	IN kvPairId 		INT,
+	IN jsonArraySample 	TEXT
+)
+BEGIN
+INSERT INTO user_ciphertext_values
+(
+	user_id,
+	collection_id,
+	cryptocontext_id,
+	keypair_id,
+	kv_pair_id,
+	ctext_value_data,
+	json_array_sample
+)
+values 
+(
+	userId,
+	collectionId,
+	ccId,
+	keypairId,
+	kvPairId,
+	ctextValueData,
+	jsonArraySample
+)
+on duplicate key update
+ctext_value_data 	= ctextValueData,
+json_array_sample 	= jsonArraySample;
 SELECT kvPairId as id;
 END$$
 DELIMITER ;
@@ -663,6 +797,7 @@ create table user_ciphertext_keys_bitwise (
 	`ctext_key_bit_data` 	LONGBLOB not null,
 	`created_time` 			timestamp,
 	`last_updated` 			timestamp,
+	`json_array_sample` 	TEXT DEFAULT NULL,
 	PRIMARY KEY(`user_id`, `collection_id`, `cryptocontext_id`, `keypair_id`, `kv_pair_id`, `bit_id`)
 
 );
@@ -676,6 +811,7 @@ create table user_ciphertext_values (
 	`ctext_value_data` 	LONGBLOB not null,
 	`created_time` 		timestamp,
 	`last_updated` 		timestamp,
+	`json_array_sample` TEXT DEFAULT NULL,
 	PRIMARY KEY(`user_id`, `collection_id`, `cryptocontext_id`, `keypair_id`, `kv_pair_id`)
 );
 
