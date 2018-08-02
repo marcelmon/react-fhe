@@ -418,7 +418,7 @@ DELIMITER ;
 
 
 DELIMITER $$
-CREATE PROCEDURE `getCiphertextKeyBitDataWithSample` 
+CREATE PROCEDURE `getCiphertextKeyBitSample` 
 (
 	IN userId INT, 
 	IN collectionId INT, 
@@ -428,8 +428,7 @@ CREATE PROCEDURE `getCiphertextKeyBitDataWithSample`
 	IN bitId INT
 )
 BEGIN
-SELECT ctext_key_bit_data 	as bit_data,
-json_array_sample 			as jsonArraySample
+SELECT json_array_sample as jsonArraySample
 from user_ciphertext_keys_bitwise
 where user_id 			= userId
 and collection_id 		= collectionId
@@ -484,17 +483,15 @@ DELIMITER ;
 
 
 DELIMITER $$
-CREATE PROCEDURE `putCiphertextKeyBitDataWithSample` 
+CREATE PROCEDURE `putCiphertextKeyBitSample` 
 (
-	IN keyBitData 	LONGBLOB, 
+	IN jsonArraySample TEXT,
 	IN userId 		INT, 
 	IN collectionId INT, 
 	IN ccId 		INT, 
 	IN keypairId 	INT, 
 	IN kvPairId 	INT, 
-	IN bitId 		INT,
-	IN jsonArraySample TEXT
-
+	IN bitId 		INT
 )
 BEGIN
 INSERT INTO user_ciphertext_keys_bitwise
@@ -505,7 +502,6 @@ INSERT INTO user_ciphertext_keys_bitwise
 	keypair_id,
 	kv_pair_id,
 	bit_id,
-	ctext_key_bit_data,
 	json_array_sample
 )
 values
@@ -516,11 +512,9 @@ values
 	keypairId,
 	kvPairId,
 	bitId,
-	keyBitData,
 	jsonArraySample
 )
 on duplicate key update
-ctext_key_bit_data = keyBitData,
 json_array_sample = jsonArraySample;
 SELECT bitId as id;
 END$$
@@ -582,7 +576,7 @@ DELIMITER ;
 
 
 DELIMITER $$
-CREATE PROCEDURE `getCiphertextValueDataWithSample`
+CREATE PROCEDURE `getCiphertextValueSample`
 (
 	IN userId INT, 
 	IN collectionId INT, 
@@ -591,8 +585,7 @@ CREATE PROCEDURE `getCiphertextValueDataWithSample`
 	IN kvPairId INT
 )
 BEGIN
-SELECT ctext_value_data as value_data,
-json_array_sample 		as jsonArraySample
+SELECT json_array_sample as jsonArraySample
 from user_ciphertext_values
 where user_id 			= userId
 and collection_id 		= collectionId
@@ -641,15 +634,15 @@ DELIMITER ;
 
 
 DELIMITER $$
-CREATE PROCEDURE `putCiphertextValueDataWithSample` 
+CREATE PROCEDURE `putCiphertextValueSample` 
 (
-	IN ctextValueData 	LONGBLOB, 
+	IN jsonArraySample 	TEXT,
 	IN userId 			INT, 
 	IN collectionId 	INT, 
 	IN ccId 			INT, 
 	IN keypairId 		INT, 
-	IN kvPairId 		INT,
-	IN jsonArraySample 	TEXT
+	IN kvPairId 		INT
+	
 )
 BEGIN
 INSERT INTO user_ciphertext_values
@@ -659,7 +652,6 @@ INSERT INTO user_ciphertext_values
 	cryptocontext_id,
 	keypair_id,
 	kv_pair_id,
-	ctext_value_data,
 	json_array_sample
 )
 values 
@@ -669,11 +661,9 @@ values
 	ccId,
 	keypairId,
 	kvPairId,
-	ctextValueData,
 	jsonArraySample
 )
 on duplicate key update
-ctext_value_data 	= ctextValueData,
 json_array_sample 	= jsonArraySample;
 SELECT kvPairId as id;
 END$$
