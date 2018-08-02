@@ -33,9 +33,26 @@ print("keygen complete")
 
 val = "aaV"
 
-ctext = fhe.encryptToStringSerialization(keyDict['cryptocontext'], keyDict['publickey'], val)
+ctextAndSample = fhe.encryptToStringSerialization(keyDict['cryptocontext'], keyDict['publickey'], val, True)
 
+ctext = ctextAndSample['ctext'];
 print("has ctext")
 decryptedVal = fhe.decryptToStringSerialization(keyDict['cryptocontext'], keyDict['privatekey'], ctext)
 
 print("FINAL!!! :" + decryptedVal +"::")
+
+print("sample data:")
+
+
+# ctext.sample = fhe.getCtextMatrixSampleFromSerialized(keyDict['cryptocontext'], ctext, 2, 4);
+
+print(ctextAndSample['sample'])
+
+
+
+print("final without sample")
+
+ctext = fhe.encryptToStringSerialization(keyDict['cryptocontext'], keyDict['publickey'], val)
+print("has ctext")
+decryptedVal = fhe.decryptToStringSerialization(keyDict['cryptocontext'], keyDict['privatekey'], ctext)
+print("FINAL final!!! :" + decryptedVal +"::")

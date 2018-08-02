@@ -47,6 +47,21 @@ import json as json
 
 # """
 
+def getCtextMatrixSample(ctext, numElements = 1, numCoefficients = 1):
+	return example.getCtextMatrixSample(ctext, numElements, numCoefficients)
+
+def getCtextMatrixSampleFromSerialized(serializedCCString, serializedCiphertextString, numElements = 1, numCoefficients = 1):
+
+	serializedCC = example.Serialized()
+	example.StringToSerialization(serializedCCString, serializedCC)
+	cryptoContext = example.CryptoContextFactory.DeserializeAndCreateContext(serializedCC, False)
+
+	serializedCiphertext = example.Serialized()
+	example.StringToSerialization(serializedCiphertextString, serializedCiphertext)
+	ciphertext 			= cryptoContext.deserializeCiphertext(serializedCiphertext)
+
+	return getCtextMatrixSample(ciphertext, numElements, numCoefficients)
+
 def serializeObject(objectToSerialize):
 	serialized = example.Serialized()
 	objectToSerialize.Serialize(serialized)
@@ -132,8 +147,13 @@ def encryptToStringSerialization(serializedCCString, serializedPublicKeyString, 
 	serializedCiphertext = example.Serialized()
 	ciphertext[0].Serialize(serializedCiphertext)
 	serializedCiphertextString 	= example.SerializationToString(serializedCiphertext, '')[1]
-
-	return serializedCiphertextString
+	if includeSampleData:
+		numElements = 4
+		numCoefficients = 3
+		return { 'ctext': serializedCiphertextString, 'sample': getCtextMatrixSample(ciphertext[0], numElements, numCoefficients) }
+	else:
+		return serializedCiphertextString
+	
 
 
 def decryptToStringSerialization(serializedCCString, serializedPrivateKeyString, serializedCiphertextString):
