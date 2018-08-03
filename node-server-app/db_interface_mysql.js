@@ -907,7 +907,6 @@ var testCollections = function(){
 	var newAllColelctionIdNames = getAllCollectionNames(testUserId);
 	assertTrue(newAllColelctionIdNames.length 	== 2);
 
-	console.log(newAllColelctionIdNames);
 	// assertTrue(false);
 	// expected return : [{id:ccId_1, name:colName_1},{id:ccId_1, name:colName_1}]
 	assertTrue(newAllColelctionIdNames[0].id 	== colId_1 				|| newAllColelctionIdNames[1].id 	== colId_1);
@@ -1320,9 +1319,6 @@ var testCtextGetIds = function(){
 	// 	},
 	// ]
 	var fourthBitData = getCiphertextValueAndBitIdsForCollection(testUserId, colId, ccId, keypairId);
-
-	console.log("thing");
-	console.log(fourthBitData);
 
 	assertTrue(fourthBitData.length == 2);
 	assertTrue(fourthBitData[0].kvPairId 		== kvPairId_1);
