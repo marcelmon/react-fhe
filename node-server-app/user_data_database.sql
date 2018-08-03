@@ -692,6 +692,59 @@ DELIMITER ;
 
 
 
+DELIMITER $$
+CREATE PROCEDURE `getCiphertextValueAndBitIdsForCollection`
+(
+	IN userId INT, 
+	IN collectionId INT, 
+	IN ccId INT, 
+	IN keypairId INT
+)
+BEGIN
+SELECT * from
+(
+	SELECT user_ciphertext_keys_bitwise.kv_pair_id as kvPairId,
+	CONCAT(
+		'[', 
+		GROUP_CONCAT(user_ciphertext_keys_bitwise.bit_id ORDER BY user_ciphertext_keys_bitwise.bit_id ASC 
+		SEPARATOR ','), ']'
+		) as bitIds,
+	user_ciphertext_values.kv_pair_id as valueId
+	from user_ciphertext_keys_bitwise
+	LEFT JOIN user_ciphertext_values
+	on user_ciphertext_keys_bitwise.user_id 			= 	user_ciphertext_values.user_id
+	and user_ciphertext_keys_bitwise.collection_id 		= 	user_ciphertext_values.collection_id
+	and user_ciphertext_keys_bitwise.cryptocontext_id 	= 	user_ciphertext_values.cryptocontext_id
+	and user_ciphertext_keys_bitwise.keypair_id 		= 	user_ciphertext_values.keypair_id
+	and user_ciphertext_keys_bitwise.kv_pair_id 		= 	user_ciphertext_values.kv_pair_id
+	where user_ciphertext_keys_bitwise.user_id 			= 	userId
+	and user_ciphertext_keys_bitwise.collection_id 		= 	collectionId
+	and user_ciphertext_keys_bitwise.cryptocontext_id 	= 	ccId
+	and user_ciphertext_keys_bitwise.keypair_id 		= 	keypairId
+	group by user_ciphertext_keys_bitwise.kv_pair_id
+	UNION
+	SELECT user_ciphertext_values.kv_pair_id as kvPairId,
+	NULL as bitIds,
+	user_ciphertext_values.kv_pair_id as valueId
+	from user_ciphertext_keys_bitwise
+	RIGHT JOIN user_ciphertext_values
+	on user_ciphertext_keys_bitwise.user_id 			= 	user_ciphertext_values.user_id
+	and user_ciphertext_keys_bitwise.collection_id 		= 	user_ciphertext_values.collection_id
+	and user_ciphertext_keys_bitwise.cryptocontext_id 	= 	user_ciphertext_values.cryptocontext_id
+	and user_ciphertext_keys_bitwise.keypair_id 		= 	user_ciphertext_values.keypair_id
+	and user_ciphertext_keys_bitwise.kv_pair_id 		= 	user_ciphertext_values.kv_pair_id
+	where user_ciphertext_values.user_id 				= 	userId
+	and user_ciphertext_values.collection_id 			= 	collectionId
+	and user_ciphertext_values.cryptocontext_id 		= 	ccId
+	and user_ciphertext_values.keypair_id 				= 	keypairId
+	AND user_ciphertext_keys_bitwise.kv_pair_id IS NULL
+) as finalTable
+ORDER BY kvPairId ASC;
+END$$
+DELIMITER ;
+
+
+
 create table user_cryptocontexts (
 	`cryptocontext_id` INT(11) not null AUTO_INCREMENT,
 	`user_id` INT(11) UNSIGNED not null,
