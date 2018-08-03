@@ -667,7 +667,7 @@ var getCiphertextValueAndBitIdsForCollection = function(userId, collectionId, cc
 	if(res[0].length == 0){
 		return null;
 	}
-	return res[0].map(function(row){ return {kvPairId: row.kvPairId, bitIds: row.bitIds, valueId: row.valueId }; });
+	return res[0].map(function(row){ return {kvPairId: row.kvPairId, bitIds: JSON.parse(row.bitIds), valueId: row.valueId }; });
 }
 
 module.exports = {
@@ -1222,7 +1222,7 @@ var testCtextGetIds = function(){
 	assertTrue(firstIdsData.length == 1);
 	assertTrue(firstIdsData[0].kvPairId == kvPairId_1);
 	assertTrue(firstIdsData[0].valueId == null);
-	var bitIds1_1 = JSON.parse(firstIdsData[0].bitIds);
+	var bitIds1_1 = firstIdsData[0].bitIds;
 	assertTrue(bitIds1_1.length == 2);
 	assertTrue(bitIds1_1[0] == bitId_1);
 	assertTrue(bitIds1_1[1] == bitId_2);
@@ -1251,7 +1251,7 @@ var testCtextGetIds = function(){
 	assertTrue(secondIdsData.length == 2);
 	assertTrue(secondIdsData[0].kvPairId 	== kvPairId_1);
 	assertTrue(secondIdsData[0].valueId 	== null);
-	var bitIds2_1 = JSON.parse(secondIdsData[0].bitIds);
+	var bitIds2_1 = secondIdsData[0].bitIds;
 	assertTrue(bitIds2_1.length == 2);
 	assertTrue(bitIds2_1[0] == bitId_1);
 	assertTrue(bitIds2_1[1] == bitId_2);
@@ -1286,7 +1286,7 @@ var testCtextGetIds = function(){
 	assertTrue(thirdIdsData.length == 2);
 	assertTrue(thirdIdsData[0].kvPairId 	== kvPairId_1);
 	assertTrue(thirdIdsData[0].valueId 		== kvPairId_1);
-	var bitIds3_1 = JSON.parse(thirdIdsData[0].bitIds);
+	var bitIds3_1 = thirdIdsData[0].bitIds;
 	assertTrue(bitIds3_1.length == 2);
 	assertTrue(bitIds3_1[0] 				== bitId_1);
 	assertTrue(bitIds3_1[1] 				== bitId_2);
@@ -1323,14 +1323,14 @@ var testCtextGetIds = function(){
 	assertTrue(fourthBitData.length == 2);
 	assertTrue(fourthBitData[0].kvPairId 		== kvPairId_1);
 	assertTrue(fourthBitData[0].valueId 		== kvPairId_1);
-	var bitIds4_1 = JSON.parse(fourthBitData[0].bitIds);
+	var bitIds4_1 = fourthBitData[0].bitIds;
 	assertTrue(bitIds4_1.length == 2);
 	assertTrue(bitIds4_1[0] 				== bitId_1);
 	assertTrue(bitIds4_1[1] 				== bitId_2);
 
 	assertTrue(fourthBitData[1].kvPairId 		== kvPairId_2);
 	assertTrue(fourthBitData[1].valueId 		== kvPairId_2);
-	var bitIds4_2 = JSON.parse(fourthBitData[1].bitIds);
+	var bitIds4_2 = fourthBitData[1].bitIds;
 	assertTrue(bitIds4_2.length == 2);
 	assertTrue(bitIds4_2[0] 				== bitId_1);
 	assertTrue(bitIds4_2[1] 				== bitId_2);
