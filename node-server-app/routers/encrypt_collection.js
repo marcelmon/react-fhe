@@ -38,15 +38,15 @@ var getMostRecentKeypair = function(userId, ccId){
 	if(!keypairIds || keypairIds.length == 0){
 		return false;
 	}
-	var publicKey = dbInterface.getPublicKey(userId, ccId, keypairIds[0]);
-	if(!publicKey){
+	var publickey = dbInterface.getPublicKey(userId, ccId, keypairIds[0]);
+	if(!publickey){
 		return false;
 	}
-	var privateKey = dbInterface.getPrivateKey(userId, ccId, keypairIds[0]);
-	if(!privateKey){
+	var privatekey = dbInterface.getPrivateKey(userId, ccId, keypairIds[0]);
+	if(!privatekey){
 		return false;
 	}
-	return {keyId: keypairIds[0], publicKey: publicKey, privateKey: privateKey};
+	return {keyId: keypairIds[0], publickey: publickey, privatekey: privatekey};
 };
 
 
@@ -100,6 +100,10 @@ router.post('/:userId/:colId/encrypt_all/', function(req, res){
 	var ccId = ccRet.ccId;
 	var ccData = ccRet.ccData;
 
+	if(Buffer.isBuffer(ccData)){
+		ccData = ccData.toString('utf8');
+	}
+
 	var keyRet = getMostRecentKeypair(req.params.userId, ccId);
 	if(!keyRet){
 		keyRet = generateAndPutNewKeypair(req.params.userId, ccId, ccData);
@@ -108,10 +112,17 @@ router.post('/:userId/:colId/encrypt_all/', function(req, res){
 			return;
 		}
 		ccData = keyRet.ccData;
+		if(Buffer.isBuffer(ccData)){
+			ccData = ccData.toString('utf8');
+		}
 	}
+
 	var keyId 		= keyRet.keyId;
 	var publickey 	= keyRet.publickey;
-	var privatekey 	= keyRet.privateKey;
+	// var privatekey 	= keyRet.privatekey;
+	if(Buffer.isBuffer(publickey)){
+		publickey = publickey.toString('utf8');
+	}
 
 	var allPtextIdsKeysAndValues = dbInterface.getAllPlaintextKeysValuesData(req.params.userId, req.params.colId);
 	if(!allPtextIdsKeysAndValues){

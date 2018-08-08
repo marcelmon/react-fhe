@@ -49,19 +49,14 @@ var encrypt = function(cryptocontext, publickey, plaintext){
 var encryptWithSample = function(cryptocontext, publickey, plaintext){
 	console.log("getting encryptWithSample : ");
 	var jsonArr = {
-			operation: 		'encrypt_with_sample',
-			cryptocontext: 	cryptocontext,
-			publickey: 		publickey,
-			plaintext: 		plaintext
-		};
-	// console.log(jsonArr);	
+		operation: 		'encrypt_with_sample',
+		cryptocontext: 	cryptocontext,
+		publickey: 		publickey,
+		plaintext: 		plaintext
+	};
+
 	var res = request('POST', fhePyURL, {
-		json: {
-			operation: 		'encrypt_with_sample',
-			cryptocontext: 	cryptocontext,
-			publickey: 		publickey,
-			plaintext: 		plaintext
-		},
+		json: jsonArr
 	});
 	return JSON.parse(res.getBody());
 };

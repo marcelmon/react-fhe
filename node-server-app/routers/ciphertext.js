@@ -22,13 +22,6 @@ router.post('/:userId/:colId/getEncryptedIds/', function(req, res){
 	}
 	var recentKeyPairId = keypairIds[keypairIds.length - 1];
 
-	console.log("the getCiphertextValueAndBitIdsForCollection");
-	console.log(req.params.userId);
-	console.log(req.params.colId);
-	console.log(recentCCId);
-	console.log(recentKeyPairId);
-	console.log("end");
-
 	var allKeyValueCtextIds = dbInterface.getCiphertextValueAndBitIdsForCollection(req.params.userId, req.params.colId, recentCCId, recentKeyPairId);
 	if(!allKeyValueCtextIds){
 		res.status(500).send('Something broke in getEncryptedIds');

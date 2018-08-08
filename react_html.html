@@ -15,7 +15,7 @@
 
 var baseUrl = "http://localhost:8081";
 
-var userId = 666;
+var userId = 665;
 function httpRequest(url, ...params){
 	// Return a new promise.
 	return new Promise(function(resolve, reject) {
@@ -111,8 +111,38 @@ class KeyValueViewer extends React.Component {
 			colId 			: props.colId,
 			keyValuesAndIds	: props.keyValuesAndIds,  // Holds colloquial name and collection id
 			selectedKVInfo	: props.selectedKVInfo,
+			encryptedIds 	: props.encryptedIds,
 		};
-		this.handleNewKeyValue =this.handleNewKeyValue.bind(this);
+		this.handleNewKeyValue 	=this.handleNewKeyValue.bind(this);
+		this.handleEncryptAll 	=this.handleEncryptAll.bind(this);
+	}
+
+	KeyValueEncryptedBits(kvId){
+		if(this.props.encryptedIds == null){
+			return(
+				<div>Encrypt first null</div>
+			);
+		}
+		for (var i = 0; i < this.props.encryptedIds.length; i++) {
+			if(this.props.encryptedIds[i].kvPairId == kvId){
+				return(
+					<table><tbody><tr>
+					<td>
+						<table><tbody><tr>
+						{this.props.encryptedIds[i].bitIds.map((aBitId) => {
+							return(<td><button onClick={()=>this.props.selectKeyBit(this.props.colId, kvId, aBitId)}>Bit: {aBitId}</button></td>)
+						})}
+						</tr></tbody></table>
+					</td>
+					<td><button onClick={()=>this.props.selectValue(this.props.colId, kvId)}>Key:{kvId}</button></td>
+					</tr></tbody></table>
+				);
+				break;
+			}
+		};
+		return(
+			<div>Encrypt first {kvId}</div>
+		);
 	}
 
 	KeyValueRow(kvId, key, value){
@@ -122,6 +152,7 @@ class KeyValueViewer extends React.Component {
 				<td><div>{value}</div></td>
 				<td><button onClick={()=>this.props.updateKV(this.props.colId, kvId)}>Update</button></td>
 				<td><button onClick={()=>this.props.deleteKV(this.props.colId, kvId)}>Delete</button></td>
+				<td>{this.KeyValueEncryptedBits(kvId)}</td>
 			</tr></tbody></table>
 		);
 	}
@@ -131,7 +162,11 @@ class KeyValueViewer extends React.Component {
 		this.props.newKeyValue(this.props.colId, e.target.key.value, e.target.value.value);
 	}
 
-	NewKeyValueRow(){
+	handleEncryptAll(e){
+		this.props.encryptAll(this.props.colId);
+	}
+
+	NewKeyValueForm(){
 		return(
 			<form onSubmit={this.handleNewKeyValue}>
 				<table><tbody><tr>
@@ -143,6 +178,12 @@ class KeyValueViewer extends React.Component {
 		);
 	}
 
+	EncryptAllButton(){
+		return(
+			<button onClick={this.handleEncryptAll}>Encrypt All</button>
+		);
+	}
+
 	render(){
 
 		if(!this.props.keyValuesAndIds){
@@ -150,12 +191,13 @@ class KeyValueViewer extends React.Component {
 		}
 		return(
 			<table><tbody>
+			<tr><td><button onClick={this.handleEncryptAll}>Encrypt All</button></td></tr>
 			{
 				this.props.keyValuesAndIds.map((singleKVInfo) => { return (
 					<tr><td>{this.KeyValueRow(singleKVInfo.id, singleKVInfo.key, singleKVInfo.value)}</td></tr>
 				)})
 			}
-			<tr><td><div>{this.NewKeyValueRow()}</div></td></tr>
+			<tr><td><div>{this.NewKeyValueForm()}</div></td></tr>
 			</tbody></table>
 		);
 	}
@@ -239,13 +281,17 @@ class App extends React.Component {
 		this.updateKV 					= this.updateKV.bind(this);
 		this.deleteKV 					= this.deleteKV.bind(this);
 		this.newKeyValue 				= this.newKeyValue.bind(this);
-
+		this.getEncryptedIdsAndUpdate	= this.getEncryptedIdsAndUpdate.bind(this);
+		this.encryptAll 				= this.encryptAll.bind(this);
+		this.selectKeyBit 				= this.selectKeyBit.bind(this);
+		this.selectValue 				= this.selectValue.bind(this);
 
 		this.state = {
 			keyValuesAndIds: null,
 			collectionIdsAndNames: null,  // Holds colloquial name and collection id
 			selectedCollectionId: null,
 			selectedKVInfo: null,
+			encryptedIds: null,
 		};
 
 		// this.getCollectionsAndUpdate = this.getCollectionsAndUpdate.bind(this);
@@ -327,6 +373,7 @@ class App extends React.Component {
 	collectionClicked(colId){
 		this.setState({selectedCollectionId: colId});
 		this.getKeyValuesAndUpdate(colId);
+		this.getEncryptedIdsAndUpdate(colId);
 	}
 
 	updateKV(colId, kvId, key, value){
@@ -354,6 +401,41 @@ class App extends React.Component {
 		});
 	}
 
+	getEncryptedIdsAndUpdate(colId){
+		console.log("in getEncryptedIdsAndUpdate");
+		var getAllEncryptedIdsUrl = baseUrl+'/ciphertext/'+userId+'/'+colId+'/getEncryptedIds/';
+		console.log("getAllEncryptedIdsUrl: " + getAllEncryptedIdsUrl);
+		var getEncryptedIdsPromise = httpRequest(getAllEncryptedIdsUrl);
+		getEncryptedIdsPromise.then((retJson) => {
+			console.log("get all enc ids: "+ retJson);
+			this.setState({encryptedIds: JSON.parse(retJson)});
+		}).catch((err)=> {
+			console.log("get ids err");
+		});
+	}
+
+	encryptAll(colId){
+		console.log("the colid : "+colId);
+		var encryptAllUrl 		= baseUrl+'/encrypt_collection/'+userId+'/'+colId+'/encrypt_all/';
+		var newEncryptPromise 	= httpRequest(encryptAllUrl);
+		console.log("en all url: "+encryptAllUrl);
+		newEncryptPromise.then((isTrue) => {
+			console.log("finished encrypting");
+			this.getEncryptedIdsAndUpdate(colId);
+		}).catch((err)=> {
+			console.log("enc all err");
+		});
+	}
+
+
+	selectKeyBit(colId, kvId, bitId){
+		console.log("in selectKeyBit.. col id:"+colId+"...kvId:"+kvId+"...bitId:"+bitId);
+	}
+
+	selectValue(colId, kvId){
+		console.log("in selectValue.. col id:"+colId+"...kvId:"+kvId);
+	}
+
 	render(){
 		return (
 			<table><tbody><tr>
@@ -373,9 +455,13 @@ class App extends React.Component {
 								colId 			={this.state.selectedCollectionId}
 								keyValuesAndIds ={this.state.keyValuesAndIds}
 								selectedKVInfo 	={this.state.selectedKVInfo}
+								encryptedIds 	={this.state.encryptedIds}
 								updateKV 		={this.updateKV}
 								deleteKV 		={this.deleteKV}
-								newKeyValue 	={this.newKeyValue}/>
+								newKeyValue 	={this.newKeyValue}
+								encryptAll 		={this.encryptAll}
+								selectKeyBit 	={this.selectKeyBit}
+								selectValue 	={this.selectValue}/>
 						</td></tr>
 						<tr><td>
 							<div>Will be a data viewer</div>
