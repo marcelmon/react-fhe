@@ -311,7 +311,7 @@ var testEncryptAll = function(){
 
 
 
-var testGetAllEncryptedIds = function(){
+var testGetAllEncryptedIdsAndSamples = function(){
 
 
 	var ccId = 4;
@@ -359,6 +359,18 @@ var testGetAllEncryptedIds = function(){
 	assertTrue(ctextIdsRetArray[1].kvPairId == kvPairId_2);
 	assertTrue(ctextIdsRetArray[1].bitIds.length > 0);
 	assertTrue(ctextIdsRetArray[1].valueId == kvPairId_2);
+
+
+	var bitIdOne = ctextIdsRetArray[0].bitIds.length -1;
+	var keyBitSampleOne = request('POST', getAllCtextIdsUrl+colId_encrypt_3+'/getCiphertextKeyBitSample/'+kvPairId_1+'/'+bitIdOne+'/');
+	console.log("max bit sample 1:");
+	console.log(JSON.parse(keyBitSampleOne.getBody()));
+
+
+	var valueSampleOne = request('POST', getAllCtextIdsUrl+colId_encrypt_3+'/getCiphertextValueSample/'+kvPairId_1+'/');
+	console.log("value sample 1:");
+	console.log(JSON.parse(valueSampleOne.getBody()));
+	
 };
 
 
@@ -394,8 +406,8 @@ console.log("done delete");
 checkUserDataEmpty(testUserId);
 
 
-console.log('testGetAllEncryptedIds');
+console.log('testGetAllEncryptedIdsAndSamples');
 
-testGetAllEncryptedIds();
+testGetAllEncryptedIdsAndSamples();
 
 console.log("test complete HUZZAH!");
