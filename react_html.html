@@ -265,7 +265,42 @@ class CollectionViewer extends React.Component {
 
 }
 
+class SampleDataViewer extends React.Component {
+	constructor(props){
+		super(props);
+		this.state = {
+			sampleDataArray: props.sampleDataArray
+		};
+	}
 
+	PolyRow(poly){
+		return(
+			<tr>
+				{
+					poly.map((coef) => { return(
+						<td>{coef}</td>
+					)})
+				}
+			</tr>
+		);
+	}
+
+	render(){
+		if(this.props.sampleDataArray == null || this.props.sampleDataArray.constructor !== Array){
+			return(<div>Select an encrypted key or value</div>);
+		}
+		return(
+			<table><tbody>
+			{
+				this.props.sampleDataArray.map((poly) =>{ return(
+					this.PolyRow(poly)
+				)})
+			}
+			</tbody></table>
+		);
+	}
+
+}
 
 class App extends React.Component {
 
@@ -292,6 +327,7 @@ class App extends React.Component {
 			selectedCollectionId: null,
 			selectedKVInfo: null,
 			encryptedIds: null,
+			sampleDataArray: null,
 		};
 
 		// this.getCollectionsAndUpdate = this.getCollectionsAndUpdate.bind(this);
@@ -429,11 +465,27 @@ class App extends React.Component {
 
 
 	selectKeyBit(colId, kvId, bitId){
-		console.log("in selectKeyBit.. col id:"+colId+"...kvId:"+kvId+"...bitId:"+bitId);
+		var keyBitSampleUrl = baseUrl+'/ciphertext/'+userId+'/'+colId+'/getCiphertextKeyBitSample/'+kvId+'/'+bitId+'/';
+		console.log("keyBitSampleUrl url: "+keyBitSampleUrl);
+		var keyBitSamplePromise = httpRequest(keyBitSampleUrl);
+		keyBitSamplePromise.then((retJson) => {
+			console.log("key bit sample json: "+ retJson);
+			this.setState({sampleDataArray: JSON.parse(retJson)});
+		}).catch((err)=> {
+			console.log("selectKeyBit err");
+		});
 	}
 
 	selectValue(colId, kvId){
-		console.log("in selectValue.. col id:"+colId+"...kvId:"+kvId);
+		var valueSampleUrl = baseUrl+'/ciphertext/'+userId+'/'+colId+'/getCiphertextValueSample/'+kvId+'/';
+		console.log("select value sample url: "+valueSampleUrl);
+		var valueSamplePromise = httpRequest(valueSampleUrl);
+		valueSamplePromise.then((retJson) => {
+			console.log("value sample json: "+ retJson);
+			this.setState({sampleDataArray: JSON.parse(retJson)});
+		}).catch((err)=> {
+			console.log("selectValue err");
+		});
 	}
 
 	render(){
@@ -464,7 +516,8 @@ class App extends React.Component {
 								selectValue 	={this.selectValue}/>
 						</td></tr>
 						<tr><td>
-							<div>Will be a data viewer</div>
+							<SampleDataViewer
+								sampleDataArray ={this.state.sampleDataArray}/>
 						</td></tr>
 					</tbody></table>
 				</td>
