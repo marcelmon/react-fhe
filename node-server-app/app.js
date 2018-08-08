@@ -191,6 +191,7 @@ var bodyParser = require('body-parser');
 var collectionsRouter 			= require('./routers/collections.js');
 var collectionPlaintextRouter 	= require('./routers/collection_plaintext.js');
 var encryptRouter 				= require('./routers/encrypt_collection.js');
+var ciphertextRouter 			= require('./routers/ciphertext.js');
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false , limit: '100mb'}))
@@ -211,6 +212,7 @@ app.get('/', function(req, res){
 app.use('/collections', 			collectionsRouter);
 app.use('/collection_plaintext', 	collectionPlaintextRouter);
 app.use('/encrypt_collection', 		encryptRouter);
+app.use('/ciphertext', 				ciphertextRouter);
 
 
 // function cryptoContext(){
