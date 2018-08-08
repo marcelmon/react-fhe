@@ -487,7 +487,23 @@ var getCiphertextKeyBitData = function(userId, collectionId, ccId, keypairId, kv
 	return res[0][0].bit_data;
 }
 
-
+// getCiphertextKeyBitSample
+// (
+// 	IN userId INT, 
+// 	IN collectionId INT, 
+// 	IN ccId INT, 
+// 	IN keypairId INT, 
+// 	IN kvPairId INT, 
+// 	IN bitId INT
+// )
+var getCiphertextKeyBitSample = function(userId, collectionId, ccId, keypairId, kvPairId, bitId){
+	// console.log('call getCiphertextKeyBitSample('+userId+','+collectionId+','+ccId+','+keypairId+','+kvPairId+','+bitId+');');
+	var res = mysqlConnectQuery('call getCiphertextKeyBitSample('+userId+','+collectionId+','+ccId+','+keypairId+','+kvPairId+','+bitId+');');
+	if(res[0].length == 0){
+		return null;
+	}
+	return res[0][0].jsonArraySample;
+}
 
 // putCiphertextKeyBitData
 // (
@@ -501,6 +517,26 @@ var getCiphertextKeyBitData = function(userId, collectionId, ccId, keypairId, kv
 // )
 var putCiphertextKeyBitData = function(keyBitData, userId, collectionId, ccId, keypairId, kvPairId, bitId){
 	var res = mysqlConnectQuery("call putCiphertextKeyBitData('"+keyBitData+"',"+userId+','+collectionId+','+ccId+','+keypairId+','+kvPairId+','+bitId+');');
+	if(res[0].length == 0){
+		return null;
+	}
+	// console.log("put ctext key bit data res : ");
+
+	return res[0][0].id;
+}
+
+// putCiphertextKeyBitSample
+// (
+// 	IN jsonArraySample 	BLOB, 
+// 	IN userId 		INT, 
+// 	IN collectionId INT, 
+// 	IN ccId 		INT, 
+// 	IN keypairId 	INT, 
+// 	IN kvPairId 	INT, 
+// 	IN bitId 		INT
+// )
+var putCiphertextKeyBitSample = function(jsonArraySample, userId, collectionId, ccId, keypairId, kvPairId, bitId){
+	var res = mysqlConnectQuery("call putCiphertextKeyBitSample('"+jsonArraySample+"',"+userId+','+collectionId+','+ccId+','+keypairId+','+kvPairId+','+bitId+');');
 	if(res[0].length == 0){
 		return null;
 	}
@@ -549,6 +585,22 @@ var getCiphertextValueData = function(userId, collectionId, ccId, keypairId, kvP
 	return res[0][0].value_data;
 }
 
+// getCiphertextValueData
+// (
+// 	IN userId INT, 
+// 	IN collectionId INT, 
+// 	IN ccId INT, 
+// 	IN keypairId INT, 
+// 	IN kvPairId INT
+// )
+var getCiphertextValueSample = function(userId, collectionId, ccId, keypairId, kvPairId){
+	var res = mysqlConnectQuery('call getCiphertextValueSample('+userId+','+collectionId+','+ccId+','+keypairId+','+kvPairId+');');
+	if(res[0].length == 0){
+		return null;
+	}
+	return res[0][0].jsonArraySample;
+}
+
 
 // putCiphertextValueData
 // (
@@ -560,9 +612,28 @@ var getCiphertextValueData = function(userId, collectionId, ccId, keypairId, kvP
 // 	IN kvPairId 		INT
 // )
 var putCiphertextValueData = function(ctextValueData, userId, collectionId, ccId, keypairId, kvPairId){
-	console.log("the put ctext query : ");
+	// console.log("the put ctext query : ");
 	// console.log('call putCiphertextValueData("'+ctextValueData+'",'+userId+','+collectionId+','+ccId+','+keypairId+','+kvPairId+');');
 	var res = mysqlConnectQuery("call putCiphertextValueData('"+ctextValueData+"',"+userId+','+collectionId+','+ccId+','+keypairId+','+kvPairId+');');
+	if(res[0].length == 0){
+		return null;
+	}
+	return res[0][0].id;
+}
+
+// putCiphertextValueSample
+// (
+// 	IN jsonArraySample 	TEXT, 
+// 	IN userId 			INT, 
+// 	IN collectionId 	INT, 
+// 	IN ccId 			INT, 
+// 	IN keypairId 		INT, 
+// 	IN kvPairId 		INT
+// )
+var putCiphertextValueSample = function(jsonArraySample, userId, collectionId, ccId, keypairId, kvPairId){
+	// console.log("the put ctext query : ");
+	// console.log('call putCiphertextValueSample("'+ctextValueData+'",'+userId+','+collectionId+','+ccId+','+keypairId+','+kvPairId+');');
+	var res = mysqlConnectQuery("call putCiphertextValueSample('"+jsonArraySample+"',"+userId+','+collectionId+','+ccId+','+keypairId+','+kvPairId+');');
 	if(res[0].length == 0){
 		return null;
 	}
@@ -583,6 +654,21 @@ var deleteCiphertextValueData = function(userId, collectionId, ccId, keypairId, 
 	return true;
 }
 
+
+// getCiphertextValueAndBitIdsForCollection
+// (
+// 	IN userId INT, 
+// 	IN collectionId INT, 
+// 	IN ccId INT, 
+// 	IN keypairId INT
+// )
+var getCiphertextValueAndBitIdsForCollection = function(userId, collectionId, ccId, keypairId){
+	var res = mysqlConnectQuery("call getCiphertextValueAndBitIdsForCollection("+userId+","+collectionId+","+ccId+","+keypairId+");");
+	if(res[0].length == 0){
+		return null;
+	}
+	return res[0].map(function(row){ return {kvPairId: row.kvPairId, bitIds: JSON.parse(row.bitIds), valueId: row.valueId }; });
+}
 
 module.exports = {
 	mysqlConnect: 					mysqlConnect,
@@ -612,11 +698,16 @@ module.exports = {
 	deletePlaintextKVPair: 			deletePlaintextKVPair,
 	getCiphertextKeyBitIds: 		getCiphertextKeyBitIds,
 	getCiphertextKeyBitData: 		getCiphertextKeyBitData,
+	getCiphertextKeyBitSample: 		getCiphertextKeyBitSample,
 	putCiphertextKeyBitData: 		putCiphertextKeyBitData,
+	putCiphertextKeyBitSample: 		putCiphertextKeyBitSample,
 	deleteCiphertextKeyBitData: 	deleteCiphertextKeyBitData,
 	getCiphertextValueData: 		getCiphertextValueData,
+	getCiphertextValueSample: 		getCiphertextValueSample,
 	putCiphertextValueData: 		putCiphertextValueData,
-	deleteCiphertextValueData: 		deleteCiphertextValueData
+	putCiphertextValueSample: 		putCiphertextValueSample,
+	deleteCiphertextValueData: 		deleteCiphertextValueData,
+	getCiphertextValueAndBitIdsForCollection: getCiphertextValueAndBitIdsForCollection
 	
 };
 
@@ -816,7 +907,6 @@ var testCollections = function(){
 	var newAllColelctionIdNames = getAllCollectionNames(testUserId);
 	assertTrue(newAllColelctionIdNames.length 	== 2);
 
-	console.log(newAllColelctionIdNames);
 	// assertTrue(false);
 	// expected return : [{id:ccId_1, name:colName_1},{id:ccId_1, name:colName_1}]
 	assertTrue(newAllColelctionIdNames[0].id 	== colId_1 				|| newAllColelctionIdNames[1].id 	== colId_1);
@@ -971,24 +1061,47 @@ var testCiphertextKeyBits = function(){
 	var keyBitData_ptext1_1_update = "ptext_1_bit_1.1";
 	var keyBitData_ptext1_2_update = "ptext_1_bit_2.1";
 
+	var keyBitSample_ptext1_1 = "ptext_1_sample_1";
+	var keyBitSample_ptext1_2 = "ptext_1_sample_2";
+
+	var keyBitSample_ptext1_1_update = "ptext_1_sample_1.1";
+	var keyBitSample_ptext1_2_update = "ptext_1_sample_2.1";
+
 	// test getIds empty
 	assertTrue(getCiphertextKeyBitIds(testUserId, colId_1, ccId_1, keyId_1, ptextId_1).length == 0);
 
 	// test put/get first
 	assertTrue(!getCiphertextKeyBitData(testUserId, colId_1, ccId_1, keyId_1, ptextId_1, keyBitId_1));
+	assertTrue(!getCiphertextKeyBitSample(testUserId, colId_1, ccId_1, keyId_1, ptextId_1, keyBitId_1));
 	assertTrue(putCiphertextKeyBitData(keyBitData_ptext1_1, testUserId, colId_1, ccId_1, keyId_1, ptextId_1, keyBitId_1) == keyBitId_1);
 	assertTrue(getCiphertextKeyBitData(testUserId, colId_1, ccId_1, keyId_1, ptextId_1, keyBitId_1) == keyBitData_ptext1_1);
+	
+	// test sample 1
+	assertTrue(putCiphertextKeyBitSample(keyBitSample_ptext1_1, testUserId, colId_1, ccId_1, keyId_1, ptextId_1, keyBitId_1) == keyBitId_1);
+	assertTrue(getCiphertextKeyBitSample(testUserId, colId_1, ccId_1, keyId_1, ptextId_1, keyBitId_1) == keyBitSample_ptext1_1);
+	
 
 	// test put new (cannot auto increment)
 	assertTrue(!getCiphertextKeyBitData(testUserId, colId_1, ccId_1, keyId_1, ptextId_1, keyBitId_2));
+	assertTrue(!getCiphertextKeyBitSample(testUserId, colId_1, ccId_1, keyId_1, ptextId_1, keyBitId_2));
 	assertTrue(putCiphertextKeyBitData(keyBitData_ptext1_2, testUserId, colId_1, ccId_1, keyId_1, ptextId_1, keyBitId_2) == keyBitId_2);
 	assertTrue(getCiphertextKeyBitData(testUserId, colId_1, ccId_1, keyId_1, ptextId_1, keyBitId_2) == keyBitData_ptext1_2);
+
+	// test sample 2
+	assertTrue(putCiphertextKeyBitSample(keyBitSample_ptext1_2, testUserId, colId_1, ccId_1, keyId_1, ptextId_1, keyBitId_2) == keyBitId_2);
+	assertTrue(getCiphertextKeyBitSample(testUserId, colId_1, ccId_1, keyId_1, ptextId_1, keyBitId_2) == keyBitSample_ptext1_2);
+	
 
 	// test update/test get
 	assertTrue(putCiphertextKeyBitData(keyBitData_ptext1_2_update, testUserId, colId_1, ccId_1, keyId_1, ptextId_1, keyBitId_2) == keyBitId_2);
 	assertTrue(getCiphertextKeyBitData(testUserId, colId_1, ccId_1, keyId_1, ptextId_1, keyBitId_2) == keyBitData_ptext1_2_update);
 
-	// test get all key value pair data
+	// test update/test get sample
+	assertTrue(putCiphertextKeyBitSample(keyBitSample_ptext1_2_update, testUserId, colId_1, ccId_1, keyId_1, ptextId_1, keyBitId_2) == keyBitId_2);
+	assertTrue(getCiphertextKeyBitSample(testUserId, colId_1, ccId_1, keyId_1, ptextId_1, keyBitId_2) == keyBitSample_ptext1_2_update);
+
+
+	// test get all key bit ids
 	var newAllCiphertextKeyBitIds = getCiphertextKeyBitIds(testUserId, colId_1, ccId_1, keyId_1, ptextId_1);
 	assertTrue(newAllCiphertextKeyBitIds.length == 2);
 	assertTrue(newAllCiphertextKeyBitIds.indexOf(keyBitId_1) > -1);
@@ -996,6 +1109,8 @@ var testCiphertextKeyBits = function(){
 
 	// test delete/test get ids/test get -- delete keybit_2
 	deleteCiphertextKeyBitData(testUserId, colId_1, ccId_1, keyId_1, ptextId_1, keyBitId_2);
+	assertTrue(!getCiphertextKeyBitData(testUserId, colId_1, ccId_1, keyId_1, ptextId_1, keyBitId_2));
+	assertTrue(!getCiphertextKeyBitSample(testUserId, colId_1, ccId_1, keyId_1, ptextId_1, keyBitId_2));
 	var finalCiphertextKeyBitIds = getCiphertextKeyBitIds(testUserId, colId_1, ccId_1, keyId_1, ptextId_1);
 	assertTrue(finalCiphertextKeyBitIds.length == 1);
 	assertTrue(finalCiphertextKeyBitIds.indexOf(keyBitId_1) > -1);
@@ -1028,26 +1143,198 @@ var testCiphertextValues = function(){
 	var valueData_ptext1_1_update = "ptext_1_value_1.1";
 	var valueData_ptext1_2_update = "ptext_1_value_2.1";
 
+	var valueSample_ptext1_1 = "ptext_1_sample_1";
+	var valueSample_ptext1_2 = "ptext_1_sample_2"; 
+
+	var valueSample_ptext1_1_update = "ptext_1_sample_1.1";
+	var valueSample_ptext1_2_update = "ptext_1_sample_2.1";
+
 	// test get first
 	assertTrue(!getCiphertextValueData(testUserId, colId_1, ccId_1, keyId_1, ptextId_1));
+	assertTrue(!getCiphertextValueSample(testUserId, colId_1, ccId_1, keyId_1, ptextId_1));
 	assertTrue(putCiphertextValueData(valueData_ptext1_1, testUserId, colId_1, ccId_1, keyId_1, ptextId_1) == ptextId_1);
 	assertTrue(getCiphertextValueData(testUserId, colId_1, ccId_1, keyId_1, ptextId_1) == valueData_ptext1_1);
+
+	// test sample 1
+	assertTrue(putCiphertextValueSample(valueSample_ptext1_1, testUserId, colId_1, ccId_1, keyId_1, ptextId_1) == ptextId_1);
+	assertTrue(getCiphertextValueSample(testUserId, colId_1, ccId_1, keyId_1, ptextId_1) == valueSample_ptext1_1);
+
 
 	// test put second (there is no auto increment, reutrn id is always the one put, reutnred for error checking)
 	assertTrue(!getCiphertextValueData(testUserId, colId_1, ccId_1, keyId_1, ptextId_2));
 	assertTrue(putCiphertextValueData(valueData_ptext1_2, testUserId, colId_1, ccId_1, keyId_1, ptextId_2) == ptextId_2);
 	assertTrue(getCiphertextValueData(testUserId, colId_1, ccId_1, keyId_1, ptextId_2) == valueData_ptext1_2);
 
+	// test sample 2
+	assertTrue(putCiphertextValueSample(valueSample_ptext1_2, testUserId, colId_1, ccId_1, keyId_1, ptextId_2) == ptextId_2);
+	assertTrue(getCiphertextValueSample(testUserId, colId_1, ccId_1, keyId_1, ptextId_2) == valueSample_ptext1_2);
+
+
 	// test update/get
 	assertTrue(putCiphertextValueData(valueData_ptext1_2_update, testUserId, colId_1, ccId_1, keyId_1, ptextId_2) == ptextId_2);
 	assertTrue(getCiphertextValueData(testUserId, colId_1, ccId_1, keyId_1, ptextId_2) == valueData_ptext1_2_update);
 
+	// test update/get sample
+	assertTrue(putCiphertextValueSample(valueSample_ptext1_2_update, testUserId, colId_1, ccId_1, keyId_1, ptextId_2) == ptextId_2);
+	assertTrue(getCiphertextValueSample(testUserId, colId_1, ccId_1, keyId_1, ptextId_2) == valueSample_ptext1_2_update);
+
 	// test delete
 	deleteCiphertextValueData(testUserId, colId_1, ccId_1, keyId_1, ptextId_1);
 	assertTrue(!getCiphertextValueData(testUserId, colId_1, ccId_1, keyId_1, ptextId_1));
+	assertTrue(!getCiphertextValueSample(testUserId, colId_1, ccId_1, keyId_1, ptextId_1));
 	assertTrue(getCiphertextValueData(testUserId, colId_1, ccId_1, keyId_1, ptextId_2) == valueData_ptext1_2_update);
 
 };
+
+
+var testCtextGetIds = function(){
+	var colId 		= 99;
+	var ccId 		= 99;
+	var keypairId 	= 99;
+
+	var kvPairId_1	= 1;
+	var kvPairId_2	= 2;
+
+	var bitId_1 	= 1;
+	var bitId_2 	= 2;
+
+	var keyBitData 	= "keyBitData";
+	var valueData 	= "valueData";
+
+
+	assertTrue(!getCiphertextValueAndBitIdsForCollection(testUserId, colId, ccId, keypairId));
+
+
+	// put bits only for kvPairId_1, bit 1 and bit 2
+	putCiphertextKeyBitData(keyBitData, testUserId, colId, ccId, keypairId, kvPairId_1, bitId_1);
+	putCiphertextKeyBitData(keyBitData, testUserId, colId, ccId, keypairId, kvPairId_1, bitId_2);
+
+
+	// should return 
+	// firstIdsData = [
+	// 	{
+	// 		kvPairId: kvPairId_1, 
+	// 		bitIds: '[bitId_1}, bitId_2]',
+	// 		valueId: null
+	// 	}
+	// ]
+	var firstIdsData = getCiphertextValueAndBitIdsForCollection(testUserId, colId, ccId, keypairId);
+	assertTrue(firstIdsData.length == 1);
+	assertTrue(firstIdsData[0].kvPairId == kvPairId_1);
+	assertTrue(firstIdsData[0].valueId == null);
+	var bitIds1_1 = firstIdsData[0].bitIds;
+	assertTrue(bitIds1_1.length == 2);
+	assertTrue(bitIds1_1[0] == bitId_1);
+	assertTrue(bitIds1_1[1] == bitId_2);
+	
+
+
+
+	// put value only for kvPairId_2
+	putCiphertextValueData(valueData, testUserId, colId, ccId, keypairId, kvPairId_2);
+
+	// should return 
+	// secondIdsData = [
+	// 	{
+	// 		kvPairId: kvPairId_1, 
+	// 		bitIds: '[bitId_1, bitId_2]',
+	// 		valueId: null
+	// 	},
+	// 	{
+	// 		kvPairId: kvPairId_2, 
+	// 		bitIds: null,
+	// 		valueId: kvPairId_2
+	// 	},
+	// ]
+	var secondIdsData = getCiphertextValueAndBitIdsForCollection(testUserId, colId, ccId, keypairId);
+
+	assertTrue(secondIdsData.length == 2);
+	assertTrue(secondIdsData[0].kvPairId 	== kvPairId_1);
+	assertTrue(secondIdsData[0].valueId 	== null);
+	var bitIds2_1 = secondIdsData[0].bitIds;
+	assertTrue(bitIds2_1.length == 2);
+	assertTrue(bitIds2_1[0] == bitId_1);
+	assertTrue(bitIds2_1[1] == bitId_2);
+
+	assertTrue(secondIdsData[1].kvPairId 	== kvPairId_2);
+	assertTrue(secondIdsData[1].valueId 	== kvPairId_2);
+	assertTrue(secondIdsData[1].bitIds 		== null);
+	
+	
+
+
+	// update value for kvPairId_1
+	// put value only for kvPairId_1, bit 1 and bit 2
+	putCiphertextValueData(valueData, testUserId, colId, ccId, keypairId, kvPairId_1);
+	putCiphertextValueData(valueData, testUserId, colId, ccId, keypairId, kvPairId_1);
+
+	// should return 
+	// thirdBitData = [
+	// 	{
+	// 		kvPairId: 	kvPairId_1, 
+	// 		bitIds: 	'[bitId_1, bitId_2]',
+	// 		valueId: 	kvPairId_1
+	// 	},
+	// 	{
+	// 		kvPairId: 	kvPairId_2, 
+	// 		bitIds: 	null,
+	// 		valueId: 	kvPairId_2
+	// 	},
+	// ]
+	var thirdIdsData = getCiphertextValueAndBitIdsForCollection(testUserId, colId, ccId, keypairId);
+
+	assertTrue(thirdIdsData.length == 2);
+	assertTrue(thirdIdsData[0].kvPairId 	== kvPairId_1);
+	assertTrue(thirdIdsData[0].valueId 		== kvPairId_1);
+	var bitIds3_1 = thirdIdsData[0].bitIds;
+	assertTrue(bitIds3_1.length == 2);
+	assertTrue(bitIds3_1[0] 				== bitId_1);
+	assertTrue(bitIds3_1[1] 				== bitId_2);
+
+
+	assertTrue(thirdIdsData[1].kvPairId 	== kvPairId_2);
+	assertTrue(thirdIdsData[1].valueId 		== kvPairId_2);
+	assertTrue(thirdIdsData[1].bitIds 		== null);
+
+
+
+
+
+	// update bits for kvPairId_2
+	// put bits only for kvPairId_2, bit 1 and bit 2
+	putCiphertextKeyBitData(keyBitData, testUserId, colId, ccId, keypairId, kvPairId_2, bitId_1);
+	putCiphertextKeyBitData(keyBitData, testUserId, colId, ccId, keypairId, kvPairId_2, bitId_2);
+
+	// should return 
+	// fourthBitData = [
+	// 	{
+	// 		kvPairId: 	kvPairId_1, 
+	// 		bitIds: 	'[bitId_1, bitId_2]',
+	// 		valueId: 	kvPairId_1
+	// 	},
+	// 	{
+	// 		kvPairId: kvPairId_2, 
+	// 		bitIds: '[bitId_1, bitId_2]',
+	// 		valueId: kvPairId_2
+	// 	},
+	// ]
+	var fourthBitData = getCiphertextValueAndBitIdsForCollection(testUserId, colId, ccId, keypairId);
+
+	assertTrue(fourthBitData.length == 2);
+	assertTrue(fourthBitData[0].kvPairId 		== kvPairId_1);
+	assertTrue(fourthBitData[0].valueId 		== kvPairId_1);
+	var bitIds4_1 = fourthBitData[0].bitIds;
+	assertTrue(bitIds4_1.length == 2);
+	assertTrue(bitIds4_1[0] 				== bitId_1);
+	assertTrue(bitIds4_1[1] 				== bitId_2);
+
+	assertTrue(fourthBitData[1].kvPairId 		== kvPairId_2);
+	assertTrue(fourthBitData[1].valueId 		== kvPairId_2);
+	var bitIds4_2 = fourthBitData[1].bitIds;
+	assertTrue(bitIds4_2.length == 2);
+	assertTrue(bitIds4_2[0] 				== bitId_1);
+	assertTrue(bitIds4_2[1] 				== bitId_2);
+}
 
 var testAll = function(){
 
@@ -1062,6 +1349,8 @@ var testAll = function(){
 	testCiphertextKeyBits();
 
 	testCiphertextValues();
+
+	testCtextGetIds();
 
 	console.log("TESTS COMPLETED, HUZZAH!!");
 }

@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>Hello World</title>
+		<script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+		<script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+		<script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+	</head>
+	<body>
+		<div id="root"></div>
+		<script type="text/babel">
+
+
+
+var baseUrl = "http://localhost:8081";
+
+var userId = 665;
+function httpRequest(url, ...params){
+	// Return a new promise.
+	return new Promise(function(resolve, reject) {
+		// Do the usual XHR stuff
+		var req = new XMLHttpRequest();
+		req.open('POST', url);
+
+		req.onload = function() {
+
+			if (req.status == 200) {
+				console.log("got response : " + req.response);
+				resolve(req.response);
+			}
+			else {
+				reject(Error(req.statusText));
+			}
+		};
+		req.onerror = function() {
+			reject(Error("Network Error"));
+		};
+		req.send();
+	});
+}
+
+function fetch(dataType, ...params){
+
+	var collectionId = null;
+	var keyId = null;
+	var keyBitId = null;
+	var url = null;
+
+	var baseUrl = "http://localhost:8081";
+
+	var userId = 666;
+
+	var path = null;
+	switch(dataType){
+		case 'all_collections':
+			path = '/collections/'+userId+'/getAll/';
+			break;
+		case 'collection_info':
+			collectionId = params[0];
+			url = "test_get.php?data_type=collection_info";
+			break;
+		case 'key_bit_ctext':
+			collectionId = params[0];
+			keyId = params[1];
+			keyBitId = params[2];
+			url = "test_get.php?data_type=key_bit_ctext&collectionId="+collectionId+"&keyId="+keyId+"&keyBitId="+keyBitId;
+			break;
+		case 'value_ctext':
+			collectionId = params[0];
+			keyId = params[1];
+			url = "test_get.php?data_type=value_ctext&collectionId="+collectionId+"&keyId="+keyId;
+			break;
+		default:
+			throw new Error('Invalid request data type.');
+	}
+
+	// Return a new promise.
+	return new Promise(function(resolve, reject) {
+		// Do the usual XHR stuff
+		var req = new XMLHttpRequest();
+		req.open('GET', url);
+
+		req.onload = function() {
+
+			if (req.status == 200) {
+				console.log("got response : " + req.response);
+				resolve(req.response);
+			}
+			else {
+				reject(Error(req.statusText));
+			}
+		};
+
+		req.onerror = function() {
+			reject(Error("Network Error"));
+		};
+
+		req.send();
+	});
+
+
+}
+
+
+
+class KeyValueViewer extends React.Component {
+	constructor(props){
+		super(props);
+		this.state = {
+			colId 			: props.colId,
+			keyValuesAndIds	: props.keyValuesAndIds,  // Holds colloquial name and collection id
+			selectedKVInfo	: props.selectedKVInfo,
+			encryptedIds 	: props.encryptedIds,
+		};
+		this.handleNewKeyValue 	=this.handleNewKeyValue.bind(this);
+		this.handleEncryptAll 	=this.handleEncryptAll.bind(this);
+	}
+
+	KeyValueEncryptedBits(kvId){
+		if(this.props.encryptedIds == null){
+			return(
+				<div>Encrypt first null</div>
+			);
+		}
+		for (var i = 0; i < this.props.encryptedIds.length; i++) {
+			if(this.props.encryptedIds[i].kvPairId == kvId){
+				return(
+					<table><tbody><tr>
+					<td>
+						<table><tbody><tr>
+						{this.props.encryptedIds[i].bitIds.map((aBitId) => {
+							return(<td><button onClick={()=>this.props.selectKeyBit(this.props.colId, kvId, aBitId)}>Bit: {aBitId}</button></td>)
+						})}
+						</tr></tbody></table>
+					</td>
+					<td><button onClick={()=>this.props.selectValue(this.props.colId, kvId)}>Key:{kvId}</button></td>
+					</tr></tbody></table>
+				);
+				break;
+			}
+		};
+		return(
+			<div>Encrypt first {kvId}</div>
+		);
+	}
+
+	KeyValueRow(kvId, key, value){
+		return(
+			<table><tbody><tr>
+				<td><div>{key}</div></td>
+				<td><div>{value}</div></td>
+				<td><button onClick={()=>this.props.updateKV(this.props.colId, kvId)}>Update</button></td>
+				<td><button onClick={()=>this.props.deleteKV(this.props.colId, kvId)}>Delete</button></td>
+				<td>{this.KeyValueEncryptedBits(kvId)}</td>
+			</tr></tbody></table>
+		);
+	}
+
+	handleNewKeyValue(e){
+		e.preventDefault();
+		this.props.newKeyValue(this.props.colId, e.target.key.value, e.target.value.value);
+	}
+
+	handleEncryptAll(e){
+		this.props.encryptAll(this.props.colId);
+	}
+
+	NewKeyValueForm(){
+		return(
+			<form onSubmit={this.handleNewKeyValue}>
+				<table><tbody><tr>
+					<td><div>Key:<input type="text" name="key"/></div></td>
+					<td><div>Value:<input type="text" name="value"/></div></td>
+					<td><input type="submit" value="Add KV Pair"/></td>
+				</tr></tbody></table>
+			</form>
+		);
+	}
+
+	EncryptAllButton(){
+		return(
+			<button onClick={this.handleEncryptAll}>Encrypt All</button>
+		);
+	}
+
+	render(){
+
+		if(!this.props.keyValuesAndIds){
+			return(<div>Select a collection.</div>);
+		}
+		return(
+			<table><tbody>
+			<tr><td><button onClick={this.handleEncryptAll}>Encrypt All</button></td></tr>
+			{
+				this.props.keyValuesAndIds.map((singleKVInfo) => { return (
+					<tr><td>{this.KeyValueRow(singleKVInfo.id, singleKVInfo.key, singleKVInfo.value)}</td></tr>
+				)})
+			}
+			<tr><td><div>{this.NewKeyValueForm()}</div></td></tr>
+			</tbody></table>
+		);
+	}
+}
+
+class CollectionViewer extends React.Component {
+
+	constructor(props){
+		super(props);
+		this.state = {
+			collectionIdsAndNames: props.collectionIdsAndNames,  // Holds colloquial name and collection id
+			selectedCollectionId: props.selectedCollectionId
+		};
+		this.handleNewCollection = this.handleNewCollection.bind(this);
+	}
+
+	handleNewCollection(e){
+		e.preventDefault();
+		console.log("the e!");
+		console.log(e.target.name.value);
+		this.props.newCollection(e.target.name.value);
+	}
+
+	NewCollectionComponent(){
+		console.log("new coll");
+		return(
+			<form onSubmit={this.handleNewCollection}>
+				<table><tbody><tr>
+					<td><input type="text" name="name"/></td>
+					<td><input type="submit" value="Add Collection"/></td>
+				</tr></tbody></table>
+			</form>
+		);
+	}
+
+	CollectionRow(collectionId, collectionName){
+		return(
+			<table><tbody><tr>
+				<td><div onClick={()=>this.props.collectionClicked(collectionId)}>{collectionName}</div></td>
+				<td><button onClick={()=>this.props.updateCollection(collectionId)}>Update</button></td>
+				<td><button onClick={()=>this.props.deleteColection(collectionId)}>Delete</button></td>
+			</tr></tbody></table>
+		);
+	}
+
+	render(){
+
+		var collectionIdsAndNames = this.props.collectionIdsAndNames;
+		// console.log("rendering");
+		// console.log(this.state);
+		if(!collectionIdsAndNames){
+			return(<div>Loading collections.</div>);
+		}
+		return(
+			<table><tbody>
+			{
+				collectionIdsAndNames.map((info) => { return( 
+					<tr><td>{this.CollectionRow(info.id, info.name)}</td></tr>
+				)})
+			}
+			<tr><td><div>{this.NewCollectionComponent()}</div></td></tr>
+			</tbody></table>
+		);
+	}
+
+}
+
+class SampleDataViewer extends React.Component {
+	constructor(props){
+		super(props);
+		this.state = {
+			sampleDataArray: props.sampleDataArray
+		};
+	}
+
+	PolyRow(poly){
+		return(
+			<tr>
+				{
+					poly.map((coef) => { return(
+						<td>{coef}</td>
+					)})
+				}
+			</tr>
+		);
+	}
+
+	render(){
+		if(this.props.sampleDataArray == null || this.props.sampleDataArray.constructor !== Array){
+			return(<div>Select an encrypted key or value</div>);
+		}
+		return(
+			<table><tbody>
+			{
+				this.props.sampleDataArray.map((poly) =>{ return(
+					this.PolyRow(poly)
+				)})
+			}
+			</tbody></table>
+		);
+	}
+
+}
+
+class App extends React.Component {
+
+	constructor(props){
+		super(props);
+
+		this.getCollectionsAndUpdate 	= this.getCollectionsAndUpdate.bind(this);
+		this.getKeyValuesAndUpdate 		= this.getKeyValuesAndUpdate.bind(this);
+		this.updateCollection 			= this.updateCollection.bind(this);
+		this.deleteColection 			= this.deleteColection.bind(this);
+		this.newCollection 				= this.newCollection.bind(this);
+		this.collectionClicked 			= this.collectionClicked.bind(this);
+		this.updateKV 					= this.updateKV.bind(this);
+		this.deleteKV 					= this.deleteKV.bind(this);
+		this.newKeyValue 				= this.newKeyValue.bind(this);
+		this.getEncryptedIdsAndUpdate	= this.getEncryptedIdsAndUpdate.bind(this);
+		this.encryptAll 				= this.encryptAll.bind(this);
+		this.selectKeyBit 				= this.selectKeyBit.bind(this);
+		this.selectValue 				= this.selectValue.bind(this);
+
+		this.state = {
+			keyValuesAndIds: null,
+			collectionIdsAndNames: null,  // Holds colloquial name and collection id
+			selectedCollectionId: null,
+			selectedKVInfo: null,
+			encryptedIds: null,
+			sampleDataArray: null,
+		};
+
+		// this.getCollectionsAndUpdate = this.getCollectionsAndUpdate.bind(this);
+		// this.getKeyValuesAndUpdate = this.getKeyValuesAndUpdate.bind()
+
+		this.getCollectionsAndUpdate();
+	}
+
+
+
+
+
+	getCollectionsAndUpdate(){
+		console.log("in getCollectionsAndUpdate")
+		var getCollectionsUrl = baseUrl+'/collections/'+userId+'/getAll/';
+		console.log(getCollectionsUrl);
+		var getCollectionsPromise = httpRequest(getCollectionsUrl);
+		console.log("got a promise");
+		getCollectionsPromise.then((collectionData) => {
+			console.log("before set state");
+			this.setState({collectionIdsAndNames: JSON.parse(collectionData)});
+			console.log("new state");
+			console.log(this.state);
+		}).catch(function(err){
+			console.log('getAll collections err');
+			console.log(err);
+		});
+	}
+
+	getKeyValuesAndUpdate(colId){
+		var getKVUrl = baseUrl+'/collection_plaintext/'+userId+'/'+colId+'/getAll/';
+		var getKVPromise = httpRequest(getKVUrl);
+		getKVPromise.then((kvData) => {
+			this.setState({keyValuesAndIds: JSON.parse(kvData)});
+		}).catch(function(err){
+			console.log('getAll kvs err');
+		});
+	}
+
+
+
+
+
+	updateCollection(colId, colName){
+		var updateCollectionUrl = baseUrl+'/collections/'+userId+'/update/'+colId+'/'+colName+'/';
+		var updateCollectionPromise = httpRequest(updateCollectionUrl);
+		updateCollectionPromise.then((updatedCollectionId) => {
+			this.getCollectionsAndUpdate();
+		}).catch(function(err){
+			console.log('update collections err');
+		});
+	}
+
+	deleteColection(colId){
+		var deleteCollectionUrl = baseUrl+'/collections/'+userId+'/delete/'+colId+'/';
+		var deleteCollectionPromise = httpRequest(deleteCollectionUrl);
+		deleteCollectionPromise.then((trueVal) => {
+			this.getCollectionsAndUpdate();
+		}).catch((err)=> {
+			console.log('delete collections err');
+		});
+	}
+
+	newCollection(collectionName){
+		console.log("put new");
+		var newCollectionUrl = baseUrl+'/collections/'+userId+'/add/'+collectionName+'/';
+		var newCollectionPromise = httpRequest(newCollectionUrl);
+		newCollectionPromise.then((newId) => {
+			console.log("post bew")
+			console.log(newId);
+			console.log("post bew2");
+			this.getCollectionsAndUpdate();
+			console.log("WWW")
+		}).catch((err)=> {
+			console.log('new collections err');
+		});
+	}
+
+	collectionClicked(colId){
+		this.setState({selectedCollectionId: colId});
+		this.getKeyValuesAndUpdate(colId);
+		this.getEncryptedIdsAndUpdate(colId);
+	}
+
+	updateKV(colId, kvId, key, value){
+
+	}
+
+	deleteKV(colId, kvId){
+		var deleteKVUrl = baseUrl+'/collection_plaintext/'+userId+'/'+colId+'/delete/'+kvId+'/';
+		var deleteKVPromise = httpRequest(deleteKVUrl);
+		deleteKVPromise.then((trueVal) => {
+			this.getKeyValuesAndUpdate(colId);
+		}).catch((err)=> {
+			console.log('delete kv err');
+		});
+	}
+
+	newKeyValue(colId, key, value){
+		var newKVUrl = baseUrl+'/collection_plaintext/'+userId+'/'+colId+'/add/'+key+'/'+value+'/';
+		var newKVPromise = httpRequest(newKVUrl);
+		console.log("got new promise with "+newKVUrl);
+		newKVPromise.then((newKVId) => {
+			this.getKeyValuesAndUpdate(colId);
+		}).catch((err)=> {
+			console.log('new kv err');
+		});
+	}
+
+	getEncryptedIdsAndUpdate(colId){
+		console.log("in getEncryptedIdsAndUpdate");
+		var getAllEncryptedIdsUrl = baseUrl+'/ciphertext/'+userId+'/'+colId+'/getEncryptedIds/';
+		console.log("getAllEncryptedIdsUrl: " + getAllEncryptedIdsUrl);
+		var getEncryptedIdsPromise = httpRequest(getAllEncryptedIdsUrl);
+		getEncryptedIdsPromise.then((retJson) => {
+			console.log("get all enc ids: "+ retJson);
+			this.setState({encryptedIds: JSON.parse(retJson)});
+		}).catch((err)=> {
+			console.log("get ids err");
+		});
+	}
+
+	encryptAll(colId){
+		console.log("the colid : "+colId);
+		var encryptAllUrl 		= baseUrl+'/encrypt_collection/'+userId+'/'+colId+'/encrypt_all/';
+		var newEncryptPromise 	= httpRequest(encryptAllUrl);
+		console.log("en all url: "+encryptAllUrl);
+		newEncryptPromise.then((isTrue) => {
+			console.log("finished encrypting");
+			this.getEncryptedIdsAndUpdate(colId);
+		}).catch((err)=> {
+			console.log("enc all err");
+		});
+	}
+
+
+	selectKeyBit(colId, kvId, bitId){
+		var keyBitSampleUrl = baseUrl+'/ciphertext/'+userId+'/'+colId+'/getCiphertextKeyBitSample/'+kvId+'/'+bitId+'/';
+		console.log("keyBitSampleUrl url: "+keyBitSampleUrl);
+		var keyBitSamplePromise = httpRequest(keyBitSampleUrl);
+		keyBitSamplePromise.then((retJson) => {
+			console.log("key bit sample json: "+ retJson);
+			this.setState({sampleDataArray: JSON.parse(retJson)});
+		}).catch((err)=> {
+			console.log("selectKeyBit err");
+		});
+	}
+
+	selectValue(colId, kvId){
+		var valueSampleUrl = baseUrl+'/ciphertext/'+userId+'/'+colId+'/getCiphertextValueSample/'+kvId+'/';
+		console.log("select value sample url: "+valueSampleUrl);
+		var valueSamplePromise = httpRequest(valueSampleUrl);
+		valueSamplePromise.then((retJson) => {
+			console.log("value sample json: "+ retJson);
+			this.setState({sampleDataArray: JSON.parse(retJson)});
+		}).catch((err)=> {
+			console.log("selectValue err");
+		});
+	}
+
+	render(){
+		return (
+			<table><tbody><tr>
+				<td>
+					<CollectionViewer 
+						collectionIdsAndNames	={this.state.collectionIdsAndNames}
+						selectedCollectionId	={this.state.selectedCollectionId} 
+						newCollection 			={this.newCollection}
+						collectionClicked 		={this.collectionClicked}
+						deleteColection 		={this.deleteColection}
+						updateCollection		={this.updateCollection}/>
+				</td>
+				<td>
+					<table><tbody>
+						<tr><td>
+							<KeyValueViewer
+								colId 			={this.state.selectedCollectionId}
+								keyValuesAndIds ={this.state.keyValuesAndIds}
+								selectedKVInfo 	={this.state.selectedKVInfo}
+								encryptedIds 	={this.state.encryptedIds}
+								updateKV 		={this.updateKV}
+								deleteKV 		={this.deleteKV}
+								newKeyValue 	={this.newKeyValue}
+								encryptAll 		={this.encryptAll}
+								selectKeyBit 	={this.selectKeyBit}
+								selectValue 	={this.selectValue}/>
+						</td></tr>
+						<tr><td>
+							<SampleDataViewer
+								sampleDataArray ={this.state.sampleDataArray}/>
+						</td></tr>
+					</tbody></table>
+				</td>
+			</tr></tbody></table>
+		);
+	}
+}
+
+
+
+ReactDOM.render(
+  <App/>,
+  document.getElementById('root')
+);
+
+		</script>
+	</body>
+</html>

@@ -47,6 +47,21 @@ import json as json
 
 # """
 
+def getCtextMatrixSample(ctext, numElements = 1, numCoefficients = 1):
+	return example.getCtextMatrixSample(ctext, numElements, numCoefficients)
+
+def getCtextMatrixSampleFromSerialized(serializedCCString, serializedCiphertextString, numElements = 1, numCoefficients = 1):
+
+	serializedCC = example.Serialized()
+	example.StringToSerialization(serializedCCString, serializedCC)
+	cryptoContext = example.CryptoContextFactory.DeserializeAndCreateContext(serializedCC, False)
+
+	serializedCiphertext = example.Serialized()
+	example.StringToSerialization(serializedCiphertextString, serializedCiphertext)
+	ciphertext 			= cryptoContext.deserializeCiphertext(serializedCiphertext)
+
+	return getCtextMatrixSample(ciphertext, numElements, numCoefficients)
+
 def serializeObject(objectToSerialize):
 	serialized = example.Serialized()
 	objectToSerialize.Serialize(serialized)
@@ -79,117 +94,81 @@ def decryptBytePlaintext(cryptoContext, privateKey, ciphertext):
 	plaintextDec = plaintextDec[:decryptResult.messageLength]
 	return plaintextDec
 
-def doOperationToStringSerialization(operation, argOne = None, argTwo = None, argThree = None):
-	if operation == None:
-		# sys.stderr.write("No operation arg supplied")
-		return -1
 
-	elif operation == 'cryptocontext':
-		
-		if argOne != None or argTwo != None or argThree != None:
-			return -2
+def generateCryptoContextToStringSerialization():
+	cryptoContext = buildCryptoContext()
 
-		cryptoContext = buildCryptoContext()
+	serializedCryptoContext = example.Serialized()
+	cryptoContext.Serialize(serializedCryptoContext)
+	stringSerializedCC 		= example.SerializationToString(serializedCryptoContext, '')[1]
 
-		serializedCryptoContext = example.Serialized()
-		cryptoContext.Serialize(serializedCryptoContext)
-		stringSerializedCC 		= example.SerializationToString(serializedCryptoContext, '')[1]
+	return stringSerializedCC
 
-		return json.dumps(stringSerializedCC)
+def keygenToStringSerialization(serializedCCString):
 
-	elif operation == 'keygen':
+	serializedCC = example.Serialized()
+	example.StringToSerialization(serializedCCString, serializedCC)
+	cryptoContext = example.CryptoContextFactory.DeserializeAndCreateContext(serializedCC, False)
 
-		if argOne == None or argTwo != None or argThree != None:
+	keyPair = cryptoContext.KeyGen()
+	cryptoContext.EvalMultKeyGen(keyPair.secretKey)
 
-			return -3
-		
-		serializedCCString = argOne
+	newSerializedCryptoContext 			= example.Serialized()
+	cryptoContext.Serialize(newSerializedCryptoContext)
+	newSerializedCryptoContextString 	= example.SerializationToString(newSerializedCryptoContext, '')[1]
 
-		serializedCC = example.Serialized()
-		example.StringToSerialization(serializedCCString, serializedCC)
-		cryptoContext = example.CryptoContextFactory.DeserializeAndCreateContext(serializedCC, False)
+	serializedPublicKey = example.Serialized()
+	keyPair.publicKey.Serialize(serializedPublicKey)
+	serializedPublicKeyString 	= example.SerializationToString(serializedPublicKey, '')[1]
 
-		keyPair = cryptoContext.KeyGen()
-		cryptoContext.EvalMultKeyGen(keyPair.secretKey)
+	serializedPrivateKey = example.Serialized()
+	keyPair.secretKey.Serialize(serializedPrivateKey)
+	serializedPrivateKeyString 	= example.SerializationToString(serializedPrivateKey, '')[1]
 
+	returnDict = {}
 
-		newSerializedCryptoContext 			= example.Serialized()
-		cryptoContext.Serialize(newSerializedCryptoContext)
-		newSerializedCryptoContextString 	= example.SerializationToString(newSerializedCryptoContext, '')[1]
+	returnDict['cryptocontext'] = newSerializedCryptoContextString
+	returnDict['publickey'] 	= serializedPublicKeyString
+	returnDict['privatekey'] 	= serializedPrivateKeyString
 
-		serializedPublicKey = example.Serialized()
-		keyPair.publicKey.Serialize(serializedPublicKey)
-		serializedPublicKeyString 	= example.SerializationToString(serializedPublicKey, '')[1]
+	return returnDict
 
-		serializedPrivateKey = example.Serialized()
-		keyPair.secretKey.Serialize(serializedPrivateKey)
-		serializedPrivateKeyString 	= example.SerializationToString(serializedPrivateKey, '')[1]
+def encryptToStringSerialization(serializedCCString, serializedPublicKeyString, plaintext, includeSampleData = False):
+	serializedCC = example.Serialized()
+	example.StringToSerialization(serializedCCString, serializedCC)
+	cryptoContext = example.CryptoContextFactory.DeserializeAndCreateContext(serializedCC, False)
 
-		returnDict = {}
+	serializedPublicKey = example.Serialized()
+	example.StringToSerialization(serializedPublicKeyString, serializedPublicKey)
+	publicKey = cryptoContext.deserializePublicKey(serializedPublicKey)
 
-		returnDict['cryptocontext'] = newSerializedCryptoContextString
-		returnDict['publickey'] 	= serializedPublicKeyString
-		returnDict['privatekey'] 	= serializedPrivateKeyString
+	ciphertext = encryptBytePlaintext(cryptoContext, publicKey, plaintext)
 
-		return json.dumps(returnDict)
-
-
-	elif operation == 'encrypt':
-		
-		if argOne == None or argTwo == None or argThree == None:
-			return -4
-
-		serializedCCString 	= argOne
-
-		serializedCC = example.Serialized()
-		example.StringToSerialization(serializedCCString, serializedCC)
-		cryptoContext = example.CryptoContextFactory.DeserializeAndCreateContext(serializedCC, False)
+	serializedCiphertext = example.Serialized()
+	ciphertext[0].Serialize(serializedCiphertext)
+	serializedCiphertextString 	= example.SerializationToString(serializedCiphertext, '')[1]
+	if includeSampleData:
+		numElements = 2
+		numCoefficients = 3
+		return { 'ctext': serializedCiphertextString, 'sample': getCtextMatrixSample(ciphertext[0], numElements, numCoefficients) }
+	else:
+		return serializedCiphertextString
+	
 
 
-		serializedPublicKeyString 	= argTwo
+def decryptToStringSerialization(serializedCCString, serializedPrivateKeyString, serializedCiphertextString):
+	serializedCC = example.Serialized()
+	example.StringToSerialization(serializedCCString, serializedCC)
+	cryptoContext = example.CryptoContextFactory.DeserializeAndCreateContext(serializedCC, False)
 
-		serializedPublicKey = example.Serialized()
-		example.StringToSerialization(serializedPublicKeyString, serializedPublicKey)
-		publicKey = cryptoContext.deserializePublicKey(serializedPublicKey)
+	serializedPrivateKey = example.Serialized()
+	example.StringToSerialization(serializedPrivateKeyString, serializedPrivateKey)
+	privateKey = cryptoContext.deserializeSecretKey(serializedPrivateKey)
 
+	serializedCiphertext = example.Serialized()
+	example.StringToSerialization(serializedCiphertextString, serializedCiphertext)
+	ciphertext 			= cryptoContext.deserializeCiphertext(serializedCiphertext)
 
-		plaintext = argThree
+	plaintext = decryptBytePlaintext(cryptoContext, privateKey, ciphertext)
 
-		ciphertext = encryptBytePlaintext(cryptoContext, publicKey, plaintext)
-
-		serializedCiphertext = example.Serialized()
-		ciphertext[0].Serialize(serializedCiphertext)
-		serializedCiphertextString 	= example.SerializationToString(serializedCiphertext, '')[1]
-
-		return json.dumps(serializedCiphertextString)
-
-
-	elif operation == 'decrypt':
-		
-		if argOne == None or argTwo == None or argThree == None:
-			return -5
-
-
-		serializedCCString 	= argOne
-
-		serializedCC = example.Serialized()
-		example.StringToSerialization(serializedCCString, serializedCC)
-		cryptoContext = example.CryptoContextFactory.DeserializeAndCreateContext(serializedCC, False)
-
-
-		serializedPrivateKeyString 	= argTwo
-
-		serializedPrivateKey = example.Serialized()
-		example.StringToSerialization(serializedPrivateKeyString, serializedPrivateKey)
-		privateKey = cryptoContext.deserializeSecretKey(serializedPrivateKey)
-
-
-		serializedCiphertextString 	= argThree
-
-		serializedCiphertext = example.Serialized()
-		example.StringToSerialization(serializedCiphertextString, serializedCiphertext)
-		ciphertext 			= cryptoContext.deserializeCiphertext(serializedCiphertext)
-
-		plaintext = decryptBytePlaintext(cryptoContext, privateKey, ciphertext)
-
-		return json.dumps(plaintext)
+	return plaintext

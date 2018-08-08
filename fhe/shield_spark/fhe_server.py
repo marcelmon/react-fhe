@@ -61,34 +61,29 @@ class S(BaseHTTPRequestHandler):
 		)
 		operation 	= post_data['operation']
 
-		argOne 		= None
-		argTwo 		= None
-		argThree 	= None
+		ret = None;
+
 		if operation == 'cryptocontext':
-			print("HERERE 5555")
+			ret = fhe.generateCryptoContextToStringSerialization()
+			ret = json.dumps(ret)
 		elif operation == 'keygen':
-			argOne = post_data['cryptocontext']
-			# print(post_data['cryptocontext']['data']);
-
+			ret = fhe.keygenToStringSerialization(post_data['cryptocontext'])
+			ret = json.dumps(ret)
 		elif operation == 'encrypt':
-			argOne 		= post_data['cryptocontext']
-			argTwo 		= post_data['publickey']
-			argThree 	= post_data['plaintext']
-
-			# argOne 		= post_data['cryptocontext'][0]
-			# argTwo 		= post_data['publickey'][0]
-			# argThree 	= post_data['plaintext'][0]
-
+			ret = fhe.encryptToStringSerialization(post_data['cryptocontext'], post_data['publickey'], post_data['plaintext'], False)
+			# json is {'ctext': '...', 'sample':[...]}
+			ret = json.dumps(ret)
+		elif operation == 'encrypt_with_sample':
+			ret = fhe.encryptToStringSerialization(post_data['cryptocontext'], post_data['publickey'], post_data['plaintext'], True)
+			# json is {'ctext': '...', 'sample':[...]}
+			ret = json.dumps(ret)
 		elif operation == 'decrypt':
-			argOne 		= post_data['cryptocontext']
-			argTwo 		= post_data['privatekey']
-			argThree 	= post_data['ciphertext']
+			ret = fhe.decryptToStringSerialization(post_data['cryptocontext'], post_data['privatekey'], post_data['ciphertext'])
+			ret = json.dumps(ret)
 		else:
 			self._bad_params()
 			self.wfile.write(('Bad operation supplied.').encode('utf-8'))
 			return
-
-		ret = fhe.doOperationToStringSerialization(operation, argOne, argTwo, argThree)
 
 		if not isinstance(ret, str) or (isinstance(ret, int) and ret < 0):
 			self._internal_err()

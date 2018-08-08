@@ -7,15 +7,15 @@ import fhe
 print("starting")
 cmd = "python3 ./fhe.py cryptocontext"
 
-cc = fhe.doOperationToStringSerialization('cryptocontext')
-
+cc = fhe.generateCryptoContextToStringSerialization()
 
 print("crypto context gen complete")
 
+print("doing keygen")
 
-keyDictJson = fhe.doOperationToStringSerialization('keygen', cc)
+keyDict = fhe.keygenToStringSerialization(cc)
+print("checking keygen result")
 
-keyDict = json.loads(keyDictJson)
 if 'cryptocontext' not in keyDict:
 	print("ERRRRR cc")
 	exit()
@@ -33,15 +33,26 @@ print("keygen complete")
 
 val = "aaV"
 
-newcc 		= keyDict['cryptocontext']
-publickey 	= keyDict['publickey']
-privateKey 	= keyDict['privatekey']
+ctextAndSample = fhe.encryptToStringSerialization(keyDict['cryptocontext'], keyDict['publickey'], val, True)
 
-
-ctext = fhe.doOperationToStringSerialization('encrypt', newcc, publickey, val)
-
-
+ctext = ctextAndSample['ctext'];
 print("has ctext")
-decryptedVal = fhe.doOperationToStringSerialization('decrypt', newcc, privateKey, ctext)
+decryptedVal = fhe.decryptToStringSerialization(keyDict['cryptocontext'], keyDict['privatekey'], ctext)
 
 print("FINAL!!! :" + decryptedVal +"::")
+
+print("sample data:")
+
+
+# ctext.sample = fhe.getCtextMatrixSampleFromSerialized(keyDict['cryptocontext'], ctext, 2, 4);
+
+print(ctextAndSample['sample'])
+
+
+
+print("final without sample")
+
+ctext = fhe.encryptToStringSerialization(keyDict['cryptocontext'], keyDict['publickey'], val)
+print("has ctext")
+decryptedVal = fhe.decryptToStringSerialization(keyDict['cryptocontext'], keyDict['privatekey'], ctext)
+print("FINAL final!!! :" + decryptedVal +"::")

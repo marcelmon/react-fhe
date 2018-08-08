@@ -41,10 +41,7 @@ var checkUserDataEmpty = function(userId){
 	console.log("OIII");
 }
 
-console.log("start delete");
-deleteAllUserData(testUserId);
-console.log("done delete");
-checkUserDataEmpty(testUserId);
+
 
 
 var nodeServerUrl = "http://localhost:8081";
@@ -311,6 +308,77 @@ var testEncryptAll = function(){
 	console.log(encryptAllRet);
 
 }
+
+
+
+var testGetAllEncryptedIdsAndSamples = function(){
+
+
+	var ccId = 4;
+	var keyId = 4;
+	var colId_encrypt_3 = 4;
+
+
+	// want only 8 bits for keys
+	var key_1 = "8";
+	var key_2 = "9";
+
+	var value_1 = "a";
+	var value_2 = "b";
+
+	var kvPairId_1;
+	var kvPairId_2;
+
+	var plaintextUrl = nodeServerUrl+'/collection_plaintext/'+testUserId+'/'+colId_encrypt_3+'/';
+
+	// console.log("put 1");
+	// put some values
+	var putKV1 = request('POST', plaintextUrl+'add/'+key_1+'/'+value_1+'/');
+	kvPairId_1 = JSON.parse(putKV1.getBody()).id;
+	var putKV2 = request('POST', plaintextUrl+'add/'+key_2+'/'+value_2+'/');
+	kvPairId_2 = JSON.parse(putKV2.getBody()).id;
+
+	var encryptAllUrl = nodeServerUrl+'/encrypt_collection/'+testUserId+'/';
+	var encryptAllRet = request('POST', encryptAllUrl+colId_encrypt_3+'/encrypt_all/');
+
+	var getAllCtextIdsUrl = nodeServerUrl+'/ciphertext/'+testUserId+'/';
+
+	console.log("the before url : ");
+	console.log(getAllCtextIdsUrl+colId_encrypt_3+'/getEncryptedIds/');
+
+	var ctextIdsRet = request('POST', getAllCtextIdsUrl+colId_encrypt_3+'/getEncryptedIds/');
+
+	console.log("a thing");
+	console.log(ctextIdsRet);
+	var ctextIdsRetArray = JSON.parse(ctextIdsRet.getBody());
+
+	assertTrue(ctextIdsRetArray[0].kvPairId == kvPairId_1);
+	assertTrue(ctextIdsRetArray[0].bitIds.length > 0);
+	assertTrue(ctextIdsRetArray[0].valueId == kvPairId_1);
+
+	assertTrue(ctextIdsRetArray[1].kvPairId == kvPairId_2);
+	assertTrue(ctextIdsRetArray[1].bitIds.length > 0);
+	assertTrue(ctextIdsRetArray[1].valueId == kvPairId_2);
+
+
+	var bitIdOne = ctextIdsRetArray[0].bitIds.length -1;
+	var keyBitSampleOne = request('POST', getAllCtextIdsUrl+colId_encrypt_3+'/getCiphertextKeyBitSample/'+kvPairId_1+'/'+bitIdOne+'/');
+	console.log("max bit sample 1:");
+	console.log(JSON.parse(keyBitSampleOne.getBody()));
+
+
+	var valueSampleOne = request('POST', getAllCtextIdsUrl+colId_encrypt_3+'/getCiphertextValueSample/'+kvPairId_1+'/');
+	console.log("value sample 1:");
+	console.log(JSON.parse(valueSampleOne.getBody()));
+	
+};
+
+
+console.log("start delete");
+deleteAllUserData(testUserId);
+console.log("done delete");
+checkUserDataEmpty(testUserId);
+
 // test collections router
 console.log("the url:  " +  nodeServerUrl+'/collections/'+testUserId+'/getAll/');
 var res = request('POST', nodeServerUrl+'/collections/'+testUserId+'/getAll/');
@@ -326,4 +394,20 @@ testCollectionPlaintext();
 
 console.log("test encrypt all");
 
+
+console.log("start testEncryptAll");
+
 testEncryptAll();
+
+
+console.log("start delete");
+deleteAllUserData(testUserId);
+console.log("done delete");
+checkUserDataEmpty(testUserId);
+
+
+console.log('testGetAllEncryptedIdsAndSamples');
+
+testGetAllEncryptedIdsAndSamples();
+
+console.log("test complete HUZZAH!");

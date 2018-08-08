@@ -14,6 +14,40 @@ int add(int i, int j) {
 	return i + j;
 }
 
+/*
+	Matrix of polynomials is vert x horiz
+	Params define how many elements to return and how many coefficients to return
+	Later want to include the display dimensions
+*/
+std::vector<std::vector<uint32_t>> getCtextMatrixSample(const Ciphertext<Poly> ciphertext, uint32_t numElements, uint32_t coefDepth){
+	
+	std::vector<std::vector<uint32_t>> returnPolySamples;
+
+	std::vector<Poly> allElements = ciphertext.GetElements();
+
+	if(allElements.size() < numElements){
+		numElements = allElements.size();
+	}
+	if(numElements <= 0){
+		return std::vector<std::vector<uint32_t>>();
+	}
+	if(allElements.at(0).GetRingDimension() <= coefDepth){
+		coefDepth = allElements.at(0).GetRingDimension();
+	}
+	if(coefDepth <= 0){
+		return std::vector<std::vector<uint32_t>>();
+	}
+	for (uint32_t i = 0; i < numElements; ++i) {
+		std::vector<uint32_t> singlePolySample;
+		Poly thisPoly = allElements.at(i);
+		for (uint32_t j = 0; j < coefDepth; ++j) {
+			singlePolySample.push_back(thisPoly.GetValAtIndex(j).ConvertToInt());
+		}
+		returnPolySamples.push_back(singlePolySample);
+	}
+	return returnPolySamples;
+}
+
 py::bytes nothing(const std::string alice, const std::string bob) {
 	int len = alice.length();
 	char *carol = new char[len];
@@ -128,4 +162,6 @@ PYBIND11_MODULE(example, m) {
 	m.def("decodeBytes", &decodeBytes, "");
 	m.def("makeShared", &makeShared, "");
 	m.def("printCryptoContext", &printCryptoContext, "");
+
+	m.def("getCtextMatrixSample", &getCtextMatrixSample, "A function to retreive a small sample of a ctext for diaplay purposes");
 }
