@@ -110,6 +110,7 @@ def keygen(cryptoContext):
 def encryptBytePlaintext(cryptoContext, publicKey, plaintext):
 	return cryptoContext.Encrypt(publicKey, example.BytePlaintextEncoding(plaintext), True, True)
 
+
 def decryptBytePlaintext(cryptoContext, privateKey, ciphertext):
 	plaintextDec = example.BytePlaintextEncoding("")
 	decryptResult = cryptoContext.Decrypt(privateKey, [ciphertext], plaintextDec, True)
@@ -117,6 +118,15 @@ def decryptBytePlaintext(cryptoContext, privateKey, ciphertext):
 	plaintextDec = plaintextDec[:decryptResult.messageLength]
 	return plaintextDec
 
+def decryptIntPlaintext(cryptoContext, privateKey, ciphertext):
+	plaintextDec = example.IntPlaintextEncoding([])
+	decryptResult = cryptoContext.Decrypt(privateKey, [ciphertext], plaintextDec, True)
+	plaintextDec = example.decodeInts(plaintextDec)
+	plaintextDec = plaintextDec[:decryptResult.messageLength]
+	return plaintextDec
+
+def encryptIntPlaintext(cryptoContext, publicKey, plaintext):
+	return cryptoContext.Encrypt(publicKey, example.IntPlaintextEncoding([plaintext]), True, True)
 
 def generateCryptoContextToStringSerialization():
 	cryptoContext = buildCryptoContext()

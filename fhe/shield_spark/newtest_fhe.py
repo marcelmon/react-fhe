@@ -89,3 +89,13 @@ ctext3NotSerial = fhe.stringToCtext(cc3, ctext3Serial)
 pt4 = fhe.decryptBytePlaintext(cc3, privkey, ctext3NotSerial)
 
 print("expecting "+plaintext3+" and got : "+pt4)
+
+
+print("testing int encoding")
+
+val2 = 4
+encVal = fhe.encryptIntPlaintext(cc3, pubkey, val2)[0]
+
+decVal = fhe.decryptIntPlaintext(cc3, privkey, encVal)[0]
+
+print("expecting : "+str(val2)+" got : "+str(decVal))
