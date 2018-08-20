@@ -56,3 +56,36 @@ ctext = fhe.encryptToStringSerialization(keyDict['cryptocontext'], keyDict['publ
 print("has ctext")
 decryptedVal = fhe.decryptToStringSerialization(keyDict['cryptocontext'], keyDict['privatekey'], ctext)
 print("FINAL final!!! :" + decryptedVal +"::")
+
+
+
+print("now using deserialize funcs")
+
+cc2 = fhe.generateCryptoContextToStringSerialization()
+keyDict = fhe.keygenToStringSerialization(cc)
+
+cc3Serial 		= keyDict['cryptocontext']
+pubkeySerial 	= keyDict['publickey']
+privkeySerial 	= keyDict['privatekey']
+
+plaintext = "v"
+
+
+cc3 		= fhe.stringToCryptoContext(cc3Serial)
+pubkey 		= fhe.stringToPubKey(cc3, pubkeySerial)
+privkey 	= fhe.stringToPrivKey(cc3, privkeySerial)
+
+ctextNotSerial = fhe.encryptBytePlaintext(cc3, pubkey, plaintext)[0]
+
+pt2 = fhe.decryptBytePlaintext(cc3, privkey, ctextNotSerial)
+
+print("expecting "+plaintext+" and got : "+pt2)
+
+plaintext3 = "u"
+
+ctext3Serial = fhe.encryptToStringSerialization(cc3Serial, pubkeySerial, plaintext3, False)
+
+ctext3NotSerial = fhe.stringToCtext(cc3, ctext3Serial)
+pt4 = fhe.decryptBytePlaintext(cc3, privkey, ctext3NotSerial)
+
+print("expecting "+plaintext3+" and got : "+pt4)

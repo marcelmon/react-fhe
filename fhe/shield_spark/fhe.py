@@ -46,6 +46,29 @@ import json as json
 
 
 # """
+def stringToCryptoContext(serializedCCString):
+	serializedCC = example.Serialized()
+	example.StringToSerialization(serializedCCString, serializedCC)
+	cryptoContext = example.CryptoContextFactory.DeserializeAndCreateContext(serializedCC, False)
+	return cryptoContext
+
+def stringToCtext(cryptoContext, serializedCiphertextString):
+	serializedCiphertext = example.Serialized()
+	example.StringToSerialization(serializedCiphertextString, serializedCiphertext)
+	ciphertext 			= cryptoContext.deserializeCiphertext(serializedCiphertext)
+	return ciphertext
+
+def stringToPubKey(cryptoContext, serializedPublicKeyString):
+	serializedPublicKey = example.Serialized()
+	example.StringToSerialization(serializedPublicKeyString, serializedPublicKey)
+	publicKey = cryptoContext.deserializePublicKey(serializedPublicKey)
+	return publicKey
+
+def stringToPrivKey(cryptoContext, serializedPrivateKeyString):
+	serializedPrivateKey = example.Serialized()
+	example.StringToSerialization(serializedPrivateKeyString, serializedPrivateKey)
+	privateKey = cryptoContext.deserializeSecretKey(serializedPrivateKey)
+	return privateKey
 
 def getCtextMatrixSample(ctext, numElements = 1, numCoefficients = 1):
 	return example.getCtextMatrixSample(ctext, numElements, numCoefficients)
