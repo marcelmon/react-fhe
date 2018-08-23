@@ -97,9 +97,10 @@ def stringToSerialization(serializedString):
 	
 
 def buildCryptoContext():
-	cryptoContext = example.CryptoContextFactory.genCryptoContextFV(256, 1.006, 1, 4.0, 0, 2, 0, example.MODE.OPTIMIZED)
-	cryptoContext.Enable(example.PKESchemeFeature.ENCRYPTION)
-	cryptoContext.Enable(example.PKESchemeFeature.SHE)
+	# cryptoContext = example.CryptoContextFactory.genCryptoContextFV(256, 0, 1, 0, 0, 2, 0, example.MODE.OPTIMIZED)
+	cryptoContext = example.genCCBV()
+	# cryptoContext.Enable(example.PKESchemeFeature.ENCRYPTION)
+	# cryptoContext.Enable(example.PKESchemeFeature.SHE)
 	return cryptoContext
 
 def keygen(cryptoContext):
@@ -176,6 +177,27 @@ def encryptToStringSerialization(serializedCCString, serializedPublicKeyString, 
 	publicKey = cryptoContext.deserializePublicKey(serializedPublicKey)
 
 	ciphertext = encryptBytePlaintext(cryptoContext, publicKey, plaintext)
+
+	serializedCiphertext = example.Serialized()
+	ciphertext[0].Serialize(serializedCiphertext)
+	serializedCiphertextString 	= example.SerializationToString(serializedCiphertext, '')[1]
+	if includeSampleData:
+		numElements = 2
+		numCoefficients = 3
+		return { 'ctext': serializedCiphertextString, 'sample': getCtextMatrixSample(ciphertext[0], numElements, numCoefficients) }
+	else:
+		return serializedCiphertextString
+
+def encryptIntToStringSerialization(serializedCCString, serializedPublicKeyString, plaintext, includeSampleData = False):
+	serializedCC = example.Serialized()
+	example.StringToSerialization(serializedCCString, serializedCC)
+	cryptoContext = example.CryptoContextFactory.DeserializeAndCreateContext(serializedCC, False)
+
+	serializedPublicKey = example.Serialized()
+	example.StringToSerialization(serializedPublicKeyString, serializedPublicKey)
+	publicKey = cryptoContext.deserializePublicKey(serializedPublicKey)
+
+	ciphertext = encryptIntPlaintext(cryptoContext, publicKey, plaintext)
 
 	serializedCiphertext = example.Serialized()
 	ciphertext[0].Serialize(serializedCiphertext)

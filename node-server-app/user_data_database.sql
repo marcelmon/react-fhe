@@ -745,6 +745,77 @@ DELIMITER ;
 
 
 
+DELIMITER $$
+CREATE PROCEDURE `addQuery`
+( 
+	IN queryId 	INT,
+	IN userId 	INT
+)
+BEGIN
+INSERT INTO user_queries ( user_id, query_id )
+values (userId, queryId);
+SELECT IFNULL(queryId, LAST_INSERT_ID()) as id;
+END$$
+DELIMITER ;
+
+
+DELIMITER $$
+CREATE PROCEDURE `addQueryBitData`
+(
+	IN queryId INT,
+	IN userId  INT,
+	IN bitId   INT,
+	IN bitData LONGBLOB
+)
+BEGIN
+INSERT INTO user_query_bits ( user_id, query_id, bit_id, bit_data )
+values (userId, queryId, bitId, bitData);
+SELECT bitId as id;
+END$$
+DELIMITER ;
+
+
+DELIMITER $$
+CREATE PROCEDURE `getQueryBits`
+( 
+	IN queryId 			INT,
+	IN userId 			INT 
+)
+BEGIN
+SELECT bit_id, bit_data 
+from user_query_bits
+where user_id 	= userId
+and query_id 	= queryId
+order by bit_id asc;
+END$$
+DELIMITER ;
+
+
+-- `collection_id`     int UNSIGNED not null, -- not necessary
+-- `cryptocontext_id`  int UNSIGNED not null, -- not necessary
+-- `keypair_id`        int UNSIGNED not null, -- not necessary
+create table user_queries (
+    `query_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `user_id`  INT NOT NULL,
+    `created_time`  timestamp,
+    PRIMARY KEY(`query_id`)
+);
+
+
+-- `collection_id`     int UNSIGNED not null,
+-- `cryptocontext_id`  int UNSIGNED not null,
+-- `keypair_id`        int UNSIGNED not null,
+create table user_query_bits (
+    `query_id` INT UNSIGNED NOT NULL,
+    `bit_id`   INT UNSIGNED NOT NULL,
+    `bit_data` LONGBLOB NOT NULL,
+    `user_id`  INT NOT NULL,
+    `created_time`  timestamp,
+    PRIMARY KEY(`query_id`, `bit_id`),
+    KEY(`user_id`, `query_id`)
+);
+
+
 create table user_cryptocontexts (
 	`cryptocontext_id` INT(11) not null AUTO_INCREMENT,
 	`user_id` INT(11) UNSIGNED not null,

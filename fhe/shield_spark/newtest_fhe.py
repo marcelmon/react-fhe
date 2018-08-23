@@ -99,3 +99,14 @@ encVal = fhe.encryptIntPlaintext(cc3, pubkey, val2)[0]
 decVal = fhe.decryptIntPlaintext(cc3, privkey, encVal)[0]
 
 print("expecting : "+str(val2)+" got : "+str(decVal))
+
+
+
+print("testing int encoding neg")
+
+val3 = -2
+encVal3 = fhe.encryptIntPlaintext(cc3, pubkey, val3)[0]
+
+decVal3 = fhe.decryptIntPlaintext(cc3, privkey, encVal3)[0]
+
+print("expecting : "+str(val3)+" got : "+str(decVal3))

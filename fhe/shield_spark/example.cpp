@@ -87,6 +87,37 @@ std::vector<int> getPolys(const Ciphertext<Poly> ciphertext, int x = -1, int y =
 	
 }
 
+std::shared_ptr<CryptoContext<Poly>> genCCBV(){
+
+	// { "BV1", {
+	// 			{ "parameters", "BV" },
+	// 			{ "plaintextModulus", "2" },
+	// 			{ "ring", "2048" },
+	// 			{ "modulus", "268441601" },
+	// 			{ "rootOfUnity", "16947867" },
+	// 			{ "relinWindow", "1" },
+	// 			{ "stDev", "4" },
+	// 	} },
+
+	shared_ptr<typename Poly::Params> parms;
+
+	// ring, modulus, root of unity
+	parms.reset( new typename Poly::Params(stoul("32"),
+							typename Poly::Integer("268441601"),
+							typename Poly::Integer("16947867")));
+
+	// ptm, relin window, stDev
+	shared_ptr<CryptoContext<Poly>> cc = CryptoContextFactory<Poly>::genCryptoContextBV(parms,
+				stoul("256"), stoul("1"), stof("0"));
+
+	cc->Enable(ENCRYPTION);
+	cc->Enable(PRE);
+	cc->Enable(SHE);
+
+	return cc;
+}
+
+
 PYBIND11_MODULE(example, m) {
 	m.doc() = "pybind11 example plugin"; // optional module docstring
 
@@ -164,4 +195,5 @@ PYBIND11_MODULE(example, m) {
 	m.def("printCryptoContext", &printCryptoContext, "");
 
 	m.def("getCtextMatrixSample", &getCtextMatrixSample, "A function to retreive a small sample of a ctext for diaplay purposes");
+	m.def("genCCBV", &genCCBV, "func to gen cc bv with fixed values");
 }
