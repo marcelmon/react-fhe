@@ -17,6 +17,8 @@ import fhe
 import urllib
 import json
 
+from xnor_no_spark import XnorSearch as XnorSearch
+
 class S(BaseHTTPRequestHandler):
 
 	def _bad_params(self):
@@ -70,16 +72,46 @@ class S(BaseHTTPRequestHandler):
 			ret = fhe.keygenToStringSerialization(post_data['cryptocontext'])
 			ret = json.dumps(ret)
 		elif operation == 'encrypt':
-			ret = fhe.encryptToStringSerialization(post_data['cryptocontext'], post_data['publickey'], post_data['plaintext'], False)
+			if post_data['isInt'] is True:
+				ret = fhe.encryptIntToStringSerialization(post_data['cryptocontext'], post_data['publickey'], post_data['plaintext'], False)
+			else:
+				ret = fhe.encryptToStringSerialization(post_data['cryptocontext'], post_data['publickey'], post_data['plaintext'], False)
 			# json is {'ctext': '...', 'sample':[...]}
 			ret = json.dumps(ret)
 		elif operation == 'encrypt_with_sample':
-			ret = fhe.encryptToStringSerialization(post_data['cryptocontext'], post_data['publickey'], post_data['plaintext'], True)
+			if post_data['isInt'] is True:
+				ret = fhe.encryptIntToStringSerialization(post_data['cryptocontext'], post_data['publickey'], post_data['plaintext'], True)
+			else:
+				ret = fhe.encryptToStringSerialization(post_data['cryptocontext'], post_data['publickey'], post_data['plaintext'], True)
 			# json is {'ctext': '...', 'sample':[...]}
 			ret = json.dumps(ret)
 		elif operation == 'decrypt':
-			ret = fhe.decryptToStringSerialization(post_data['cryptocontext'], post_data['privatekey'], post_data['ciphertext'])
+			if post_data['isInt'] is True:
+				ret = fhe.decryptIntToStringSerialization(post_data['cryptocontext'], post_data['privatekey'], post_data['ciphertext'])
+			else:
+				ret = fhe.decryptToStringSerialization(post_data['cryptocontext'], post_data['privatekey'], post_data['ciphertext'])
 			ret = json.dumps(ret)
+		elif operation == 'query':
+			xnorSearch = XnorSearch()
+
+			userId 		= post_data['userId']
+			colId 		= post_data['colId']
+			ccId 		= post_data['ccId']
+			keyId 		= post_data['keyId']
+			queryId 	= post_data['queryId']
+			dbHost 		= post_data['dbHost']
+			dbDatabase 	= post_data['dbDatabase']
+			dbUser 		= post_data['dbUser']
+			dbPass 		= post_data['dbPass']
+			numBits 	= post_data['numBits']
+
+			res = xnorSearch.doXnorSearch(dbHost, dbUser, dbPass, dbDatabase, userId, colId, ccId, keyId, queryId, numBits)
+
+			serializeRes = fhe.serializeObject(res)
+			stringRes = fhe.serializedToString(serializeRes)
+			
+			ret = json.dumps(stringRes)
+
 		else:
 			self._bad_params()
 			self.wfile.write(('Bad operation supplied.').encode('utf-8'))

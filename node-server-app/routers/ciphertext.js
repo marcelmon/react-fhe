@@ -8,14 +8,12 @@ var dbInterface 	= require('../db_interface_mysql.js');
 var getRecentCCAndKeyPairId = function(userId){
 	var ccIds = dbInterface.getAllCryptoContextIds(userId);
 	if(!ccIds || ccIds.length == 0){
-		res.status(500).send('Err cc!');
 		return false;
 	}
 	var recentCCId = ccIds[ccIds.length - 1];
 
 	var keypairIds = dbInterface.getAllKeypairIds(userId, recentCCId);
 	if(!keypairIds || keypairIds.length == 0){
-		res.status(500).send('Err kp!');
 		return false;
 	}
 	var recentKeyPairId = keypairIds[keypairIds.length - 1];
@@ -26,7 +24,11 @@ var getRecentCCAndKeyPairId = function(userId){
 router.post('/:userId/:colId/getEncryptedIds/', function(req, res){
 
 	var recentIds = getRecentCCAndKeyPairId(req.params.userId);
-
+	if(!recentIds){
+		res.setHeader('Content-Type', 'application/json');
+	    res.send(JSON.stringify(null));
+	    return;
+	}
 	var allKeyValueCtextIds = dbInterface.getCiphertextValueAndBitIdsForCollection(req.params.userId, req.params.colId, recentIds.ccId, recentIds.keypairId);
 	if(!allKeyValueCtextIds){
 		res.status(500).send('Something broke in getEncryptedIds');

@@ -146,9 +146,9 @@ queryBit2 = 1
 encQBit1 = fhe.encryptIntToStringSerialization(ccData, publickey, queryBit1)
 encQBit2 = fhe.encryptIntToStringSerialization(ccData, publickey, queryBit2)
 
-mycursor.callproc("addQuery", [queryId, userId])
-mycursor.callproc("addQueryBitData", [queryId, userId, 1, encQBit1])
-mycursor.callproc("addQueryBitData", [queryId, userId, 2, encQBit2])
+mycursor.callproc("putQuery", [queryId, userId])
+mycursor.callproc("putQueryBitData", [queryId, userId, 1, encQBit1])
+mycursor.callproc("putQueryBitData", [queryId, userId, 2, encQBit2])
 
 mydb.commit()
 

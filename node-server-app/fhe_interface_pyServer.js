@@ -40,7 +40,22 @@ var encrypt = function(cryptocontext, publickey, plaintext){
 			operation: 		'encrypt',
 			cryptocontext: 	cryptocontext,
 			publickey: 		publickey,
-			plaintext: 		plaintext
+			plaintext: 		plaintext,
+			isInt: 			false
+		},
+	});
+	return JSON.parse(res.getBody());
+};
+
+var encryptInt = function(cryptocontext, publickey, plaintext){
+	console.log("in encrypt int");
+	var res = request('POST', fhePyURL, {
+		json: {
+			operation: 		'encrypt',
+			cryptocontext: 	cryptocontext,
+			publickey: 		publickey,
+			plaintext: 		plaintext,
+			isInt: 			true
 		},
 	});
 	return JSON.parse(res.getBody());
@@ -52,7 +67,24 @@ var encryptWithSample = function(cryptocontext, publickey, plaintext){
 		operation: 		'encrypt_with_sample',
 		cryptocontext: 	cryptocontext,
 		publickey: 		publickey,
-		plaintext: 		plaintext
+		plaintext: 		plaintext,
+		isInt: 			false
+	};
+
+	var res = request('POST', fhePyURL, {
+		json: jsonArr
+	});
+	return JSON.parse(res.getBody());
+};
+
+var encryptIntWithSample = function(cryptocontext, publickey, plaintext){
+	console.log("getting encryptIntWithSample : ");
+	var jsonArr = {
+		operation: 		'encrypt_with_sample',
+		cryptocontext: 	cryptocontext,
+		publickey: 		publickey,
+		plaintext: 		plaintext,
+		isInt: 			true
 	};
 
 	var res = request('POST', fhePyURL, {
@@ -68,7 +100,22 @@ var decrypt = function(cryptocontext, privatekey, ciphertext){
 			operation: 		'decrypt',
 			cryptocontext: 	cryptocontext,
 			privatekey: 	privatekey,
-			ciphertext: 	ciphertext
+			ciphertext: 	ciphertext,
+			isInt: 			false
+		},
+	});
+	return JSON.parse(res.getBody());
+};
+
+var decryptInt = function(cryptocontext, privatekey, ciphertext){
+
+	var res = request('POST', fhePyURL, {
+		json: {
+			operation: 		'decrypt',
+			cryptocontext: 	cryptocontext,
+			privatekey: 	privatekey,
+			ciphertext: 	ciphertext,
+			isInt: 			true
 		},
 	});
 	return JSON.parse(res.getBody());
@@ -81,7 +128,10 @@ module.exports = {
 	keygen: 				keygen,
 	encrypt: 				encrypt,
 	decrypt: 				decrypt,
-	encryptWithSample: 		encryptWithSample
+	encryptWithSample: 		encryptWithSample,
+	encryptInt: 			encryptInt,
+	decryptInt: 			decryptInt,
+	encryptIntWithSample: 	encryptIntWithSample
 };
 
 

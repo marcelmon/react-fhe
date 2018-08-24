@@ -105,8 +105,8 @@ class XnorSearch(object):
         publicKeyRet = next(self.cursor.stored_results()).fetchall()[0][0]
         return fhe.stringToPubKey(self.cryptoContext, publicKeyRet)
 
-    def getQueryKeyBits(self):
-        self.cursor.callproc("getQueryBits",[userId,queryId])
+    def getQueryKeyBits(self, userId, queryId):
+        self.cursor.callproc("getQueryBits",[queryId,userId])
         queryKeyBits = []
         for allres in self.cursor.stored_results():
             row = allres.fetchone()
@@ -127,7 +127,7 @@ class XnorSearch(object):
 
         self.cryptoContext  = self.getCryptoContext(userId, ccId)
         self.publicKey      = self.getPublicKey(userId,ccId,keyId)
-        self.queryKeyBits   = self.getQueryKeyBits()
+        self.queryKeyBits   = self.getQueryKeyBits(userId, queryId)
 
         self.oneVal     = fhe.encryptIntPlaintext(self.cryptoContext, self.publicKey, 1)[0]
         self.zeroVal    = fhe.encryptIntPlaintext(self.cryptoContext, self.publicKey, 0)[0]

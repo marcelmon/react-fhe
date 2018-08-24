@@ -68,7 +68,7 @@ var shell 		= require('shelljs');
 
 var host = 'localhost';
 var user = 'root';
-var password = 'StupidPaSs*%';
+var password = '';
 var database = 'fhe_test';
 
 
@@ -670,6 +670,36 @@ var getCiphertextValueAndBitIdsForCollection = function(userId, collectionId, cc
 	return res[0].map(function(row){ return {kvPairId: row.kvPairId, bitIds: JSON.parse(row.bitIds), valueId: row.valueId }; });
 }
 
+// addQuery
+// ( 
+// 	IN queryId 	INT,
+// 	IN userId 	INT
+// )
+var putQuery = function(userId, queryId){
+	queryId = (queryId == null || typeof queryId == 'undefined')? "NULL": queryId;
+	var res = mysqlConnectQuery("call putQuery("+queryId+","+userId+");");
+	if(res[0].length == 0){
+		return null;
+	}
+	return res[0][0].id;
+}
+
+// putQueryBitData
+// (
+// 	IN queryId INT,
+// 	IN userId  INT,
+// 	IN bitId   INT,
+// 	IN bitData LONGBLOB
+// )
+var putQueryBitData = function(userId, queryId, bitId, bitData){
+	var res = mysqlConnectQuery("call putQueryBitData("+queryId+","+userId+","+bitId+",'"+bitData+"');");
+	if(res[0].length == 0){
+		return null;
+	}
+	return res[0][0].id;
+}
+
+
 module.exports = {
 	mysqlConnect: 					mysqlConnect,
 	mysqlConnectQuery: 				mysqlConnectQuery,
@@ -707,7 +737,9 @@ module.exports = {
 	putCiphertextValueData: 		putCiphertextValueData,
 	putCiphertextValueSample: 		putCiphertextValueSample,
 	deleteCiphertextValueData: 		deleteCiphertextValueData,
-	getCiphertextValueAndBitIdsForCollection: getCiphertextValueAndBitIdsForCollection
+	getCiphertextValueAndBitIdsForCollection: getCiphertextValueAndBitIdsForCollection,
+	putQuery: 						putQuery,
+	putQueryBitData: 				putQueryBitData
 	
 };
 

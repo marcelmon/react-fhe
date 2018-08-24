@@ -85,6 +85,9 @@ def getCtextMatrixSampleFromSerialized(serializedCCString, serializedCiphertextS
 
 	return getCtextMatrixSample(ciphertext, numElements, numCoefficients)
 
+def serializedToString(serializedObject):
+	return example.SerializationToString(serializedObject, '')[1]
+	
 def serializeObject(objectToSerialize):
 	serialized = example.Serialized()
 	objectToSerialize.Serialize(serialized)
@@ -225,5 +228,23 @@ def decryptToStringSerialization(serializedCCString, serializedPrivateKeyString,
 	ciphertext 			= cryptoContext.deserializeCiphertext(serializedCiphertext)
 
 	plaintext = decryptBytePlaintext(cryptoContext, privateKey, ciphertext)
+
+	return plaintext
+
+
+def decryptIntToStringSerialization(serializedCCString, serializedPrivateKeyString, serializedCiphertextString):
+	serializedCC = example.Serialized()
+	example.StringToSerialization(serializedCCString, serializedCC)
+	cryptoContext = example.CryptoContextFactory.DeserializeAndCreateContext(serializedCC, False)
+
+	serializedPrivateKey = example.Serialized()
+	example.StringToSerialization(serializedPrivateKeyString, serializedPrivateKey)
+	privateKey = cryptoContext.deserializeSecretKey(serializedPrivateKey)
+
+	serializedCiphertext = example.Serialized()
+	example.StringToSerialization(serializedCiphertextString, serializedCiphertext)
+	ciphertext 			= cryptoContext.deserializeCiphertext(serializedCiphertext)
+
+	plaintext = decryptIntPlaintext(cryptoContext, privateKey, ciphertext)
 
 	return plaintext

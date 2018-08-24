@@ -746,7 +746,7 @@ DELIMITER ;
 
 
 DELIMITER $$
-CREATE PROCEDURE `addQuery`
+CREATE PROCEDURE `putQuery`
 ( 
 	IN queryId 	INT,
 	IN userId 	INT
@@ -760,7 +760,7 @@ DELIMITER ;
 
 
 DELIMITER $$
-CREATE PROCEDURE `addQueryBitData`
+CREATE PROCEDURE `putQueryBitData`
 (
 	IN queryId INT,
 	IN userId  INT,
