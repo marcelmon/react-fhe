@@ -75,7 +75,7 @@ cc3 		= fhe.stringToCryptoContext(cc3Serial)
 pubkey 		= fhe.stringToPubKey(cc3, pubkeySerial)
 privkey 	= fhe.stringToPrivKey(cc3, privkeySerial)
 
-ctextNotSerial = fhe.encryptBytePlaintext(cc3, pubkey, plaintext)[0]
+ctextNotSerial = fhe.encryptBytePlaintext(cc3, pubkey, plaintext)
 
 pt2 = fhe.decryptBytePlaintext(cc3, privkey, ctextNotSerial)
 
@@ -94,9 +94,9 @@ print("expecting "+plaintext3+" and got : "+pt4)
 print("testing int encoding")
 
 val2 = 4
-encVal = fhe.encryptIntPlaintext(cc3, pubkey, val2)[0]
+encVal = fhe.encryptIntPlaintext(cc3, pubkey, val2)
 
-decVal = fhe.decryptIntPlaintext(cc3, privkey, encVal)[0]
+decVal = fhe.decryptIntPlaintext(cc3, privkey, encVal)
 
 print("expecting : "+str(val2)+" got : "+str(decVal))
 
@@ -105,8 +105,8 @@ print("expecting : "+str(val2)+" got : "+str(decVal))
 print("testing int encoding neg")
 
 val3 = -2
-encVal3 = fhe.encryptIntPlaintext(cc3, pubkey, val3)[0]
+encVal3 = fhe.encryptIntPlaintext(cc3, pubkey, val3)
 
-decVal3 = fhe.decryptIntPlaintext(cc3, privkey, encVal3)[0]
+decVal3 = fhe.decryptIntPlaintext(cc3, privkey, encVal3)
 
 print("expecting : "+str(val3)+" got : "+str(decVal3))
