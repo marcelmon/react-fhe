@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <html>
+	<style>
+		a:hover {
+			text-decoration: underline; // changed from text:decoration:none
+		}
+	</style>
 	<head>
 		<meta charset="UTF-8" />
 		<title>Hello World</title>
@@ -115,9 +120,86 @@ class KeyValueViewer extends React.Component {
 		};
 		this.handleNewKeyValue 	=this.handleNewKeyValue.bind(this);
 		this.handleEncryptAll 	=this.handleEncryptAll.bind(this);
+		// this.getEncryptedBitButtons = this.getEncryptedBitButtons.bind(this);
+		// this.getSingleBitButtonRow = this.getSingleBitButtonRow.bind(this);
+		// this.getSingleBitButtonRow1 = this.getSingleBitButtonRow1.bind(this);
 	}
 
+	// getSingleBitButtonRow(kvId, singleRow){
+	// 	return(
+	// 		<tr>{singleRow.map((aBitId) => {
+	// 			<td><button onClick={()=>this.props.selectKeyBit(this.props.colId, kvId, aBitId)}>{aBitId}</button></td>
+	// 		})}</tr>
+	// 	);
+	// }
+
+	// getSingleBitButtonRow(kvId, singleRow){
+	// 	var singleButtonRow = this.getSingleBitButtonRow1(kvId, singleRow)
+	// 	console.log(" in single 12")
+	// 	console.log(singleButtonRow)
+	// 	return singleButtonRow;
+	// }
+
+	getEqualSlices(arrayToSlice, maxPerSlice){
+		var currentIndex = 0;
+		var currentOffset = 0;
+		var returnSlices = [];
+
+		while(currentIndex < arrayToSlice.length){
+			var currentOffset = 0;
+			var thisRow = [];
+			while(currentOffset < maxPerSlice && currentIndex + currentOffset < arrayToSlice.length){
+				var thisVal = arrayToSlice[currentIndex + currentOffset];
+				thisRow.push(thisVal)
+				currentOffset++;
+			}
+			currentIndex += currentOffset;
+			returnSlices.push(thisRow);
+		}
+		return returnSlices;
+	}
+
+	// getEncryptedBitButtons(kvId, i){
+
+
+	// 	var bitsPerRow = 6;
+	// 	var currentBit = 0;
+	// 	var singleRows = [];
+	// 	console.log(this.props.encryptedIds[i].bitIds.length);
+
+	// 	while(currentBit < this.props.encryptedIds[i].bitIds.length){
+	// 		var currentOffset = 0;
+	// 		var thisRow = [];
+	// 		while(currentOffset < bitsPerRow && currentBit + currentOffset < this.props.encryptedIds[i].bitIds.length){
+	// 			var thisVal = this.props.encryptedIds[i].bitIds[currentBit + currentOffset];
+	// 			thisRow.push(thisVal)
+	// 			currentOffset++;
+	// 		}
+	// 		currentBit += currentOffset;
+	// 		singleRows.push(thisRow);
+	// 	}
+
+	// 	console.log(singleRows);
+	// 	// return(
+	// 	// 	<table><tbody>
+	// 	// 		{singleRows.map((singleRow) => {
+	// 	// 			<tr>{singleRow.map((aBitId) => {
+	// 	// 				<td><button onClick={()=>this.props.selectKeyBit(this.props.colId, kvId, aBitId)}>{aBitId}</button></td>
+	// 	// 			})}</tr>
+	// 	// 		})}
+	// 	// 	</tbody></table>
+	// 	// );
+	// 	return(
+	// 		<table><tbody>
+	// 			{singleRows.map((singleRow) => {
+	// 				this.getSingleBitButtonRow(kvId, singleRow)
+	// 			})}
+	// 		</tbody></table>
+	// 	);
+	// }
+
 	KeyValueEncryptedBits(kvId){
+		
 		if(this.props.encryptedIds == null){
 			return(
 				<div>Encrypt first null</div>
@@ -125,17 +207,35 @@ class KeyValueViewer extends React.Component {
 		}
 		for (var i = 0; i < this.props.encryptedIds.length; i++) {
 			if(this.props.encryptedIds[i].kvPairId == kvId){
+				var maxPerSlice = 6;
+				var bitSlices = this.getEqualSlices(this.props.encryptedIds[i].bitIds, maxPerSlice);
+				console.log(bitSlices);
 				return(
-					<table><tbody><tr>
-					<td>
+					<div>
 						<table><tbody><tr>
-						{this.props.encryptedIds[i].bitIds.map((aBitId) => {
-							return(<td><button onClick={()=>this.props.selectKeyBit(this.props.colId, kvId, aBitId)}>Bit: {aBitId}</button></td>)
-						})}
+							<td>
+								<div>
+									<table><tbody><tr><td>Key Bits:</td>
+									<td>
+									<div>
+									<table><tbody>
+										{bitSlices.map((singleRow) => { return(
+											<tr>
+											{
+												singleRow.map((aBitId) => { return(
+													<td><button onClick={()=>this.props.selectKeyBit(this.props.colId, kvId, aBitId)}>{aBitId}</button></td>
+											)})}</tr>
+										)})}
+									</tbody></table>
+									
+									</div>
+									</td>
+									</tr></tbody></table>
+								</div>
+							</td>
+							<td>Value</td><td><button onClick={()=>this.props.selectValue(this.props.colId, kvId)}>Select</button></td>
 						</tr></tbody></table>
-					</td>
-					<td><button onClick={()=>this.props.selectValue(this.props.colId, kvId)}>Key:{kvId}</button></td>
-					</tr></tbody></table>
+					</div>
 				);
 				break;
 			}
@@ -150,7 +250,6 @@ class KeyValueViewer extends React.Component {
 			<table><tbody><tr>
 				<td><div>{key}</div></td>
 				<td><div>{value}</div></td>
-				<td><button onClick={()=>this.props.updateKV(this.props.colId, kvId)}>Update</button></td>
 				<td><button onClick={()=>this.props.deleteKV(this.props.colId, kvId)}>Delete</button></td>
 				<td>{this.KeyValueEncryptedBits(kvId)}</td>
 			</tr></tbody></table>
@@ -170,8 +269,8 @@ class KeyValueViewer extends React.Component {
 		return(
 			<form onSubmit={this.handleNewKeyValue}>
 				<table><tbody><tr>
-					<td><div>Key:<input type="text" name="key"/></div></td>
-					<td><div>Value:<input type="text" name="value"/></div></td>
+					<td><div>Key:<input type="text" name="key" size="5"/></div></td>
+					<td><div>Value:<input type="text" name="value" size="5"/></div></td>
 					<td><input type="submit" value="Add KV Pair"/></td>
 				</tr></tbody></table>
 			</form>
@@ -190,15 +289,23 @@ class KeyValueViewer extends React.Component {
 			return(<div>Select a collection.</div>);
 		}
 		return(
-			<table><tbody>
-			<tr><td><button onClick={this.handleEncryptAll}>Encrypt All</button></td></tr>
-			{
-				this.props.keyValuesAndIds.map((singleKVInfo) => { return (
-					<tr><td>{this.KeyValueRow(singleKVInfo.id, singleKVInfo.key, singleKVInfo.value)}</td></tr>
-				)})
-			}
-			<tr><td><div>{this.NewKeyValueForm()}</div></td></tr>
-			</tbody></table>
+			<div>
+				<table><tbody>
+					<tr>
+						<td width="50%">
+							<div>{this.NewKeyValueForm()}</div>
+						</td>
+						<td width="50%"><button onClick={this.handleEncryptAll}>Encrypt All</button></td>
+					</tr>
+				</tbody></table>
+				<table><tbody>
+				{
+					this.props.keyValuesAndIds.map((singleKVInfo) => { return (
+						<tr><td>{this.KeyValueRow(singleKVInfo.id, singleKVInfo.key, singleKVInfo.value)}</td></tr>
+					)})
+				}
+				</tbody></table>
+			</div>
 		);
 	}
 }
@@ -212,6 +319,15 @@ class CollectionViewer extends React.Component {
 			selectedCollectionId: props.selectedCollectionId
 		};
 		this.handleNewCollection = this.handleNewCollection.bind(this);
+		this.handleCollectionClicked = this.handleCollectionClicked.bind(this);
+
+		this.textStyle = {
+			float:'left'
+		};
+
+		this.buttonStyle = {
+			float:'right'
+		};
 	}
 
 	handleNewCollection(e){
@@ -219,23 +335,33 @@ class CollectionViewer extends React.Component {
 		this.props.newCollection(e.target.name.value);
 	}
 
+		
+
 	NewCollectionComponent(){
+
 		return(
 			<form onSubmit={this.handleNewCollection}>
 				<table><tbody><tr>
-					<td><input type="text" name="name"/></td>
-					<td><input type="submit" value="Add Collection"/></td>
+					<td><input type="text" name="name" style={this.textStyle} size="10"/></td>
+					<td><input type="submit" value="Add Collection" style={this.buttonStyle}/></td>
 				</tr></tbody></table>
 			</form>
 		);
 	}
 
+	handleCollectionClicked(e, collectionId){
+		console.log("hereh 1")
+		e.preventDefault();
+		console.log("hereh 2")
+		this.props.collectionClicked(collectionId);
+		console.log("hereh 3")
+	}
+
 	CollectionRow(collectionId, collectionName){
 		return(
-			<table><tbody><tr>
-				<td><div onClick={()=>this.props.collectionClicked(collectionId)}>{collectionName}</div></td>
-				<td><button onClick={()=>this.props.updateCollection(collectionId)}>Update</button></td>
-				<td><button onClick={()=>this.props.deleteColection(collectionId)}>Delete</button></td>
+			<table width="100%"><tbody><tr>
+				<td><a onClick={(e) => this.handleCollectionClicked(e, collectionId)} style={this.textStyle}>{collectionName}</a></td>
+				<td><button onClick={()=>this.props.deleteColection(collectionId)} style={this.buttonStyle}>Delete</button></td>
 			</tr></tbody></table>
 		);
 	}
@@ -248,12 +374,12 @@ class CollectionViewer extends React.Component {
 		}
 		return(
 			<table><tbody>
+			<tr><td><div>{this.NewCollectionComponent()}</div></td></tr>
 			{
 				collectionIdsAndNames.map((info) => { return( 
 					<tr><td>{this.CollectionRow(info.id, info.name)}</td></tr>
 				)})
 			}
-			<tr><td><div>{this.NewCollectionComponent()}</div></td></tr>
 			</tbody></table>
 		);
 	}
@@ -432,6 +558,7 @@ class App extends React.Component {
 	getEncryptedIdsAndUpdate(colId){
 		var getAllEncryptedIdsUrl 	= baseUrl+'/ciphertext/'+userId+'/'+colId+'/getEncryptedIds/';
 		var getEncryptedIdsPromise 	= httpRequest(getAllEncryptedIdsUrl);
+		console.log("getAllEncryptedIdsUrl "+getAllEncryptedIdsUrl)
 		getEncryptedIdsPromise.then((retJson) => {
 			this.setState({encryptedIds: JSON.parse(retJson)});
 		}).catch((err)=> {
@@ -477,8 +604,8 @@ class App extends React.Component {
 
 	render(){
 		return (
-			<table><tbody><tr>
-				<td>
+			<table width="100%"><tbody><tr>
+				<td width="20%">
 					<CollectionViewer 
 						collectionIdsAndNames	={this.state.collectionIdsAndNames}
 						selectedCollectionId	={this.state.selectedCollectionId} 
@@ -488,27 +615,29 @@ class App extends React.Component {
 						updateCollection		={this.updateCollection}/>
 				</td>
 				<td>
-					<table><tbody>
-						<tr><td>
-							<KeyValueViewer
-								colId 			={this.state.selectedCollectionId}
-								keyValuesAndIds ={this.state.keyValuesAndIds}
-								selectedKVInfo 	={this.state.selectedKVInfo}
-								encryptedIds 	={this.state.encryptedIds}
-								updateKV 		={this.updateKV}
-								deleteKV 		={this.deleteKV}
-								newKeyValue 	={this.newKeyValue}
-								encryptAll 		={this.encryptAll}
-								selectKeyBit 	={this.selectKeyBit}
-								selectValue 	={this.selectValue}/>
-						</td></tr>
+					<table style={{float:"left"}}><tbody>
+						<tr>
+							<td>
+								<KeyValueViewer
+									colId 			={this.state.selectedCollectionId}
+									keyValuesAndIds ={this.state.keyValuesAndIds}
+									selectedKVInfo 	={this.state.selectedKVInfo}
+									encryptedIds 	={this.state.encryptedIds}
+									updateKV 		={this.updateKV}
+									deleteKV 		={this.deleteKV}
+									newKeyValue 	={this.newKeyValue}
+									encryptAll 		={this.encryptAll}
+									selectKeyBit 	={this.selectKeyBit}
+									selectValue 	={this.selectValue}/>
+							</td>
+							<td>
+								<SampleDataViewer
+									sampleDataArray ={this.state.sampleDataArray}/>
+							</td>
+						</tr>
 						<tr><td>
 							<QueryBox
 								colId ={this.state.selectedCollectionId}/>
-						</td></tr>
-						<tr><td>
-							<SampleDataViewer
-								sampleDataArray ={this.state.sampleDataArray}/>
 						</td></tr>
 					</tbody></table>
 				</td>
