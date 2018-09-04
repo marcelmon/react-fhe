@@ -265,6 +265,10 @@ Ciphertext<Poly> evalAdd(CryptoContext<Poly> cc, Ciphertext<Poly> one, Ciphertex
 	return cc->EvalAdd(one, two);
 }
 
+Ciphertext<Poly> evalSub(CryptoContext<Poly> cc, Ciphertext<Poly> one, Ciphertext<Poly> two){
+	return cc->EvalSub(one, two);
+}
+
 // decryptInt(CryptoContext<Poly> cc){
 
 // }
@@ -280,7 +284,8 @@ PYBIND11_MODULE(example, m) {
 	// m.def("printCryptoContext", &printCryptoContext, "");
 
 
-	py::class_<CryptoContextImpl<Poly>, std::shared_ptr<CryptoContextImpl<Poly>>>(m, "CryptoContextImpl");
+	py::class_<CryptoContextImpl<Poly>, std::shared_ptr<CryptoContextImpl<Poly>>>(m, "CryptoContextImpl")
+		.def("EvalMultKeyGen", &CryptoContextImpl<Poly>::EvalMultKeyGen);
 	py::class_<LPKeyPair<Poly>, std::shared_ptr<LPKeyPair<Poly>>>(m, "LPKeyPair");
 	py::class_<LPPublicKeyImpl<Poly>, std::shared_ptr<LPPublicKeyImpl<Poly>>>(m, "LPPublicKeyImpl");
 	py::class_<LPPrivateKeyImpl<Poly>, std::shared_ptr<LPPrivateKeyImpl<Poly>>>(m, "LPPrivateKeyImpl");
@@ -305,8 +310,9 @@ PYBIND11_MODULE(example, m) {
 	m.def("deserializeCiphertext", &deserializeCiphertext, "");
 	m.def("decryptInt", &decryptInt, "");
 	m.def("decryptString", &decryptString, "");
-	m.def("evalMult", &decryptString, "");
-	m.def("evalAdd", &decryptString, "");
+	m.def("evalMult", &evalMult, "");
+	m.def("evalAdd", &evalAdd, "");
+	m.def("evalSub", &evalSub, "");
 
 	m.def("printFullCtext", &printFullCtext, "");
 	m.def("getCtextMatrixSample", &getCtextMatrixSample, "");

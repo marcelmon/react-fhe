@@ -46,6 +46,15 @@ import json as json
 
 
 # """
+def evalAdd(cryptoContext, one, two):
+	return fhe.evalAdd(cryptoContext, one, two)
+
+def evalMult(cryptoContext, one, two):
+	return fhe.evalMult(cryptoContext, one, two)
+
+def evalSub(cryptoContext, one, two):
+	return fhe.evalSub(cryptoContext, one, two)
+
 def stringToCryptoContext(serializedCCString):
 	return fhe.deserializeCryptoContext(serializedCCString)
 
@@ -70,7 +79,10 @@ def buildCryptoContext():
 	return fhe.generateCC()
 
 def keygen(cryptoContext):
-	return fhe.generateKeys(cryptoContext)
+	keyPair = fhe.generateKeys(cryptoContext)
+	privateKey = fhe.getPrivateKey(keyPair)
+	cryptoContext.EvalMultKeyGen(privateKey)
+	return keyPair
 
 def encryptBytePlaintext(cryptoContext, publicKey, plaintext):
 	return fhe.encryptBytes(cryptoContext, publicKey, plaintext)
@@ -96,6 +108,8 @@ def keygenToStringSerialization(serializedCCString):
 
 	publicKey 	= fhe.getPublicKey(keyPair)
 	privateKey 	= fhe.getPrivateKey(keyPair)
+
+	cryptoContext.EvalMultKeyGen(privateKey)
 
 	newSerializedCryptoContextString = fhe.serializeCC(cryptoContext)
 	serializedPublicKeyString 	= fhe.serializePublicKey(publicKey)

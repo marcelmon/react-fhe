@@ -62,10 +62,10 @@ class XnorSearch(object):
 
 
     def add(self, one, two):
-        return self.cryptoContext.EvalAdd(one, two)
+        return fhe.evalAdd(self.cryptoContext, one, two)
 
     def mult(self, one, two):
-        return self.cryptoContext.EvalMult(one, two)
+        return fhe.evalMult(self.cryptoContext, one, two)
 
     def sub(self, one, two):
         return self.add(one, (self.mult(two, self.negOneVal)))
@@ -74,7 +74,9 @@ class XnorSearch(object):
 
         # A' = A - 1
         # B' = B - 1
+        print("a 2")
         dbBitMinus1     = self.sub(dbBit, self.oneVal)
+        print("a 3")
         queryBitMinus1  = self.sub(queryBit, self.oneVal)
 
         # C = (A x B)+(A' x B')
@@ -105,6 +107,12 @@ class XnorSearch(object):
         publicKeyRet = next(self.cursor.stored_results()).fetchall()[0][0]
         return fhe.stringToPubKey(self.cryptoContext, publicKeyRet)
 
+
+    def getPrivateKey(self, userId, ccId, keyId):
+        self.cursor.callproc("getPrivateKey",[userId,ccId,keyId])
+        privateKeyRet = next(self.cursor.stored_results()).fetchall()[0][0]
+        return fhe.stringToPrivKey(self.cryptoContext, privateKeyRet)
+
     def getQueryKeyBits(self, userId, queryId):
         self.cursor.callproc("getQueryBits",[queryId,userId])
         queryKeyBits = []
@@ -129,9 +137,12 @@ class XnorSearch(object):
         self.publicKey      = self.getPublicKey(userId,ccId,keyId)
         self.queryKeyBits   = self.getQueryKeyBits(userId, queryId)
 
-        self.oneVal     = fhe.encryptIntPlaintext(self.cryptoContext, self.publicKey, 1)[0]
-        self.zeroVal    = fhe.encryptIntPlaintext(self.cryptoContext, self.publicKey, 0)[0]
-        self.negOneVal  = self.cryptoContext.EvalSub(self.zeroVal, self.oneVal)
+        print("eval mult")
+        self.cryptoContext.EvalMultKeyGen(self.getPrivateKey(userId, ccId, keyId))
+
+        self.oneVal     = fhe.encryptIntPlaintext(self.cryptoContext, self.publicKey, 1)
+        self.zeroVal    = fhe.encryptIntPlaintext(self.cryptoContext, self.publicKey, 0)
+        self.negOneVal  = fhe.evalSub(self.cryptoContext, self.zeroVal, self.oneVal)
 
 
         retfinal = None
@@ -140,8 +151,10 @@ class XnorSearch(object):
         self.cursor.execute(query)
         row = self.cursor.fetchone()
 
+        print("a 0")
         while row is not None:
             # /
+            print("a 1")
             bitsOnly = [fhe.stringToCtext(self.cryptoContext, bit.decode("utf-8")) for bit in row[1:]]
             valueCtext = fhe.stringToCtext(self.cryptoContext, row[0].decode("utf-8"))
 
@@ -150,7 +163,7 @@ class XnorSearch(object):
             if retfinal is None:
                 retfinal = kvXnored
             else:
-                retfinal = self.cryptoContext.EvalAdd(retfinal, kvXnored)
+                retfinal = fhe.evalAdd(self.cryptoContext, retfinal, kvXnored)
             row = self.cursor.fetchone()
 
         self.cursor.close()
@@ -175,7 +188,7 @@ if __name__ == '__main__':
 
     dbHost = "localhost"
     dbUser = "root"
-    dbPass = ""
+    dbPass = "StupidPaSs*%"
     dbDatabase = "test_spark_fhe_test"
 
 
