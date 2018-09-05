@@ -166,3 +166,7 @@ def decryptIntToStringSerialization(serializedCCString, serializedPrivateKeyStri
 	ciphertext 	= fhe.deserializeCiphertext(cryptoContext, serializedCiphertextString)
 	plaintext 	= decryptIntPlaintext(cryptoContext, privateKey, ciphertext)
 	return plaintext
+
+
+def serializeCiphertext(ctext):
+	return fhe.serializeCiphertext(ctext)

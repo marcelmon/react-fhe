@@ -106,10 +106,7 @@ class S(BaseHTTPRequestHandler):
 			numBits 	= post_data['numBits']
 
 			res = xnorSearch.doXnorSearch(dbHost, dbUser, dbPass, dbDatabase, userId, colId, ccId, keyId, queryId, numBits)
-
-			serializeRes = fhe.serializeObject(res)
-			stringRes = fhe.serializedToString(serializeRes)
-			
+			stringRes = fhe.serializeCiphertext(res)
 			ret = json.dumps(stringRes)
 
 		else:

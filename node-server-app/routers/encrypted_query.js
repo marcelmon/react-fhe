@@ -83,7 +83,7 @@ router.post('/:userId/:colId/query/:queryString/', function(req, res){
 	}
 
 	// need to pad with 0s
-	for (var bitId2 = queryBits.length; bitId2 < 8; bitId2++) {
+	for (var bitId2 = queryBits.length; bitId2 < 8*2; bitId2++) {
 
 		var encryptedQueryBitData = fheInterface.encryptInt(serializedCCString, serializedPublicKeyString, 0);
 		var bitIdnew = dbInterface.putQueryBitData(req.params.userId, queryId, bitId2+1, encryptedQueryBitData);
@@ -101,7 +101,7 @@ router.post('/:userId/:colId/query/:queryString/', function(req, res){
 			dbHost: 	'localhost',
 			dbDatabase: 'fhe_test',
 			dbUser: 	'root',
-			dbPass: 	'',
+			dbPass: 	'StupidPaSs*%',
 			numBits: 	8
 		},
 	});
@@ -120,7 +120,7 @@ router.post('/:userId/:colId/query/:queryString/', function(req, res){
 		recentKeyPair.privatekey = recentKeyPair.privatekey.toString('utf8');
 	}
 
-	var queryResDecrypted = fheInterface.decrypt(recentCC.ccData, recentKeyPair.privatekey, queryResCtext);
+	var queryResDecrypted = fheInterface.decryptInt(recentCC.ccData, recentKeyPair.privatekey, queryResCtext);
 
 	res.send(JSON.stringify(queryResDecrypted));
 

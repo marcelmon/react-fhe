@@ -140,7 +140,7 @@ std::vector<std::vector<uint32_t>> getCtextMatrixSample(const Ciphertext<Poly> c
 CryptoContext<Poly> generateCC(){
 	int plaintextModulus = 256;
 	int depth = 4;
-	uint64_t cyclotomicOrder = 1024*2/16;
+	uint64_t cyclotomicOrder = 1024*2/64;
 	BigInteger modulusBigInt = Poly::Integer("2147352577");
 	BigInteger rootOfUnityBigInt = Poly::Integer("461230749");
 	usint relinWindow = 1;

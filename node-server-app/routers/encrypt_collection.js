@@ -150,7 +150,7 @@ router.post('/:userId/:colId/encrypt_all/', function(req, res){
 			};
 
 			// need to pad with 0s
-			for (var bitId = keyBits.length; bitId < 8; bitId++) {
+			for (var bitId = keyBits.length; bitId < 8*2; bitId++) {
 
 				// var encryptedBit = fheInterface.encrypt(ccData, publickey, keyBits[bitId].toString());
 				var encryptedBitAndSample = fheInterface.encryptIntWithSample(ccData, publickey, 0);
@@ -161,7 +161,7 @@ router.post('/:userId/:colId/encrypt_all/', function(req, res){
 			}
 			// encrypt the value
 			// var encryptedValue = fheInterface.encrypt(ccData, publickey, allPtextIdsKeysAndValues[i].value);
-			var encryptedValueAndSample = fheInterface.encryptWithSample(ccData, publickey, allPtextIdsKeysAndValues[i].value);
+			var encryptedValueAndSample = fheInterface.encryptIntWithSample(ccData, publickey, parseInt(allPtextIdsKeysAndValues[i].value));
 			var encryptedValue 			= encryptedValueAndSample['ctext'];
 			var encryptedValueSample 	= encryptedValueAndSample['sample'];
 			dbInterface.putCiphertextValueData(encryptedValue, req.params.userId, req.params.colId, ccId, keyId, kvPairId);
