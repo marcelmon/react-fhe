@@ -141,8 +141,15 @@ CryptoContext<Poly> generateCC(){
 	int plaintextModulus = 256;
 	int depth = 4;
 	uint64_t cyclotomicOrder = 1024*2/64;
-	BigInteger modulusBigInt = Poly::Integer("2147352577");
-	BigInteger rootOfUnityBigInt = Poly::Integer("461230749");
+	// BigInteger modulusBigInt = Poly::Integer("2147352577");
+	// BigInteger rootOfUnityBigInt = Poly::Integer("461230749");
+
+	BigInteger modulusBigInt = Poly::Integer("268441601");
+	BigInteger rootOfUnityBigInt = Poly::Integer("16947867");
+
+	// BigInteger modulusBigInt = Poly::Integer("268441601");
+	// BigInteger rootOfUnityBigInt = Poly::Integer("16947867");
+	
 	usint relinWindow = 1;
 	float stDev = 3;
 	MODE mode = RLWE;
