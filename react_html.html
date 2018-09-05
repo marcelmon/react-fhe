@@ -350,11 +350,8 @@ class CollectionViewer extends React.Component {
 	}
 
 	handleCollectionClicked(e, collectionId){
-		console.log("hereh 1")
 		e.preventDefault();
-		console.log("hereh 2")
 		this.props.collectionClicked(collectionId);
-		console.log("hereh 3")
 	}
 
 	CollectionRow(collectionId, collectionName){
@@ -524,7 +521,7 @@ class App extends React.Component {
 	}
 
 	collectionClicked(colId){
-		this.setState({selectedCollectionId: colId});
+		this.setState({selectedCollectionId: colId, sampleDataArray:null});
 		this.getKeyValuesAndUpdate(colId);
 		this.getEncryptedIdsAndUpdate(colId);
 	}
@@ -603,9 +600,10 @@ class App extends React.Component {
 	}
 
 	render(){
+		var tableStyle = {border:'1px solid black'};
 		return (
-			<table width="100%"><tbody><tr>
-				<td width="20%">
+			<table width="100%" ><tbody><tr>
+				<td width="20%" style={tableStyle}>
 					<CollectionViewer 
 						collectionIdsAndNames	={this.state.collectionIdsAndNames}
 						selectedCollectionId	={this.state.selectedCollectionId} 
@@ -617,7 +615,7 @@ class App extends React.Component {
 				<td>
 					<table style={{float:"left"}}><tbody>
 						<tr>
-							<td>
+							<td style={tableStyle}>
 								<KeyValueViewer
 									colId 			={this.state.selectedCollectionId}
 									keyValuesAndIds ={this.state.keyValuesAndIds}
@@ -630,12 +628,12 @@ class App extends React.Component {
 									selectKeyBit 	={this.selectKeyBit}
 									selectValue 	={this.selectValue}/>
 							</td>
-							<td>
+							<td style={tableStyle}>
 								<SampleDataViewer
 									sampleDataArray ={this.state.sampleDataArray}/>
 							</td>
 						</tr>
-						<tr><td>
+						<tr><td style={tableStyle}	>
 							<QueryBox
 								colId ={this.state.selectedCollectionId}/>
 						</td></tr>
