@@ -138,7 +138,7 @@ class XnorSearch(object):
         self.queryKeyBits   = self.getQueryKeyBits(userId, queryId)
 
         print("eval mult")
-        self.cryptoContext.EvalMultKeyGen(self.getPrivateKey(userId, ccId, keyId))
+        # self.cryptoContext.EvalMultKeyGen(self.getPrivateKey(userId, ccId, keyId))
 
         self.oneVal     = fhe.encryptIntPlaintext(self.cryptoContext, self.publicKey, 1)
         self.zeroVal    = fhe.encryptIntPlaintext(self.cryptoContext, self.publicKey, 0)

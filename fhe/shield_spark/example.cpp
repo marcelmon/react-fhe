@@ -19,6 +19,13 @@ using namespace lbcrypto;
 // 	return i + j;
 // }
 
+struct KeyStruct{
+	KeyStruct(CryptoContext<Poly> cc, LPKeyPair<Poly> keypair): cc(cc), keypair(keypair){}
+	CryptoContext<Poly> cc;
+	LPKeyPair<Poly> keypair;
+	CryptoContext<Poly> getCC(){ return cc; }
+	LPKeyPair<Poly> getKeypair(){ return keypair; }
+};
 
 int printFullCtext(const Ciphertext<Poly> ciphertext){
 	std::vector<Poly> allElements = ciphertext->GetElements();
@@ -140,12 +147,12 @@ std::vector<std::vector<uint32_t>> getCtextMatrixSample(const Ciphertext<Poly> c
 CryptoContext<Poly> generateCC(){
 	int plaintextModulus = 256;
 	int depth = 4;
-	uint64_t cyclotomicOrder = 1024*2/64;
-	// BigInteger modulusBigInt = Poly::Integer("2147352577");
-	// BigInteger rootOfUnityBigInt = Poly::Integer("461230749");
+	uint64_t cyclotomicOrder = 1024*2/32;
+	BigInteger modulusBigInt = Poly::Integer("2147352577");
+	BigInteger rootOfUnityBigInt = Poly::Integer("461230749");
 
-	BigInteger modulusBigInt = Poly::Integer("268441601");
-	BigInteger rootOfUnityBigInt = Poly::Integer("16947867");
+	// BigInteger modulusBigInt = Poly::Integer("268441601");
+	// BigInteger rootOfUnityBigInt = Poly::Integer("16947867");
 
 	// BigInteger modulusBigInt = Poly::Integer("268441601");
 	// BigInteger rootOfUnityBigInt = Poly::Integer("16947867");
@@ -179,10 +186,10 @@ CryptoContext<Poly> deserializeCryptoContext(string ccString){
 }
 
 
-LPKeyPair<Poly> generateKeys(CryptoContext<Poly> cc){
+KeyStruct* generateKeys(CryptoContext<Poly> cc){
 	LPKeyPair<Poly> keyPair = cc->KeyGen();
 	cc->EvalMultKeyGen(keyPair.secretKey);
-	return keyPair;
+	return new KeyStruct(cc,keyPair);
 }
 
 LPPublicKey<Poly> getPublicKey(LPKeyPair<Poly> keypair){
@@ -300,6 +307,9 @@ PYBIND11_MODULE(example, m) {
 
 	// py::class_<CryptoContext<Poly>, std::shared_ptr<CryptoContextImpl<Poly>>>(m, "CryptoContext");
 
+	 py::class_<KeyStruct>(m, "KeyStruct")
+        .def("getCC", &KeyStruct::getCC)
+        .def("getKeypair", &KeyStruct::getKeypair);
 
 	m.def("generateCC", &generateCC, "");
 	m.def("serializeCC", &serializeCC, "");

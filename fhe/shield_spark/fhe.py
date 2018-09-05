@@ -79,10 +79,11 @@ def buildCryptoContext():
 	return fhe.generateCC()
 
 def keygen(cryptoContext):
-	keyPair = fhe.generateKeys(cryptoContext)
-	privateKey = fhe.getPrivateKey(keyPair)
-	cryptoContext.EvalMultKeyGen(privateKey)
-	return keyPair
+	keyPairStruct 	= fhe.generateKeys(cryptoContext)
+	keyPair 		= keyPairStruct.getKeypair()
+	cryptoContext 	= keyPairStruct.getCC()
+	privateKey 		= fhe.getPrivateKey(keyPair)
+	return {'keyPair':keyPair, 'cryptoContext':cryptoContext}
 
 def encryptBytePlaintext(cryptoContext, publicKey, plaintext):
 	return fhe.encryptBytes(cryptoContext, publicKey, plaintext)
@@ -103,13 +104,12 @@ def generateCryptoContextToStringSerialization():
 
 def keygenToStringSerialization(serializedCCString):
 
-	cryptoContext = stringToCryptoContext(serializedCCString)
-	keyPair 	= keygen(cryptoContext)
-
-	publicKey 	= fhe.getPublicKey(keyPair)
-	privateKey 	= fhe.getPrivateKey(keyPair)
-
-	cryptoContext.EvalMultKeyGen(privateKey)
+	cryptoContext 	= stringToCryptoContext(serializedCCString)
+	keyPairAndCC  	= keygen(cryptoContext)
+	keyPair 		= keyPairAndCC['keyPair']
+	cryptoContext 	= keyPairAndCC['cryptoContext']
+	publicKey 		= fhe.getPublicKey(keyPair)
+	privateKey 		= fhe.getPrivateKey(keyPair)
 
 	newSerializedCryptoContextString = fhe.serializeCC(cryptoContext)
 	serializedPublicKeyString 	= fhe.serializePublicKey(publicKey)
