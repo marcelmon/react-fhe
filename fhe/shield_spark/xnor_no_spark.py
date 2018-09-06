@@ -154,9 +154,8 @@ class XnorSearch(object):
         print("a 0")
         while row is not None:
             # /
-            print("a 1")
-            bitsOnly = [fhe.stringToCtext(self.cryptoContext, bit.decode("utf-8")) for bit in row[1:]]
-            valueCtext = fhe.stringToCtext(self.cryptoContext, row[0].decode("utf-8"))
+            bitsOnly = [fhe.stringToCtext(self.cryptoContext, bit if isinstance(bit, str) else bit.decode("utf-8") ) for bit in row[1:]]
+            valueCtext = fhe.stringToCtext(self.cryptoContext, row[0] if isinstance(row[0], str) else row[0].decode("utf-8"))
 
             kvXnored = self.doKeyAndValueXnor([valueCtext, bitsOnly])
 
