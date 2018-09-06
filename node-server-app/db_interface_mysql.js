@@ -66,10 +66,12 @@ var fs 			= require('fs');
 var filepath 	= require('path');
 var shell 		= require('shelljs');
 
-var host = 'localhost';
-var user = 'root';
-var password = '';
-var database = 'fhe_test';
+var config = JSON.parse(fs.readFileSync(__dirname+'/../config.json', 'utf8'));
+
+var host = config.dbhost;
+var user = config.dbuser;
+var password = config.dbpassword;
+var database = config.dbdatabase;
 
 
 var mysqlConnect = function(){

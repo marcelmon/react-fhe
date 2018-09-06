@@ -8,7 +8,7 @@ SELECT 	cryptocontext_id as id
 from 	user_cryptocontexts
 where 	user_id	= userId;
 END &&
-DELIMITER ;;
+DELIMITER ;
 
 
 

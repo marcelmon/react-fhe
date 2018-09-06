@@ -1,0 +1,8 @@
+{
+	"dbhost": "localhost",
+	"dbuser": "root",
+	"dbpassword": "",
+	"dbdatabase": "",
+	"appurl":"http://localhost:8081",
+	"fheurl":"http://localhost:8082"
+}

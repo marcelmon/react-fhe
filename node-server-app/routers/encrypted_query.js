@@ -1,7 +1,9 @@
 const request = require('sync-request');
 
 
-var fhePyURL = "http://localhost:8082";
+var fs 		= require('fs');
+var config = JSON.parse(fs.readFileSync(__dirname+'/../../config.json', 'utf8'));
+var fhePyURL = config.fheurl;
 
 
 var express = require('express');
@@ -98,11 +100,11 @@ router.post('/:userId/:colId/query/:queryString/', function(req, res){
 			ccId:		recentCC.ccId,
 			keyId: 		recentKeyPair.keyId,
 			queryId: 	queryId,
-			dbHost: 	'localhost',
-			dbDatabase: 'fhe_test',
-			dbUser: 	'root',
-			dbPass: 	'StupidPaSs*%',
-			numBits: 	8
+			dbHost: 	config.dbhost,
+			dbDatabase: config.dbdatabase,
+			dbUser: 	config.dbuser,
+			dbPass: 	config.dbpassword,
+			numBits: 	8*2
 		},
 	});
 	// should be an encrypted int, 0 for no val, pos for any other val

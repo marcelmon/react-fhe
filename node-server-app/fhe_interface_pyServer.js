@@ -2,9 +2,8 @@ const request = require('sync-request');
 
 
 var fs 		= require('fs');
-
-
-var fhePyURL = "http://localhost:8082";
+var config = JSON.parse(fs.readFileSync(__dirname+'/../config.json', 'utf8'));
+var fhePyURL = config.fheurl;
 
 var generateCryptoContext = function(){
 	var res = request('POST', fhePyURL, {

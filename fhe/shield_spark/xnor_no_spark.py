@@ -186,9 +186,16 @@ if __name__ == '__main__':
     numBits = 2
 
 
-    dbHost = "localhost"
-    dbUser = "root"
-    dbPass = "StupidPaSs*%"
+    import os
+    import json
+
+    with open(os.path.dirname(os.path.realpath(__file__))+'/../../config.json') as configjson:
+        config = json.load(configjson)
+
+
+    dbHost = config['dbhost']
+    dbUser = config['dbuser']
+    dbPass = config['dbpassword']
     dbDatabase = "test_spark_fhe_test"
 
 

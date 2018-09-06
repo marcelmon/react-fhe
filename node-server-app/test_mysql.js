@@ -1,15 +1,19 @@
 var mysql = require('sync-mysql');
 
 
+var fs 			= require('fs');
+var filepath 	= require('path');
+
+var config = JSON.parse(fs.readFileSync(__dirname+'/../config.json', 'utf8'));
 
 
 var mysqlConnect = function(){
 
 	return new mysql({
-		host: 'localhost',
-		user: 'root',
-		password: 'StupidPaSs*%',
-		database: 'sp_test'
+		host: config.dbhost,
+		user: config.dbuser,
+		password: config.dbpassword,
+		database: config.dbdatabase
 	});
 
 };

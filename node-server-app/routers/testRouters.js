@@ -1,6 +1,10 @@
 const request 		= require('sync-request');
 const dbInterface 	= require('../db_interface_mysql.js');
 
+var fs 		= require('fs');
+var config = JSON.parse(fs.readFileSync(__dirname+'/../../config.json', 'utf8'));
+var nodeServerUrl = config.appurl;
+
 var assertTrue = function(val){
 	if(!val){
 		console.log("The error val was:");
@@ -44,7 +48,7 @@ var checkUserDataEmpty = function(userId){
 
 
 
-var nodeServerUrl = "http://localhost:8081";
+
 
 
 var testCollections = function(){

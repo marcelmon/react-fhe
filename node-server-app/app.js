@@ -182,9 +182,10 @@ current opps needed for front
 var express = require('express');
 var app = express();
 
-var fhePyAddr = "http://localhost:8082";
+var fs 		= require('fs');
+var config = JSON.parse(fs.readFileSync(__dirname+'/../config.json', 'utf8'));
+var fhePyAddr = config.fheurl;
 
-var fs = require('fs');
 
 var bodyParser = require('body-parser');
 
