@@ -47,7 +47,7 @@ fp.close()
 
 
 
-createTestDatabseTables = """mysql -u root -p'StupidPaSs*%' test_spark_fhe_test < ../../node-server-app/user_data_database.sql"""
+createTestDatabseTables = """mysql -u root -p'%s' test_spark_fhe_test < ../../node-server-app/user_data_database.sql"""%(dbpass)
 # print(createTestDatabseTables)
 os.system(createTestDatabseTables)
 
