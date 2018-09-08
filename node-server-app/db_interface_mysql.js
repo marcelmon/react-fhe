@@ -126,10 +126,10 @@ var addUser = function(username, passwordHash){
 }
 
 
-var userLogin = function(username, passwordHash){
-	var res = mysqlConnectQuery('call userLogin("'+username+'","'+passwordHash+'");');
-	if(res[0][0] && res[0][0].user_id){
-		return res[0][0].user_id;
+var userLoginPassword = function(username){
+	var res = mysqlConnectQuery('call userLoginPassword("'+username+'");');
+	if(res[0][0] && res[0][0].user_id && res[0][0].password_hash){
+		return res[0][0];
 	}
 	return false;
 }
@@ -1420,24 +1420,31 @@ var testCtextGetIds = function(){
 }
 
 var testUserAccount = function(){
+
 	var username_1 = "user_1";
 	var passwordHash_1 = "hash_1";
 	var passwordHash_2 = "hash_2";
 
 	assertTrue(!getUser(username_1));
-	assertTrue(!userLogin(username_1, passwordHash_1));
+	assertTrue(!userLoginPassword(username_1));
 
 	var user_id_1 = addUser(username_1, passwordHash_1);
 	assertTrue(user_id_1 > 0);
 
 	var getRet = getUser(username_1);
 	assertTrue(getRet.user_id == user_id_1);
-	var userLoginRet = userLogin(username_1, "wrong");
-	assertTrue(!userLoginRet);
-	assertTrue(userLogin(username_1, passwordHash_1) == user_id_1);
+	var userLoginPasswordRet = userLoginPassword(username_1);
+
+	assertTrue(userLoginPasswordRet);
+	assertTrue(userLoginPasswordRet.user_id == user_id_1);
+	assertTrue(userLoginPasswordRet.password_hash == passwordHash_1);
+
 	assertTrue(updateUserPassword(user_id_1, passwordHash_1, passwordHash_2));
-	assertTrue(!userLogin(username_1, passwordHash_1));
-	assertTrue(userLogin(username_1, passwordHash_2));
+		
+	var userLoginPasswordRet2 = userLoginPassword(username_1);
+	assertTrue(userLoginPasswordRet2);
+	assertTrue(userLoginPasswordRet2.user_id == user_id_1);
+	assertTrue(userLoginPasswordRet2.password_hash == passwordHash_2);
 }
 
 var testAll = function(){
