@@ -791,6 +791,98 @@ END$$
 DELIMITER ;
 
 
+DELIMITER $$
+CREATE PROCEDURE `getUser`
+(
+	IN user_name VARCHAR(256)
+)
+BEGIN
+SELECT * from users where username = user_name;
+END$$
+DELIMITER ;
+
+
+DELIMITER $$
+CREATE PROCEDURE `getUser_id`
+(
+	IN userid int
+)
+BEGIN
+SELECT * from users where user_id = userid;
+END$$
+DELIMITER ;
+
+
+DELIMITER $$
+CREATE PROCEDURE `addUser`
+(
+	IN user_name VARCHAR(256),
+	IN passwordhash VARCHAR(256)
+)
+BEGIN
+INSERT INTO users
+(
+	username,
+	password_hash
+)
+VALUES
+(
+	user_name,
+	passwordhash
+);
+SELECT LAST_INSERT_ID() as user_id;
+END$$
+DELIMITER ;
+
+
+DELIMITER $$
+CREATE PROCEDURE `userLogin`
+(
+	IN user_name VARCHAR(256),
+	IN passwordhash VARCHAR(256)
+)
+BEGIN
+SELECT user_id as user_id
+from users 
+where username = user_name 
+and password_hash = passwordhash;
+END$$
+DELIMITER ;
+
+
+DELIMITER $$
+CREATE PROCEDURE `updateUserPassword`
+(
+	IN userid int,
+	IN old_password_hash VARCHAR(256),
+	IN new_password_hash VARCHAR(256)
+)
+BEGIN
+UPDATE users
+SET password_hash = new_password_hash
+where user_id = userid
+and password_hash = old_password_hash;
+SELECT user_id as user_id from users where user_id = userid;
+END$$
+DELIMITER ;
+
+
+
+
+
+create table users (
+	`user_id`	INT UNSIGNED AUTO_INCREMENT NOT NULL,
+	`username` varchar(256) not null,
+	`password_hash` VARCHAR(256) not null,
+	`created_time` timestamp,
+	`last_login` timestamp,
+	primary key (`user_id`),
+	unique key(`username`),
+	key (`username`)
+);
+
+
+
 -- `collection_id`     int UNSIGNED not null, -- not necessary
 -- `cryptocontext_id`  int UNSIGNED not null, -- not necessary
 -- `keypair_id`        int UNSIGNED not null, -- not necessary
