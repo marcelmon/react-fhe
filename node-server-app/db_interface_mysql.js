@@ -751,7 +751,21 @@ var putQueryBitData = function(userId, queryId, bitId, bitData){
 }
 
 
+getUser_id
+getUser
+addUser
+userLoginPassword
+updateUserPassword
+
+
+
 module.exports = {
+	getUser_id: 					getUser_id,
+	getUser: 						getUser,
+	addUser: 						addUser,
+	userLoginPassword: 				userLoginPassword,
+	updateUserPassword: 			updateUserPassword,
+
 	mysqlConnect: 					mysqlConnect,
 	mysqlConnectQuery: 				mysqlConnectQuery,
 	getAllCryptoContextIds: 		getAllCryptoContextIds,

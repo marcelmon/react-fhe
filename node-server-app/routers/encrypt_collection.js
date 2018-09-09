@@ -89,9 +89,9 @@ var getFlattenedBits = function(inputString){
 // add with auto increment
 router.post('/:userId/:colId/encrypt_all/', function(req, res){
 
-	var ccRet = getMostRecentCC(req.params.userId);
+	var ccRet = getMostRecentCC(req.userId);
 	if(!ccRet){
-		ccRet = generateAndPutNewCryptoContext(req.params.userId);
+		ccRet = generateAndPutNewCryptoContext(req.userId);
 		if(!ccRet){
 			res.status(500).send('Something broke in encrypt all. Could not generate and put new cc!');
 			return;
@@ -104,9 +104,9 @@ router.post('/:userId/:colId/encrypt_all/', function(req, res){
 		ccData = ccData.toString('utf8');
 	}
 
-	var keyRet = getMostRecentKeypair(req.params.userId, ccId);
+	var keyRet = getMostRecentKeypair(req.userId, ccId);
 	if(!keyRet){
-		keyRet = generateAndPutNewKeypair(req.params.userId, ccId, ccData);
+		keyRet = generateAndPutNewKeypair(req.userId, ccId, ccData);
 		if(!keyRet){
 			res.status(500).send('Something broke in encrypt all. Could not generate and put new keypair!');
 			return;
@@ -124,7 +124,7 @@ router.post('/:userId/:colId/encrypt_all/', function(req, res){
 		publickey = publickey.toString('utf8');
 	}
 
-	var allPtextIdsKeysAndValues = dbInterface.getAllPlaintextKeysValuesData(req.params.userId, req.params.colId);
+	var allPtextIdsKeysAndValues = dbInterface.getAllPlaintextKeysValuesData(req.userId, req.params.colId);
 	if(!allPtextIdsKeysAndValues){
 		res.status(500).send('Something broke in encrypt all could not get ptext ids!');
 		return;
@@ -145,8 +145,8 @@ router.post('/:userId/:colId/encrypt_all/', function(req, res){
 				var encryptedBitAndSample = fheInterface.encryptIntWithSample(ccData, publickey, keyBits[bitId]);
 				var encryptedBit = encryptedBitAndSample['ctext'];
 				var sampleArray  = encryptedBitAndSample['sample'];
-				dbInterface.putCiphertextKeyBitData(encryptedBit, req.params.userId, req.params.colId, ccId, keyId, kvPairId, bitId);
-				dbInterface.putCiphertextKeyBitSample(JSON.stringify(sampleArray), req.params.userId, req.params.colId, ccId, keyId, kvPairId, bitId)
+				dbInterface.putCiphertextKeyBitData(encryptedBit, req.userId, req.params.colId, ccId, keyId, kvPairId, bitId);
+				dbInterface.putCiphertextKeyBitSample(JSON.stringify(sampleArray), req.userId, req.params.colId, ccId, keyId, kvPairId, bitId)
 			};
 
 			// need to pad with 0s
@@ -156,16 +156,16 @@ router.post('/:userId/:colId/encrypt_all/', function(req, res){
 				var encryptedBitAndSample = fheInterface.encryptIntWithSample(ccData, publickey, 0);
 				var encryptedBit = encryptedBitAndSample['ctext'];
 				var sampleArray  = encryptedBitAndSample['sample'];
-				dbInterface.putCiphertextKeyBitData(encryptedBit, req.params.userId, req.params.colId, ccId, keyId, kvPairId, bitId);
-				dbInterface.putCiphertextKeyBitSample(JSON.stringify(sampleArray), req.params.userId, req.params.colId, ccId, keyId, kvPairId, bitId)				
+				dbInterface.putCiphertextKeyBitData(encryptedBit, req.userId, req.params.colId, ccId, keyId, kvPairId, bitId);
+				dbInterface.putCiphertextKeyBitSample(JSON.stringify(sampleArray), req.userId, req.params.colId, ccId, keyId, kvPairId, bitId)				
 			}
 			// encrypt the value
 			// var encryptedValue = fheInterface.encrypt(ccData, publickey, allPtextIdsKeysAndValues[i].value);
 			var encryptedValueAndSample = fheInterface.encryptIntWithSample(ccData, publickey, parseInt(allPtextIdsKeysAndValues[i].value));
 			var encryptedValue 			= encryptedValueAndSample['ctext'];
 			var encryptedValueSample 	= encryptedValueAndSample['sample'];
-			dbInterface.putCiphertextValueData(encryptedValue, req.params.userId, req.params.colId, ccId, keyId, kvPairId);
-			dbInterface.putCiphertextValueSample(JSON.stringify(encryptedValueSample), req.params.userId, req.params.colId, ccId, keyId, kvPairId);
+			dbInterface.putCiphertextValueData(encryptedValue, req.userId, req.params.colId, ccId, keyId, kvPairId);
+			dbInterface.putCiphertextValueSample(JSON.stringify(encryptedValueSample), req.userId, req.params.colId, ccId, keyId, kvPairId);
 		};
 		res.setHeader('Content-Type', 'application/json');
 	    res.send(JSON.stringify(true));

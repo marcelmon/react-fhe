@@ -28,7 +28,7 @@ var dbInterface = require('../db_interface_mysql.js');
 
 // add with auto increment
 router.post('/:userId/add/:colName/', function(req, res){
-	var ret = dbInterface.putCollection(req.params.colName, req.params.userId, null);
+	var ret = dbInterface.putCollection(req.params.colName, req.userId, null);
 	if(!ret){
 		res.status(500).send('Something broke in add collection!');
 	}
@@ -43,7 +43,7 @@ router.post('/:userId/add/:colName/', function(req, res){
 router.post('/:userId/getAll/', function(req, res){
 	// console.log("the req ");
 	// console.log(req);
-	var ret = dbInterface.getAllCollectionNames(req.params.userId);
+	var ret = dbInterface.getAllCollectionNames(req.userId);
 	if(!ret){
 		res.status(500).send('Something broke in get all collections!');
 	}
@@ -55,7 +55,7 @@ router.post('/:userId/getAll/', function(req, res){
 
 // update
 router.post('/:userId/update/:colId/:colName/', function(req, res){
-	var ret = dbInterface.putCollection(req.params.colName, req.params.userId, req.params.colId);
+	var ret = dbInterface.putCollection(req.params.colName, req.userId, req.params.colId);
 	if(!ret){
 		res.status(500).send('Something broke in update collection!');
 	}
@@ -67,7 +67,7 @@ router.post('/:userId/update/:colId/:colName/', function(req, res){
 
 // delete
 router.post('/:userId/delete/:colId/', function(req, res){
-	var ret = dbInterface.deleteCollection(req.params.userId, req.params.colId);
+	var ret = dbInterface.deleteCollection(req.userId, req.params.colId);
 	if(!ret){
 		res.status(500).send('Something broke in delete collection!');
 	}

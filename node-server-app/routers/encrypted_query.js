@@ -58,13 +58,13 @@ router.post('/:userId/:colId/query/:queryString/', function(req, res){
 
 
 	console.log("type of userId : ");
-	console.log((typeof req.params.userId));
+	console.log((typeof req.userId));
 	// first make new query
-	var queryId 	= dbInterface.putQuery(req.params.userId, null);
+	var queryId 	= dbInterface.putQuery(req.userId, null);
 	var queryBits 	= getFlattenedBits(req.params.queryString);
 
-	var recentCC 		= getMostRecentCC(req.params.userId);
-	var recentKeyPair 	= getMostRecentKeypair(req.params.userId, recentCC.ccId);
+	var recentCC 		= getMostRecentCC(req.userId);
+	var recentKeyPair 	= getMostRecentKeypair(req.userId, recentCC.ccId);
 
 	var serializedCCString 			= recentCC.ccData;
 	var serializedPublicKeyString 	= recentKeyPair.publickey;
@@ -80,7 +80,7 @@ router.post('/:userId/:colId/query/:queryString/', function(req, res){
 		
 		var encryptedQueryBitData = fheInterface.encryptInt(serializedCCString, serializedPublicKeyString, queryBits[bitId]);
 
-		var bitIdnew = dbInterface.putQueryBitData(req.params.userId, queryId, bitId+1, encryptedQueryBitData);
+		var bitIdnew = dbInterface.putQueryBitData(req.userId, queryId, bitId+1, encryptedQueryBitData);
 		
 	}
 
@@ -88,14 +88,14 @@ router.post('/:userId/:colId/query/:queryString/', function(req, res){
 	for (var bitId2 = queryBits.length; bitId2 < 8*2; bitId2++) {
 
 		var encryptedQueryBitData = fheInterface.encryptInt(serializedCCString, serializedPublicKeyString, 0);
-		var bitIdnew = dbInterface.putQueryBitData(req.params.userId, queryId, bitId2+1, encryptedQueryBitData);
+		var bitIdnew = dbInterface.putQueryBitData(req.userId, queryId, bitId2+1, encryptedQueryBitData);
 	}
 	// dbHost, dbUser, dbPass, dbDatabase, userId, colId, ccId, keyId, queryId, numBits
 
 	var resquery = request('POST', fhePyURL, {
 		json: {
 			operation: 	'query',
-			userId: 	parseInt(req.params.userId,10),
+			userId: 	parseInt(req.userId,10),
 			colId: 		parseInt(req.params.colId, 10),
 			ccId:		recentCC.ccId,
 			keyId: 		recentKeyPair.keyId,

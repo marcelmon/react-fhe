@@ -23,13 +23,13 @@ var getRecentCCAndKeyPairId = function(userId){
 // get encrypted ids
 router.post('/:userId/:colId/getEncryptedIds/', function(req, res){
 
-	var recentIds = getRecentCCAndKeyPairId(req.params.userId);
+	var recentIds = getRecentCCAndKeyPairId(req.userId);
 	if(!recentIds){
 		res.setHeader('Content-Type', 'application/json');
 	    res.send(JSON.stringify(null));
 	    return;
 	}
-	var allKeyValueCtextIds = dbInterface.getCiphertextValueAndBitIdsForCollection(req.params.userId, req.params.colId, recentIds.ccId, recentIds.keypairId);
+	var allKeyValueCtextIds = dbInterface.getCiphertextValueAndBitIdsForCollection(req.userId, req.params.colId, recentIds.ccId, recentIds.keypairId);
 	if(!allKeyValueCtextIds){
 		res.status(500).send('Something broke in getEncryptedIds');
 	}
@@ -41,8 +41,8 @@ router.post('/:userId/:colId/getEncryptedIds/', function(req, res){
 
 
 router.post('/:userId/:colId/getCiphertextKeyBitSample/:kvId/:bitId/', function(req, res){
-	var recentIds 		= getRecentCCAndKeyPairId(req.params.userId);
-	var keyBitSample 	= dbInterface.getCiphertextKeyBitSample(req.params.userId, req.params.colId, recentIds.ccId, recentIds.keypairId, req.params.kvId, req.params.bitId);
+	var recentIds 		= getRecentCCAndKeyPairId(req.userId);
+	var keyBitSample 	= dbInterface.getCiphertextKeyBitSample(req.userId, req.params.colId, recentIds.ccId, recentIds.keypairId, req.params.kvId, req.params.bitId);
 	if(!keyBitSample){
 		res.status(500).send('Something broke in getCiphertextKeyBitSample');
 	}
@@ -59,8 +59,8 @@ router.post('/:userId/:colId/getCiphertextKeyBitSample/:kvId/:bitId/', function(
 });
 
 router.post('/:userId/:colId/getCiphertextValueSample/:kvId/', function(req, res){
-	var recentIds 		= getRecentCCAndKeyPairId(req.params.userId);
-	var valueSample 	= dbInterface.getCiphertextValueSample(req.params.userId, req.params.colId, recentIds.ccId, recentIds.keypairId, req.params.kvId);
+	var recentIds 		= getRecentCCAndKeyPairId(req.userId);
+	var valueSample 	= dbInterface.getCiphertextValueSample(req.userId, req.params.colId, recentIds.ccId, recentIds.keypairId, req.params.kvId);
 	if(!valueSample){
 		res.status(500).send('Something broke in getCiphertextValueSample');
 	}

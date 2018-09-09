@@ -182,6 +182,8 @@ current opps needed for front
 var express = require('express');
 var app = express();
 
+var session = require('client-sessions');
+
 var fs 		= require('fs');
 var config = JSON.parse(fs.readFileSync(__dirname+'/../config.json', 'utf8'));
 var fhePyAddr = config.fheurl;
@@ -194,6 +196,8 @@ var collectionPlaintextRouter 	= require('./routers/collection_plaintext.js');
 var encryptRouter 				= require('./routers/encrypt_collection.js');
 var ciphertextRouter 			= require('./routers/ciphertext.js');
 var encryptedQueryRouter 		= require('./routers/encrypted_query.js');
+var loginRouter 				= require('./routers/login.js');
+// var logoutRouter 				= require('./routers/logout.js');
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false , limit: '100mb'}))
@@ -201,21 +205,66 @@ app.use(bodyParser.urlencoded({ extended: false , limit: '100mb'}))
 // parse application/json
 app.use(bodyParser.json({limit: '100mb'}))
 
+
+app.use(session({
+  cookieName: 'session',
+  secret: 'random_string_goes_here',
+  duration: 30 * 60 * 1000,
+  activeDuration: 5 * 60 * 1000,
+}));
+
+function checkAuth(req, res, next) {
+	if (!req.session.userId) {
+		console.log("getting loggin")
+		res.redirect('/login');
+		res.end();
+	} else {
+		req.userId = req.session.userId;
+		next();
+	}
+}
+
+
 app.get('/', function(req, res){
-	fs.readFile('../react_html.html', function (err, html) {
-		if (err) {
-			throw err; 
-		}
-		res.write(html);
-		res.end();       
-	});
+	if (!req.session.userId) {
+		res.redirect('/login');
+		res.end();
+	}
+	else{
+		fs.readFile('../react_html.html', function (err, html) {
+			if (err) {
+				throw err; 
+			}
+			res.write(html);
+			res.end();       
+		});
+	}
 });
 
-app.use('/collections', 			collectionsRouter);
-app.use('/collection_plaintext', 	collectionPlaintextRouter);
-app.use('/encrypt_collection', 		encryptRouter);
-app.use('/ciphertext', 				ciphertextRouter);
-app.use('/encrypted_query', 		encryptedQueryRouter);
+function checkLoggedIn(req, res, next) {
+	if (req.session.userId) {
+		res.redirect('/');
+		res.end();
+	} else {
+		next();
+	}
+}
+
+app.get('/logout', function(req, res) {
+	req.session.reset();
+	// res.write('HAAA');
+	// res.end();
+	res.redirect('/');
+});
+
+app.use('/login', 					checkLoggedIn, loginRouter);
+app.use('/collections', 			checkAuth, collectionsRouter);
+app.use('/collection_plaintext', 	checkAuth, collectionPlaintextRouter);
+app.use('/encrypt_collection', 		checkAuth, encryptRouter);
+app.use('/ciphertext', 				checkAuth, ciphertextRouter);
+app.use('/encrypted_query', 		checkAuth, encryptedQueryRouter);
+
+// app.use('/logout', 					checkAuth, logoutRouter);
 
 
 // function cryptoContext(){

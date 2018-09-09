@@ -836,16 +836,15 @@ DELIMITER ;
 
 
 DELIMITER $$
-CREATE PROCEDURE `userLogin`
+CREATE PROCEDURE `userLoginPassword`
 (
-	IN user_name VARCHAR(256),
-	IN passwordhash VARCHAR(256)
+	IN user_name VARCHAR(256)
 )
 BEGIN
-SELECT user_id as user_id
+SELECT user_id as user_id,
+password_hash as password_hash
 from users 
-where username = user_name 
-and password_hash = passwordhash;
+where username = user_name;
 END$$
 DELIMITER ;
 
