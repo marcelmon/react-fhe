@@ -1,5 +1,27 @@
 <!DOCTYPE html>
 <html>
+<style>
+.loader {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
 	<a href="/logout">LOGOUT</a>
 	<style>
 		a:hover {
@@ -42,6 +64,21 @@
 
 
 
+class FadeLoader extends React.Component {
+	constructor(props){
+		super(props);
+	}
+	render(){
+		if(this.props.loading){
+			return(<div class="loader"></div>);
+		}
+		else{
+			return(<div></div>);
+		}	
+	}
+}
+
+
 var baseUrl = "http://localhost:8081";
 
 var userId = 665;
@@ -75,7 +112,8 @@ class QueryBox extends React.Component {
 		super(props);
 		this.state = {
 			colId 			: props.colId,
-			queryRetData 	: null
+			queryRetData 	: null,
+			queryLoading	: false,
 		};
 		this.handleSubmitQuery = this.handleSubmitQuery.bind(this);
 	}
@@ -83,13 +121,17 @@ class QueryBox extends React.Component {
 	handleSubmitQuery(e){
 
 		e.preventDefault();
-
+		if(this.state.queryLoading){
+			return;
+		}
+		this.setState({queryLoading:true});
 		var queryString = e.target.queryString.value;
 		var queryUrl = baseUrl+'/encrypted_query/'+userId+'/'+this.props.colId+'/query/'+queryString+'/';
 		var queryPromise = httpRequest(queryUrl);
 		queryPromise.then((queryData) => {
-			this.setState({queryRetData: JSON.parse(queryData)});
+			this.setState({queryLoading:false, queryRetData: JSON.parse(queryData)});
 		}).catch(function(err){
+			this.setState({queryLoading:false});
 			console.log('submitQuery err');
 			console.log(err);
 		});
@@ -109,6 +151,7 @@ class QueryBox extends React.Component {
 								<td><input type="submit" value="Query data"/></td>
 							</tr></tbody></table>
 						</form>
+						<FadeLoader loading={this.state.queryLoading}/>
 						<div>Submit a Query</div>
 					</div>
 				);
@@ -122,6 +165,7 @@ class QueryBox extends React.Component {
 								<td><input type="submit" value="Query data"/></td>
 							</tr></tbody></table>
 						</form>
+						<FadeLoader loading={this.state.queryLoading}/>
 						<div>
 							{this.state.queryRetData}
 						</div>
@@ -320,6 +364,7 @@ class KeyValueViewer extends React.Component {
 							<div>{this.NewKeyValueForm()}</div>
 						</td>
 						<td width="50%"><button onClick={this.handleEncryptAll}>Encrypt All</button></td>
+						<td><FadeLoader loading={this.props.encryptAllLoading}/></td>
 					</tr>
 				</tbody></table>
 				<table><tbody>
@@ -472,6 +517,7 @@ class App extends React.Component {
 			selectedKVInfo: null,
 			encryptedIds: null,
 			sampleDataArray: null,
+			encryptAllLoading: false,
 		};
 
 		// this.getCollectionsAndUpdate = this.getCollectionsAndUpdate.bind(this);
@@ -589,14 +635,17 @@ class App extends React.Component {
 	}
 
 	encryptAll(colId){
+		this.setState({encryptAllLoading:true});
 		var encryptAllUrl 		= baseUrl+'/encrypt_collection/'+userId+'/'+colId+'/encrypt_all/';
 		var newEncryptPromise 	= httpRequest(encryptAllUrl);
 		newEncryptPromise.then((isTrue) => {
 			console.log("finished encrypting");
 			this.getEncryptedIdsAndUpdate(colId);
+			this.setState({encryptAllLoading:false});
 		}).catch((err)=> {
 			console.log("enc all err");
 			console.log(err);
+			this.setState({encryptAllLoading:false});
 		});
 	}
 
@@ -650,7 +699,8 @@ class App extends React.Component {
 									newKeyValue 	={this.newKeyValue}
 									encryptAll 		={this.encryptAll}
 									selectKeyBit 	={this.selectKeyBit}
-									selectValue 	={this.selectValue}/>
+									selectValue 	={this.selectValue}
+									encryptAllLoading ={this.state.encryptAllLoading} />
 							</td>
 							<td style={tableStyle}>
 								<SampleDataViewer
@@ -659,7 +709,7 @@ class App extends React.Component {
 						</tr>
 						<tr><td style={tableStyle}	>
 							<QueryBox
-								colId ={this.state.selectedCollectionId}/>
+								colId ={this.state.selectedCollectionId} />
 						</td></tr>
 					</tbody></table>
 				</td>
