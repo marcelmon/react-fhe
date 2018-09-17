@@ -48,7 +48,7 @@
 								Create a dataset of key-value pairs and encrypt them. The plaintext is stored on a secure server along with the public and private keys. The encrypted data is stored on an external, possibly vulnerable database. Queries are also encrypted on the secure server and sent to the encrypted database. Using homomorphic math operations the data set is queried, but everything remains encrypted. The external database has no knowledge of the private key and is invulnerable to data leaks. A still encrypted result is returned to the secure server for decryption.<br><br>Please see <a href="https://eprint.iacr.org/2014/838.pdf">here</a> for an explanation of encryption scheme used.
 							</td>
 							<td style="font-size:12px">
-								To use:<br>1. Create a collection and give it a name.<br><br>2. Select the collection you want to work with.<br><br>3. Add key-value pairs to the database. Currently keys can be max 2 characters and values must be integers greater than 0.<br><br>4. Click the encrypt all button. When complete you will be able to select the encrypted bits and values to see a sample of the encrypted data.<br><br>5. Submit a query (the key value). The database will perform a homomorphic operation accross all key value pairs, add the results together homomorphically, and return an encrypted result. The result is decrypted for viewing.<br><br>Note: The operations performed for querying are resource intensive as the encrypted values are very large littices. Adding more kv pairs will result in long query times. A GPU based engine over a cluster of servers is in development that will greatly reduce the time needed.
+								To use:<br>1. Create a collection and give it a name.<br><br>2. Select the collection you want to work with.<br><br>3. Add key-value pairs to the database. Currently keys can be max 2 characters and values must be integers greater than 0.<br><br>4. Click the encrypt all button. When complete you will be able to select the encrypted bits and values to see a sample of the encrypted data.<br><br>5. Submit a query (the key value). The database will perform a homomorphic operation across all key value pairs, add the results together homomorphically, and return an encrypted result. The result is decrypted for viewing.<br><br>Note: The operations performed for querying are resource intensive as the encrypted values are very large littices. Adding more kv pairs will result in long query times. A GPU based engine over a cluster of servers is in development that will greatly reduce the time needed.
 							</td>
 						</tr>
 					</tbody></table>
@@ -70,7 +70,7 @@ class FadeLoader extends React.Component {
 	}
 	render(){
 		if(this.props.loading){
-			return(<div class="loader"></div>);
+			return(<div className="loader"></div>);
 		}
 		else{
 			return(<div></div>);
@@ -79,7 +79,7 @@ class FadeLoader extends React.Component {
 }
 
 
-var baseUrl = "http://localhost:8081";
+var baseUrl = "";
 
 var userId = 665;
 function httpRequest(url, ...params){
